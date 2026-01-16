@@ -1,0 +1,65 @@
+<%
+    // Asumiendo que 'title' ya viene del controlador: "Programa Ágora | Contacto"
+%>
+
+<%- include('partials/header') %> 
+
+<main id="main-content" role="main" aria-labelledby="contacto-title">
+    
+    <section class="hero-subpage">
+        <h1 id="contacto-title" class="page-title">Contáctanos y Postúlate</h1>
+        <p class="subtitle">Estamos listos para ayudarte. Selecciona la vía de comunicación que mejor se adapte a tu necesidad.</p>
+    </section>
+
+    <div class="contact-grid">
+        <section class="contact-form-block" aria-labelledby="form-title">
+            <h2 id="form-title" class="section-heading">Envíanos un Mensaje</h2>
+            
+            <form action="/api/contact" method="POST" class="main-form">
+                
+                <label for="asunto">Selecciona el Asunto (Obligatorio)</label>
+                <select id="asunto" name="asunto" required>
+                    <option value="" disabled selected>— Elige una opción —</option>
+                    <option value="postulacion">Consulta para postulación</option>
+                    <option value="empresa">Consulta de empresa / Búsqueda de talento</option>
+                    <option value="general">Consulta general sobre el Programa Ágora</option>
+                </select>
+
+                <label for="nombre">Nombre Completo (Obligatorio)</label>
+                <input type="text" id="nombre" name="nombre" required aria-required="true">
+                
+                <label for="email">Correo Electrónico (Obligatorio)</label>
+                <input type="email" id="email" name="email" required aria-required="true">
+                
+                <label for="mensaje">Tu Mensaje (Obligatorio)</label>
+                <textarea id="mensaje" name="mensaje" rows="6" required aria-required="true"></textarea>
+                
+                <button type="submit" class="button button-submit">Enviar Consulta</button>
+            </form>
+        </section>
+
+        <section class="alternative-contact">
+            <h2 class="section-heading">Vías de Acción Rápida</h2>
+            
+            <a href="/postulacion" class="button cta-full" aria-label="Acceso directo a la página de registro para buscar trabajo">
+                ¡Quiero Postularme!
+            </a>
+
+            <h3 class="sub-heading">Contacto Telefónico y Sede</h3>
+            <address>
+                <p><strong>Teléfono:</strong> <a href="tel:0800-XXX-XXXX" aria-label="Llamar al 0 800 XXX XXXX">0800-XXX-XXXX</a></p>
+                <p><strong>Sede Central:</strong> Dirección y Ciudad (Solo para referencia)</p>
+            </address>
+
+            <h3 class="sub-heading">Síguenos en Redes</h3>
+            <ul class="social-links" aria-label="Enlaces a nuestras redes sociales">
+                <li><a href="URL_INSTAGRAM" target="_blank" aria-label="Instagram de programaagoraargentina">Instagram</a></li>
+                <li><a href="URL_FACEBOOK" target="_blank" aria-label="Facebook de programaagoraargentina">Facebook</a></li>
+                <li><a href="URL_LINKEDIN" target="_blank" aria-label="LinkedIn de programaagoraargentina">LinkedIn</a></li>
+            </ul>
+        </section>
+    </div>
+
+</main>
+
+<%- include('partials/footer') %>

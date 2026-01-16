@@ -1,0 +1,122 @@
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-warning text-dark py-3">
+                    <h2 class="h4 mb-0"><i class="fas fa-edit me-2"></i>Editar Curso: <%= curso.titulo %></h2>
+                </div>
+    
+                <div class="card-body p-4">
+                    <form action="/admin/cursos/editar/<%= curso.id %>?_method=PUT" method="POST">
+                        
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label for="titulo" class="form-label fw-bold">Título del Curso</label>
+                                <input type="text" class="form-control form-control-lg" id="titulo" name="titulo" value="<%= curso.titulo %>" required>
+                            </div>
+   
+                            <div class="col-md-5 mb-3">
+                                <label for="slug" class="form-label fw-bold">Slug (URL amigable)</label>
+                                <input type="text" class="form-control form-control-lg bg-light" id="slug" name="slug" value="<%= curso.slug %>" readonly required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="modalidad" class="form-label fw-bold">Modalidad</label>
+                                <input type="text" class="form-control" id="modalidad" name="modalidad" value="<%= curso.modalidad %>">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="duracion" class="form-label fw-bold">Duración</label>
+                                <input type="text" class="form-control" id="duracion" name="duracion" value="<%= curso.duracion %>">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="urlInscrip" class="form-label fw-bold text-danger">URL de Formulario de Inscripción</label>
+                            <input type="url" class="form-control" id="urlInscrip" name="urlInscrip" value="<%= curso.urlInscrip || '' %>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="objetivoGeneral" class="form-label fw-bold">Objetivo General</label>
+                            <textarea class="form-control" id="objetivoGeneral" name="objetivoGeneral" rows="2" required><%= curso.objetivoGeneral %></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcionCorta" class="form-label fw-bold">Descripción Corta (Resumen)</label>
+                            <textarea class="form-control" id="descripcionCorta" name="descripcionCorta" rows="2" required><%= curso.descripcion %></textarea>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="objetivos" class="form-label fw-bold">Objetivos Específicos (Uno por línea)</label>
+                                <textarea class="form-control" id="objetivos" name="objetivos" rows="6"><%= curso.objetivosText %></textarea>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="temario" class="form-label fw-bold">Temario (Uno por línea)</label>
+                                <textarea class="form-control" id="temario" name="temario" rows="6"><%= curso.temarioText %></textarea>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-8">
+                                <label for="imagen" class="form-label fw-bold">URL de la Imagen del Curso</label>
+                                <input type="url" class="form-control mb-2" id="imagen" name="imagen" value="<%= curso.imagen %>" required>
+                                
+                                <label for="alt" class="form-label fw-bold text-primary">Texto Alternativo (Accesibilidad)</label>
+                                <input type="text" class="form-control" id="alt" name="alt" value="<%= curso.alt || '' %>" required>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div id="preview-container" class="mt-2 border rounded d-flex align-items-center justify-content-center bg-light" style="height: 120px; overflow: hidden;">
+                                    <img id="img-preview" src="<%= curso.imagen %>" alt="<%= curso.alt %>" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                            <a href="/admin/dashboard" class="btn btn-outline-secondary px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-warning px-5 fw-bold">Actualizar Curso</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const tituloInput = document.getElementById('titulo');
+    const slugInput = document.getElementById('slug');
+    const imagenInput = document.getElementById('imagen');
+    const altInput = document.getElementById('alt');
+    const imgPreview = document.getElementById('img-preview');
+
+    [cite_start]// Generador de slug [cite: 35, 36]
+    if (tituloInput && slugInput) {
+        tituloInput.addEventListener('input', () => {
+            const slug = tituloInput.value
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+            slugInput.value = slug;
+        });
+    }
+
+    // Previsualización de Imagen
+    if (imagenInput && imgPreview) {
+        imagenInput.addEventListener('input', () => {
+            imgPreview.src = imagenInput.value;
+        });
+    }
+
+    // Sincronización de Alt
+    if (altInput && imgPreview) {
+        altInput.addEventListener('input', () => {
+            imgPreview.alt = altInput.value;
+        });
+    }
+</script>

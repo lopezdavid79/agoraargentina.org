@@ -1,0 +1,51 @@
+<div class="modal fade" id="previewNoticiaModal" tabindex="-1" role="dialog" aria-labelledby="modalTitleNoticia" aria-modal="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white rounded-top-4">
+                <h5 class="modal-title fw-bold" id="modalTitleNoticia">Vista Previa de Noticia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar vista previa"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row">
+                    <div class="col-12 mb-4 text-center">
+                        <img src="" id="prev-noticia-imagen" class="img-fluid rounded-3 shadow-sm" style="max-height: 400px; width: 100%; object-fit: cover;" alt="Cargando descripción...">
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 id="prev-noticia-titulo" class="text-primary fw-bold mb-0"></h2>
+                            <span id="prev-noticia-fecha" class="badge bg-light text-dark border"></span>
+                        </div>
+                        <hr>
+                        <div id="prev-noticia-contenido" class="text-secondary lh-lg" style="white-space: pre-line;">
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const previewNoticiaButtons = document.querySelectorAll('.btn-preview-noticia');
+        
+        previewNoticiaButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Carga de datos de texto
+                document.getElementById('prev-noticia-titulo').innerText = this.getAttribute('data-titulo') || '';
+                document.getElementById('prev-noticia-fecha').innerText = this.getAttribute('data-fecha') || '';
+                document.getElementById('prev-noticia-contenido').innerText = this.getAttribute('data-contenido') || '';
+
+                // Manejo de imagen y accesibilidad (Alt)
+                const imgElement = document.getElementById('prev-noticia-imagen');
+                if (imgElement) {
+                    imgElement.src = this.getAttribute('data-imagen') || 'https://via.placeholder.com/800x400?text=Sin+Imagen';
+                    imgElement.alt = this.getAttribute('data-alt') || 'Imagen de la noticia';
+                }
+            });
+        });
+    });
+</script>

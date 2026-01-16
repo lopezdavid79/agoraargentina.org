@@ -1,0 +1,8 @@
+[
+    {
+        "id": 1,
+        "username": "admin_agora",
+        "password": "$2b$10$aXN.dYZnODI/M/p4HF3O3OoE8jdQwGquSTXXvYPwF4rP6JH/wDuQi", 
+        "rol": "administrador"
+    }
+]

@@ -1,0 +1,32 @@
+<%
+    // Asumiendo que se incluye una plantilla base con <head> y el cierre </body>
+    // Y que 'title' ya viene del controlador: "Programa Ágora | Quiénes Somos"
+%>
+
+<%- include('partials/header') %> 
+
+<main id="main-content" role="main" aria-labelledby="quienes-somos-title">
+    
+    <section class="hero-subpage">
+        <h1 id="quienes-somos-title" class="page-title">Quiénes Somos</h1>
+        <p class="subtitle">La fuerza institucional detrás de la inclusión laboral.</p>
+    </section>
+
+    <section class="section mission-values">
+        <h2 class="section-heading">Nuestra Misión y Valores</h2>
+        <p>En el Programa Ágora, creemos firmemente que  el trabajo es una herramienta clave para la inclusión social y comunitaria.</p>
+        
+        <div class="mission-details">
+            <h3 class="sub-heading">Un respaldo histórico</h3>
+            <p>Somos una iniciativa impulsada por FOAL desde el año 2006, dedicada a mejorar las oportunidades de acceso al mercado laboral para personas ciegas o con baja visión. Trabajamos en conjunto con ASAERCA desde el 2026 para ampliar nuestro impacto.</p>
+        </div>
+    </section>
+
+    <section class="section scope-work">
+        <h2 class="section-heading">Alcance Geográfico y Compromiso</h2>
+        <p>Nuestro trabajo se concentra en  Argentina, pero nuestro impacto y visión alcanzan una dimensión regional, adaptando nuestras estrategias a las necesidades locales.</p>
+    </section>
+
+</main>
+
+<%- include('partials/footer') %>

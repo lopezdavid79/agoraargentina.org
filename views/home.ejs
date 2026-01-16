@@ -1,0 +1,123 @@
+<%
+    // El título "Programa Ágora | Inicio" ya viene del controlador (mainController.js)
+%>
+
+<%- include('partials/header') %> 
+
+<main id="main-content" role="main" aria-labelledby="home-hero-title">
+    
+    <section class="container-fluid p-5 p-md-5 py-6 text-center bg-light-subtle" aria-labelledby="home-hero-title">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 id="home-hero-title" class="display-4 fw-bolder mb-4 text-primary">
+                    Programa Ágora: Inclusión Laboral para Personas con Discapacidad Visual.
+                </h1>
+                
+                <p class="lead text-dark mb-5 fs-5">
+                    Mejorar las oportunidades de acceso al mercado laboral para personas ciegas o con baja visión.
+                </p>
+                
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSf5RCbxCMMD2R0Gsm9DMrSgz_ZZARWktcsbbiZCL2Cz4ouONg/viewform" 
+                   class="btn btn-lg btn-primary-accent fw-bold rounded-pill px-5 py-3" 
+                   aria-label="Botón principal para buscar trabajo. Redirige a postulación.">
+                    ¿Estás buscando trabajo?
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5" aria-labelledby="impacto-heading">
+        <h2 id="impacto-heading" class="text-center display-5 fw-bold mb-5">Nuestro Impacto</h2>
+        
+        <p class="text-center text-muted mb-5">
+            En la Argentina, miles de personas ciegas y con baja visión mejoraron sus habilidades para el trabajo y obtuvieron un puesto laboral, un paso definitivo hacia la inclusión real.
+        </p>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4 text-center justify-content-center">
+            <div class="col">
+                <article class="card h-100 p-4 card-minimal">
+                    <h3 class="h4 fw-bold text-primary">Capacitación</h3>
+                    <p class="text-secondary">Programas especializados enfocados en las necesidades del mercado.</p>
+                </article>
+            </div>
+            <div class="col">
+                <article class="card h-100 p-4 card-minimal">
+                    <h3 class="h4 fw-bold text-primary">Intermediación</h3>
+                    <p class="text-secondary">Conexión directa con empresas comprometidas con la inclusión laboral.</p>
+                </article>
+            </div>
+            <div class="col">
+                <article class="card h-100 p-4 card-minimal">
+                    <h3 class="h4 fw-bold text-primary">Inclusión</h3>
+                    <p class="text-secondary">Acompañamiento post-colocación para asegurar un proceso exitoso.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5 text-center" aria-labelledby="secondary-cta-heading">
+        <h2 id="secondary-cta-heading" class="display-6 fw-bold mb-4">Formá Parte de Nuestra Red</h2>
+        
+        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+            
+            <a href="/contacto?asunto=empresa" class="btn btn-lg btn-primary rounded-pill px-4 py-2" role="button">
+                ¿Querés sumar talento y diversidad a tu empresa?
+            </a>
+            
+            <a href="/contacto?asunto=general" class="btn btn-lg btn-outline-secondary rounded-pill px-4 py-2" role="button">
+                ¿Sos emprendedor o querés colaborar?
+            </a>
+        </div>
+    </section>
+
+    
+<section class="container py-5" aria-labelledby="news-heading">
+        <h2 id="news-heading" class="section-heading display-6 fw-bold mb-4 text-center text-primary">Últimas Noticias y Eventos</h2>
+        <p class="text-center text-muted mb-5">Resumen de las 3 noticias más recientes de la ONG.</p>
+        
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            
+            <% if (typeof noticias !== 'undefined' && noticias.length > 0) { %>
+                <% noticias.forEach((noticia) => { %>
+                    <article class="col">
+                        <div class="card h-100 card-minimal overflow-hidden">
+                            
+                            <% if (noticia.imagenUrl) { %>
+                                <img src="<%= noticia.imagen %>" class="card-img-top" alt="<%= noticia.alt %>" style="height: 180px; object-fit: cover;">
+                            <% } %>
+
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-bold text-dark"><%= noticia.titulo %></h3>
+                                <p class="card-text text-secondary small flex-grow-1"><%= noticia.copete%></p>
+                                
+                                <span class="badge text-bg-light text-muted fw-normal mt-2">Publicado: <%= noticia.fecha %> </span>
+                            </div>
+                            
+                            <div class="card-footer bg-white border-0">
+                                <a href="/noticias/<%= noticia.slug %>" 
+                                   class="btn btn-sm btn-outline-primary fw-bold stretched-link" 
+                                   aria-label="Leer más sobre: <%= noticia.titulo %>" 
+                                   role="button">
+                                    Leer más
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                <% }); %>
+            <% } else { %>
+                <div class="col-12 text-center py-5 bg-light-subtle rounded-3">
+                    <p class="lead text-muted">No hay noticias disponibles en este momento.</p>
+                </div>
+            <% } %>
+
+        </div>
+
+        <div class="text-center mt-5">
+             <a href="/noticias" class="btn btn-lg btn-secondary fw-bold rounded-pill px-5 py-3" role="button">
+                Ver todas las Noticias
+             </a>
+        </div>
+    </section>
+</main>
+<%- include('partials/footer') %> 
+    

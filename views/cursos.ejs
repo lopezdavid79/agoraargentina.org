@@ -1,0 +1,59 @@
+<%- include('partials/header') %> 
+
+<main id="main-content" role="main" aria-labelledby="capacitaciones-heading">
+    
+    <section class="container py-5 text-center" aria-labelledby="capacitaciones-heading">
+        <h1 id="capacitaciones-heading" class="display-4 fw-bolder mb-3 text-primary">
+            Nuestros Programas de Capacitación
+        </h1>
+        <p class="lead text-muted mx-auto" style="max-width: 800px;">
+            Accede a cursos y talleres diseñados específicamente para potenciar la inclusión laboral y el desarrollo de habilidades en personas con discapacidad visual.
+        </p>
+        <a href="/contacto?asunto=inscripcion-capacitaciones" class="btn btn-outline-primary rounded-pill mt-3 px-4 py-2" role="button">
+            Consultar Próximas Fechas
+        </a>
+    </section>
+
+    <section class="container mb-5" aria-labelledby="cursos-list-heading">
+        <h2 id="cursos-list-heading" class="h3 fw-bold mb-4 text-center text-secondary">Cursos Disponibles Actualmente</h2>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            
+            <% if (typeof cursos !== 'undefined' && cursos.length > 0) { %>
+                <% cursos.forEach((curso) => { %>
+                    <div class="col">
+                        <article class="card h-100 card-minimal overflow-hidden shadow-sm">
+                            <% if (curso.imagen) { %>
+                                <img src="<%= curso.imagen %>" class="card-img-top" alt="<%= curso.alt%>">
+                            <% } %>
+
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="card-title text-primary fw-bold"><%= curso.titulo %></h3>
+                                <p class="card-text text-secondary flex-grow-1"><%= curso.descripcion%></p>
+                                
+                                <div class="mt-3">
+                                    <span class="badge text-bg-info me-2">Modalidad: <%= curso.modalidad %></span>
+                                    <span class="badge text-bg-warning">Duración: <%= curso.duracion %></span>
+                                </div>
+                            </div>
+                            
+                            <div class="card-footer bg-white border-0 text-center">
+                                <a href="/cursos/<%= curso.slug %>" class="btn btn-primary-accent stretched-link rounded-pill" aria-label="Ver detalles del curso: <%= curso.titulo %>" role="button">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="col-12 text-center py-5">
+                    <p class="lead">Actualmente no tenemos capacitaciones activas. ¡Contáctanos para más información!</p>
+                </div>
+            <% } %>
+
+        </div>
+    </section>
+    
+</main>
+
+<%- include('partials/footer') %>

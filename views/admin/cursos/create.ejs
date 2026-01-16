@@ -1,0 +1,136 @@
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h2 class="h4 mb-0"><i class="fas fa-plus-circle me-2"></i>Configurar Nuevo Curso</h2>
+                </div>
+    
+                <div class="card-body p-4">
+                    
+
+<form action="/admin/cursos/nuevo" method="POST">
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label for="titulo" class="form-label fw-bold">Título del Curso</label>
+                                [cite_start]<input type="text" class="form-control form-control-lg" id="titulo" name="titulo" placeholder="Ej: NVDA Avanzado" required> [cite: 21]
+                            </div>
+   
+                            <div class="col-md-5 mb-3">
+                                <label for="slug" class="form-label fw-bold">Slug (URL amigable)</label>
+                                [cite_start]<input type="text" class="form-control form-control-lg bg-light" id="slug" name="slug" readonly required> [cite: 22, 23]
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="modalidad" class="form-label fw-bold">Modalidad</label>
+                                [cite_start]<input type="text" class="form-control" id="modalidad" name="modalidad" placeholder="Ej: Online Sincrónico"> [cite: 24]
+                            </div>
+                            <div class="col-md-6">
+                                <label for="duracion" class="form-label fw-bold">Duración</label>
+                                [cite_start]<input type="text" class="form-control" id="duracion" name="duracion" placeholder="Ej: 6 semanas"> [cite: 25, 26]
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="urlInscrip" class="form-label fw-bold text-danger">URL de Formulario de Inscripción</label>
+                            <input type="url" class="form-control" id="urlInscrip" name="urlInscrip" placeholder="https://forms.gle/..." required>
+                            <div class="form-text">Pega aquí el enlace al formulario de Google o sistema de inscripción.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="objetivoGeneral" class="form-label fw-bold">Objetivo General</label>
+                            <textarea class="form-control" id="objetivoGeneral" name="objetivoGeneral" rows="2" placeholder="Describe el propósito principal del curso" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcionCorta" class="form-label fw-bold">Descripción Corta (Resumen)</label>
+                            [cite_start]<textarea class="form-control" id="descripcionCorta" name="descripcionCorta" rows="2" required></textarea> [cite: 27]
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="objetivos" class="form-label fw-bold">Objetivos Específicos (Uno por línea)</label>
+                                [cite_start]<textarea class="form-control" id="objetivos" name="objetivos" rows="6" placeholder="Aprender a instalar...&#10;Configurar voces..."></textarea> [cite: 28, 29]
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="temario" class="form-label fw-bold">Temario (Uno por línea)</label>
+                                [cite_start]<textarea class="form-control" id="temario" name="temario" rows="6" placeholder="Módulo 1: Inicio&#10;Módulo 2: Herramientas..."></textarea> [cite: 30]
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center mb-4">
+                            <div class="col-md-8">
+                                <label for="imagen" class="form-label fw-bold">URL de la Imagen del Curso</label>
+                                [cite_start]<input type="url" class="form-control mb-2" id="imagen" name="imagen" placeholder="https://i.ibb.co/..." required> [cite: 31, 32]
+                                
+                                <label for="alt" class="form-label fw-bold text-primary">Texto Alternativo (Accesibilidad)</label>
+                                <input type="text" class="form-control" id="alt" name="alt" placeholder="Describe la imagen para lectores de pantalla" required>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div id="preview-container" class="mt-2 border rounded d-flex align-items-center justify-content-center bg-light" style="height: 120px; overflow: hidden;">
+                                    <img id="img-preview" src="" alt="Vista previa" class="img-fluid d-none">
+                                    <small id="preview-text" class="text-muted">Vista previa de imagen</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                            [cite_start]<a href="/admin/dashboard" class="btn btn-outline-secondary px-4">Cancelar</a> [cite: 32]
+                            [cite_start]<button type="submit" class="btn btn-primary px-5 fw-bold">Publicar Curso</button> [cite: 33]
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<script>
+    // Referencias a los elementos del DOM
+    const tituloInput = document.getElementById('titulo');
+    const slugInput = document.getElementById('slug');
+    const imagenInput = document.getElementById('imagen');
+    const altInput = document.getElementById('alt');
+    const imgPreview = document.getElementById('img-preview');
+    const previewText = document.getElementById('preview-text');
+
+    // 1. Generador de slug en tiempo real [cite: 35, 36]
+    if (tituloInput && slugInput) {
+        tituloInput.addEventListener('input', () => {
+            const slug = tituloInput.value
+                .toLowerCase()
+                .trim()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+            slugInput.value = slug;
+        });
+    }
+
+    // 2. Previsualización de Imagen
+    if (imagenInput && imgPreview) {
+        imagenInput.addEventListener('input', () => {
+            if (imagenInput.value.trim() !== "") {
+                imgPreview.src = imagenInput.value;
+                imgPreview.classList.remove('d-none');
+                if (previewText) previewText.classList.add('d-none');
+            } else {
+                imgPreview.src = "";
+                imgPreview.classList.add('d-none');
+                if (previewText) previewText.classList.remove('d-none');
+            }
+        });
+    }
+
+    // 3. Sincronización del atributo Alt para accesibilidad
+    if (altInput && imgPreview) {
+        altInput.addEventListener('input', () => {
+            imgPreview.alt = altInput.value;
+        });
+    }
+</script>

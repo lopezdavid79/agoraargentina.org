@@ -1,0 +1,41 @@
+[
+    {
+        "id": 1,
+        "fecha": "2024-12-10",
+        "titulo": "Ágora lanza el Taller de Empleabilidad 2025: Inscríbete ya",
+        "descripcionCorta": "Abrimos las inscripciones para la próxima edición de nuestro programa de mentoría intensiva para la búsqueda de empleo.",
+        "slug": "lanzamiento-taller-empleabilidad-2025",
+        "imagen": "/images/noticia-taller.jpg"
+    },
+    {
+        "id": 2,
+        "fecha": "2024-11-20",
+        "titulo": "El impacto de la inteligencia artificial en la accesibilidad web",
+        "descripcionCorta": "Análisis de las últimas tendencias tecnológicas y cómo la IA está redefiniendo las herramientas de accesibilidad para personas con discapacidad visual.",
+        "slug": "impacto-ia-accesibilidad-web",
+        "imagen": "/images/noticia-ia.jpg"
+    },
+    {
+        "id": 3,
+        "fecha": "2024-10-05",
+        "titulo": "Testimonio: María alcanzó su primer empleo en el sector IT",
+        "descripcionCorta": "Conoce la historia de María, egresada de nuestro programa de capacitación NVDA, y su éxito en la integración a una empresa líder en tecnología.",
+        "slug": "testimonio-maria-empleo-it",
+        "imagen": "/images/noticia-maria.jpg"
+    },
+    {
+        "id": 4,
+        "fecha": "2024-09-01",
+        "titulo": "Convenio con ASAERCA para nuevas oportunidades laborales",
+        "descripcionCorta": "Firma de acuerdo de colaboración para generar 20 nuevas vacantes en empresas socias de la Cámara Argentina de Comercio.",
+        "slug": "convenio-asaerca-vacantes",
+        "imagen": "/images/noticia-convenio.jpg"
+    },
+    {
+        "id": 5,
+        "title": "🚀 ¡Se abre la convocatoria al curso “Apps de Google”!",
+        "content": "A partir del 19 de marzo de 2026, te invitamos a participar de este curso especialmente pensado para personas con discapacidad visual que quieran potenciar sus habilidades digitales y mejorar sus oportunidades en el mercado laboral.\r\nAprendé a usar de forma eficiente una de las herramientas más demandadas por empresas y organizaciones, en un entorno accesible y adaptado a tus necesidades.\r\n📅 Inicio: 19 de marzo de 2026\r\n🎯 Cupo limitado",
+        "image": "noticia-1766061952286-.png",
+        "slug": "🚀-¡se-abre-la-convocatoria-al-curso-“apps-de-google”!"
+    }
+]

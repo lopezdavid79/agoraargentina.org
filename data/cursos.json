@@ -1,0 +1,69 @@
+[
+    {
+        "id": 101,
+        "titulo": "NVDA Básico (Navegación y Uso Inicial)",
+        "descripcion": "Curso esencial para la introducción al lector de pantalla NVDA. Aprende a navegar por el escritorio, aplicaciones básicas y el uso fundamental del teclado.",
+        "modalidad": "Online - Sincrónico",
+        "duracion": "3 Semanas",
+        "slug": "nvda-basico-uso-inicial",
+        "imagen": "/images/NVDA_INICIAL.PNG",
+        "objetivoGeneral": "Adquirir el dominio de las funciones básicas del lector de pantalla NVDA para garantizar una navegación autónoma en entornos digitales.",
+        "objetivos": [
+            "Aprender a instalar y configurar el lector de pantalla NVDA.",
+            "Adquirir las habilidades de navegación y lectura básicas en el entorno Windows.",
+            "Conocer los atajos de teclado fundamentales para el uso diario de aplicaciones."
+        ],
+        "temario": [
+            "1. Introducción y Filosofía de NVDA",
+            "2. Comandos de Teclado y Ayuda de Entrada",
+            "3. Navegación Web (Modo Foco y Modo Navegación)",
+            "4. Configuración de Preferencias y Perfiles"
+        ]
+    },
+    {
+        "id": 102,
+        "titulo": "Word y Excel con NVDA (Productividad)",
+        "descripcionCorta": "Domina Microsoft Word y Excel utilizando el lector NVDA. Céntrate en la creación de documentos accesibles, hojas de cálculo y atajos de productividad esenciales.",
+        "modalidad": "Online - Asincrónico",
+        "duracion": "6 Semanas",
+        "slug": "word-excel-con-nvda-productividad",
+        "imagen": "/images/curso-office.jpg",
+        "objetivoGeneral": "Desarrollar competencias avanzadas en el uso de las herramientas ofimáticas Word y Excel con el lector NVDA, enfocándose en la productividad y la accesibilidad.",
+        "objetivos": [
+            "Crear y editar documentos en Word, asegurando su accesibilidad con NVDA.",
+            "Manejar hojas de cálculo en Excel, incluyendo fórmulas y lectura de datos complejos.",
+            "Optimizar la productividad mediante atajos de teclado específicos para Office."
+        ],
+        "temario": [
+            "1. Configuración de NVDA para Microsoft Office",
+            "2. Manejo de Estructura y Formato en Word",
+            "3. Navegación y Edición de Celdas en Excel",
+            "4. Uso de Fórmulas y Funciones Básicas con Lector de Pantalla"
+        ]
+    },
+    {
+        "id": 103,
+        "titulo": "Aplicaciones de Google con NVDA ",
+        "descripcion": "Domina el entorno completo de Google Workspace: Gmail, Drive, Documentos, Hojas de Cálculo y Calendario, garantizando una colaboración y productividad totalmente accesible con NVDA.",
+        "modalidad": "Online - Sincrónico",
+        "duracion": "6 Semanas (26 horas)",
+        "slug": "apps-google-con-nvda-profundizacion",
+        "imagen": "/images/APPS_GOOGLE.PNG",
+        "objetivoGeneral": "Que los participantes adquieran los conocimientos y destrezas básicos para desarrollar competencias en el uso de las Aplicaciones de Google, específicamente con el lector de pantalla Nvda. El fin es mejorar las oportunidades de formación y empleabilidad de los participantes.",
+        "objetivos": [
+            "Conocer el entorno de trabajo de las Apps de Google, sus usos y potencialidades.",
+            "Enseñar a administrar y gestionar Google Drive utilizando lectores de pantalla.",
+            "Aprender a utilizar las funcionalidades de Documentos y Hojas de Cálculo de Google.",
+            "Dominar la creación y las buenas prácticas para la elaboración de contenido en Formularios de Google."
+        ],
+        "temario": [
+            "1. Correo Gmail: Navegar, configurar, enviar/recibir correos, adjuntar archivos.",
+            "2. Google Drive: Gestionar archivos y carpetas.",
+            "3. Documentos de Google",
+            "4. Hojas de Cálculo de Google",
+            "5. Formularios de Google",
+            "6. Google Calendario",
+            "7. Google Meet"
+        ]
+    }
+]

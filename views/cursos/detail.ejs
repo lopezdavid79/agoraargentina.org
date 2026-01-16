@@ -1,0 +1,84 @@
+<%- include('../partials/header') %> 
+
+<main id="main-content" role="main" aria-labelledby="curso-detail-title" class="container py-5">
+    
+    <section class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <a href="/capacitaciones" class="btn btn-outline-secondary btn-sm mb-4" role="button">
+                ← Volver al Listado de Cursos
+            </a>
+
+            <h1 id="curso-detail-title" class="display-5 fw-bolder mb-3 text-primary">
+                <%= curso.titulo %>
+            </h1>
+
+            <div class="d-flex flex-wrap mb-4 gap-3">
+                <span class="badge bg-primary-subtle text-primary fs-6 py-2 px-3">
+                    <i class="bi bi-person-video"></i> Modalidad: <%= curso.modalidad %>
+                </span>
+                <span class="badge bg-secondary-subtle text-secondary fs-6 py-2 px-3">
+                    <i class="bi bi-clock"></i> Duración: <%= curso.duracion %>
+                </span>
+            </div>
+            
+            <% if (curso.imagen) { %>
+                <img src="<%= curso.imagen %>" class="img-fluid rounded-3 mb-5 shadow-sm" 
+                     alt="<%= curso.alt %>" 
+                     style="max-height: 400px; width: 100%; object-fit: cover;">
+            <% } %>
+
+            <% if (curso.objetivoGeneral) { %>
+                <div class="card p-4 mb-5 border-primary-subtle bg-light">
+                    <h2 class="h4 fw-bold text-primary mb-3">Objetivo General</h2>
+                    <p class="mb-0 lead"><%= curso.objetivoGeneral %></p>
+                </div>
+            <% } %>
+
+            <div class="row mb-5">
+                
+                <% if (curso.objetivos && curso.objetivos.length > 0) { %>
+                    <div class="col-md-6 mb-4">
+                        <h2 class="h4 fw-bold mb-3 text-secondary">Objetivos Específicos</h2>
+                        <ul class="list-group list-group-flush list-unstyled" role="list">
+                            <% curso.objetivos.forEach((objetivo) => { %>
+                                <li class="list-group-item d-flex align-items-start border-0 px-0">
+                                    <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                    <%= objetivo %>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                <% } %>
+                
+                <% if (curso.temario && curso.temario.length > 0) { %>
+                    <div class="col-md-6 mb-4">
+                        <h2 class="h4 fw-bold mb-3 text-secondary">Temario del Curso</h2>
+                        <ul class="list-group list-group-flush list-unstyled" role="list">
+                            <% curso.temario.forEach((tema) => { %>
+                                <li class="list-group-item d-flex align-items-start border-0 px-0">
+                                    <i class="bi bi-book-fill text-info me-2 mt-1"></i>
+                                    <%= tema %>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="text-center mt-5 p-5 bg-light-subtle rounded-4 shadow-lg">
+                <h3 class="h2 mb-4 fw-bolder text-dark">¿Te interesa este curso?</h3>
+                <p class="lead mb-4">¡Inscríbete ahora para asegurar tu cupo y dar el siguiente paso!</p>
+                
+                <a href="<%= curso.urlInscrip %>" 
+                   class="btn btn-primary-accent btn-lg fw-bold rounded-pill px-5 py-3 shadow-lg" 
+                   role="button" target="_blank">
+                    <i class="bi bi-arrow-right-circle-fill me-2"></i> Inscribirse a <%= curso.titulo %>
+                </a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<%- include('../partials/footer') %>

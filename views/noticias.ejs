@@ -1,0 +1,60 @@
+
+        <%- include('partials/header') %> 
+
+<main id="main-content" role="main" aria-labelledby="noticias-heading" class="container py-5">
+    
+    <section class="text-center mb-5">
+        <h1 id="noticias-heading" class="display-4 fw-bolder mb-3 text-primary">
+            Archivo de Noticias del Programa Ágora
+        </h1>
+        <p class="lead text-muted mx-auto" style="max-width: 800px;">
+            Mantente al día con nuestros logros, convenios y novedades del sector de inclusión laboral.
+        </p>
+    </section>
+
+    <section aria-labelledby="publicaciones-list-heading" class="mb-5">
+        <h2 id="publicaciones-list-heading" class="visually-hidden">Lista de Publicaciones</h2>
+
+        <% if (noticias && noticias.length > 0) { %>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                
+                <% noticias.forEach((noticia) => { %>
+                    <article class="col">
+                        <div class="card h-100 card-minimal overflow-hidden">
+                            
+                            <% if (noticia.imagenUrl) { %>
+                                <img src="<%= noticia.imagenUrl %>" class="card-img-top" alt="Imagen representativa de la noticia: <%= noticia.titulo %>" style="height: 180px; object-fit: cover;">
+                            <% } %>
+
+                            <div class="card-body d-flex flex-column">
+                                <h3 class="h5 card-title fw-bold text-dark"><%= noticia.titulo %></h3>
+                                <p class="card-text text-secondary small flex-grow-1"><%= noticia.copete %></p>
+                                
+                                
+                                    <span class="badge text-bg-light text-muted fw-normal mt-2">
+    Publicado el <%= noticia.fecha %>
+</span>
+                            </div>
+                            
+                            <div class="card-footer bg-white border-0">
+                                <a href="/noticias/<%= noticia.slug %>" 
+                                   class="btn btn-sm btn-outline-primary fw-bold stretched-link" 
+                                   aria-label="Leer la noticia completa: <%= noticia.titulo %>" 
+                                   role="button">
+                                    Leer más
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="alert alert-info text-center" role="alert">
+                No hay noticias disponibles en este momento.
+            </div>
+        <% } %>
+    </section>
+    
+</main>
+
+<%- include('partials/footer') %>

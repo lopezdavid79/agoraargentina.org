@@ -1,0 +1,159 @@
+<%- include('../partials/header') %>
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold text-primary">Panel de Administración</h1>
+            <p class="lead text-muted">Gestiona el contenido de Agora Argentina desde un solo lugar.</p>
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a href="/admin/noticias/nuevo" class="btn btn-primary btn-lg px-4 shadow-sm">
+                    <i class="fas fa-plus-circle me-2"></i>Nueva Noticia
+                </a>
+                <a href="/admin/cursos/nuevo" class="btn btn-success btn-lg px-4 shadow-sm">
+                    <i class="fas fa-graduation-cap me-2"></i>Nuevo Curso
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-4 border-0" id="adminTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold border-0" id="noticias-tab" data-bs-toggle="tab" data-bs-target="#noticias" type="button" role="tab" aria-controls="noticias" aria-selected="true">
+                <i class="fas fa-newspaper me-2 text-primary"></i>Gestión de Noticias
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold border-0" id="cursos-tab" data-bs-toggle="tab" data-bs-target="#cursos" type="button" role="tab" aria-controls="cursos" aria-selected="false">
+                <i class="fas fa-book-reader me-2 text-success"></i>Gestión de Cursos
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="adminTabsContent">
+        
+        <div class="tab-pane fade show active" id="noticias" role="tabpanel" aria-labelledby="noticias-tab">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Título</th>
+                                    <th>Fecha</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% noticias.forEach(noticia => { %>
+                                <tr>
+                                    <td class="ps-4 fw-medium"><%= noticia.titulo %></td>
+                                    <td class="text-secondary small">
+                                        <%= noticia.fecha && noticia.fecha.toDate ? noticia.fecha.toDate().toLocaleDateString('es-AR') : 'Reciente' %>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <button class="btn btn-sm btn-outline-info btn-preview-noticia" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#previewNoticiaModal"
+                                                aria-label="Ver vista previa de la noticia: <%= noticia.titulo %>"
+                                                data-titulo="<%= noticia.titulo %>"
+                                                data-contenido="<%= noticia.contenido %>"
+                                                data-fecha="<%= noticia.fecha && noticia.fecha.toDate ? noticia.fecha.toDate().toLocaleDateString('es-AR') : 'Reciente' %>"
+                                                data-imagen="<%= noticia.imagenUrl %>"
+                                                data-alt="<%= noticia.alt %>">
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
+                                            </button>
+
+                                            <a href="/admin/noticias/editar/<%= noticia.id %>" class="btn btn-sm btn-outline-primary" aria-label="Editar noticia">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+
+                                            <form action="/admin/noticias/eliminar/<%= noticia.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Eliminar noticia?')">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Eliminar noticia">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="cursos" role="tabpanel" aria-labelledby="cursos-tab">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Nombre del Curso</th>
+                                    <th>Modalidad</th>
+                                    <th>Duración</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% cursos.forEach(curso => { %>
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="fw-bold text-dark"><%= curso.titulo %></span>
+                                    </td>
+                                    <td><span class="badge rounded-pill bg-info text-dark"><%= curso.modalidad %></span></td>
+                                    <td class="text-muted small"><%= curso.duracion %></td>
+                                    <td class="text-center">
+                                        <div class="btn-group shadow-sm">
+                                            <button class="btn btn-sm btn-outline-info btn-preview" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#previewModal"
+                                                aria-label="Ver vista previa del curso: <%= curso.titulo %>"
+                                                data-titulo="<%= curso.titulo %>"
+                                                data-descripcion="<%= curso.descripcion %>"
+                                                data-objetivos="<%= curso.objetivos %>"
+                                                data-temario="<%= curso.temario %>"
+                                                data-modalidad="<%= curso.modalidad %>"
+                                                data-duracion="<%= curso.duracion %>"
+                                                data-imagen="<%= curso.imagenUrl %>"
+                                                data-alt="<%= curso.alt %>">
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
+                                            </button>
+                                            
+                                            <a href="/admin/cursos/editar/<%= curso.id %>" class="btn btn-sm btn-outline-primary" aria-label="Editar curso">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+
+                                            <form action="/admin/cursos/eliminar/<%= curso.id %>?_method=DELETE" method="POST" onsubmit="return confirm('¿Eliminar curso?')">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Eliminar curso">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+    .nav-tabs .nav-link { color: #6c757d; padding: 1rem 1.5rem; transition: 0.3s; cursor: pointer; }
+    .nav-tabs .nav-link.active { color: #0d6efd; border-bottom: 3px solid #0d6efd !important; background: none; }
+    .nav-tabs .nav-link:hover { background-color: rgba(13, 110, 253, 0.05); }
+    .rounded-4 { border-radius: 1rem !important; }
+    .btn-group form { display: inline; }
+</style>
+
+<%- include('../partials/footer') %>
+
+<%- include('vpCurso') %>
+<%- include('vpNoticia') %>

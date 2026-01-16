@@ -1,0 +1,106 @@
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-dark text-white py-3">
+                    <h2 class="h4 mb-0"><i class="fas fa-plus-circle me-2"></i>Publicar Nueva Noticia</h2>
+                </div>
+     
+                <div class="card-body p-4">
+                    <form action="/admin/noticias/nuevo" method="POST">
+                        
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label for="titulo" class="form-label fw-bold">Título de la noticia</label>
+                                <input type="text" class="form-control form-control-lg" id="titulo" name="titulo" placeholder="Ej: Gran avance en el Programa Ágora" required>
+                            </div>
+
+                            <div class="col-md-5 mb-3">
+                                <label for="slug" class="form-label fw-bold">Slug (Enlace URL)</label>
+                                <input type="text" class="form-control form-control-lg bg-light" id="slug" name="slug" readonly required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="copete" class="form-label fw-bold">Copete (Resumen corto)</label>
+                            <textarea class="form-control" id="copete" name="copete" rows="2" placeholder="Un breve resumen que aparecerá en el listado..." required></textarea>
+                        </div>
+
+                        <div class="row align-items-center mb-3">
+                            <div class="col-md-8">
+                                <label for="imagenUrl" class="form-label fw-bold">URL de la Imagen</label>
+                                <input type="url" class="form-control mb-2" id="imagenUrl" name="imagenUrl" placeholder="https://link-de-tu-imagen.com/foto.jpg" required>
+                                <div class="form-text mb-2">Usa el "Enlace directo" de ImgBB.</div>
+                                
+                                <label for="alt" class="form-label fw-bold text-success">Texto Alternativo (Accesibilidad)</label>
+                                <input type="text" class="form-control" id="alt" name="alt" placeholder="Describe la imagen para personas con discapacidad visual" required>
+                                <div class="form-text">Ej: "Persona utilizando una computadora con el lector de pantalla NVDA".</div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div id="preview-container" class="mt-2 border rounded d-flex align-items-center justify-content-center bg-light" style="height: 120px; overflow: hidden;">
+                                    <img id="img-preview" src="" alt="Previsualización" class="img-fluid d-none">
+                                    <small id="preview-text" class="text-muted">Vista previa</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="contenido" class="form-label fw-bold">Contenido Principal</label>
+                            <textarea class="form-control" id="contenido" name="contenido" rows="12" placeholder="Escribe aquí toda la noticia..." required></textarea>
+                            <div class="form-text">El sistema respetará tus párrafos y saltos de línea.</div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/admin/dashboard" class="btn btn-outline-secondary px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-success px-5 fw-bold">
+                                <i class="fas fa-paper-plane me-2"></i>Guardar Noticia
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const tituloInput = document.getElementById('titulo');
+    const slugInput = document.getElementById('slug');
+    const imagenInput = document.getElementById('imagenUrl');
+    const altInput = document.getElementById('alt');
+    const imgPreview = document.getElementById('img-preview');
+    const previewText = document.getElementById('preview-text');
+
+    // 1. Generador de Slug en tiempo real
+    tituloInput.addEventListener('input', () => {
+        const slug = tituloInput.value
+            .toLowerCase()
+            .trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9 -]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
+        slugInput.value = slug;
+    });
+
+    // 2. Previsualización de Imagen y actualización de Alt
+    imagenInput.addEventListener('input', () => {
+        if (imagenInput.value.trim() !== "") {
+            imgPreview.src = imagenInput.value;
+            imgPreview.classList.remove('d-none');
+            previewText.classList.add('d-none');
+        } else {
+            imgPreview.src = "";
+            imgPreview.classList.add('d-none');
+            previewText.classList.remove('d-none');
+        }
+    });
+
+    // Actualiza el atributo alt de la previsualización mientras el usuario escribe
+    altInput.addEventListener('input', () => {
+        imgPreview.alt = altInput.value;
+    });
+</script>
