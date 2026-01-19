@@ -24,15 +24,14 @@ app.use(methodOverride('_method'));                     // Soporte para PUT y DE
 
 // 2. CONFIGURACIÓN DE SESIONES (Debe ir ANTES de las rutas)
 app.use(session({
-    secret: "Adm@gora$", 
-    resave: false,                      
-    saveUninitialized: false,           
+    secret: process.env.SESSION_SECRET || "Adm@gora$", // Usa la variable de Render
+    resave: false,
+    saveUninitialized: false,
     cookie: { 
-        secure: false,                  // Cambiar a true si usas HTTPS en el futuro
-        maxAge: 1000 * 60 * 60 * 24     // La sesión dura 24 horas
+        secure: false, // En Render (plan gratis) es mejor dejarlo en false inicialmente
+        maxAge: 1000 * 60 * 60 * 24 
     }
 }));
-
 // 3. MIDDLEWARE PARA PASAR DATOS DE SESIÓN A LAS VISTAS (Global)
 app.use((req, res, next) => {
     // Definimos variables por defecto para que EJS no falle si no existen
@@ -60,8 +59,7 @@ app.use((req, res, next) => {
 
 // --- INICIO DEL SERVIDOR ---
 // app.js
-const PORT = process.env.PORT || 3000; // Render usará process.env.PORT automáticamente
-
-app.listen(PORT, () => {
-    console.log(`Servidor iniciado en el puerto ${PORT}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
