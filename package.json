@@ -19,7 +19,8 @@
     "express-session": "^1.18.2",
     "firebase-admin": "^13.6.0",
     "method-override": "^3.0.0",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.12"
   },
   "devDependencies": {
     "cypress": "^15.8.1",

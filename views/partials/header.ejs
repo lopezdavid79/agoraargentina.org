@@ -31,7 +31,7 @@
     
                 <a class="navbar-brand text-dark fw-bold fs-4 d-flex align-items-center" href="/">
                     
-                    <a href="/"><img src="https://i.ibb.co/WWvWytFd/logo-Agora-rgbk.jpg" alt="logo-Agora" border="30" class="d-inline-block align-text-top me-2" /></a>
+                    <a href="/"><img src="https://i.ibb.co/WWvWytFd/logo-Agora-rgbk.jpg" alt="logo-Agora" border="10" style="height: 110px; width: auto;" class="d-inline-block align-text-top me-2" /></a>
                     <span class="d-none d-sm-inline text-primary">Programa Ágora</span>
                 </a>
     
@@ -40,16 +40,36 @@
                 </button>
                 
          
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto" role="menubar"> 
-                        
-                        <li class="nav-item" role="none"><a class="nav-link text-dark active" aria-current="page" href="/" role="menuitem">Inicio</a></li>
-                        <li class="nav-item" role="none"><a class="nav-link text-dark" href="#" role="menuitem">Aula Agora</a></li>
-                        <li class="nav-item" role="none"><a class="nav-link text-dark" href="/quienes-somos" role="menuitem">Quiénes Somos</a></li>
-                        <li class="nav-item" role="none"><a class="nav-link text-dark" href="/servicios" role="menuitem">Servicios</a></li>
-                        <li class="nav-item" role="none"><a class="nav-link text-dark" href="/capacitaciones" role="menuitem">Capacitaciones</a></li>
-                        <li class="nav-item" role="none"><a class="nav-link text-dark" href="/noticias" role="menuitem">Noticias</a></li>
-                        
+               <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ms-auto" role="menubar"> 
+        
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark fw-bold" 
+               href="#" 
+               id="navbarDropdown" 
+               role="button" 
+               data-bs-toggle="dropdown" 
+               aria-expanded="false">
+               Menú de Navegación
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="/">Inicio</a></li>
+                <li><hr class="dropdown-divider"></li> <li><a class="dropdown-item" href="#">Aula Agora</a></li>
+                <li><a class="dropdown-item" href="/quienes-somos">Quiénes Somos</a></li>
+                <li><a class="dropdown-item" href="/servicios">Servicios</a></li>
+                <li><a class="dropdown-item" href="/capacitaciones">Capacitaciones</a></li>
+                <li><a class="dropdown-item" href="/noticias">Noticias</a></li>
+            </ul>
+        </li>
+
+        <% if (isLogged) { %>
+            <li class="nav-item"><a class="nav-link text-warning" href="/admin/dashboard">⚙️ Admin</a></li>
+            <li class="nav-item"><a class="nav-link text-danger" href="/admin/logout">Salir</a></li>
+        
+        <% } %>
+
+    </ul>
+</div>
                         
         <% if (isLogged) { %>
             <li><a href="/admin/dashboard" style="color: #ff9800;">⚙️ Panel Admin</a></li>
