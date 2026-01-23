@@ -24,7 +24,7 @@ const mainController = {
             });
 
             res.render('home', {
-                title: "Programa Ágora | Inicio",
+                title: "Inicio ",
                 noticias: homeNoticias
             });
         } catch (error) {
@@ -100,11 +100,11 @@ const mainController = {
 
     // RUTAS ESTÁTICAS (Asegúrate de que estos nombres coincidan con tu Router)
     quienesSomos: (req, res) => {
-        res.render('quienes-somos', { title: "Programa Ágora | Quiénes Somos" });
+        res.render('quienes-somos', { title: "Quiénes Somos  " });
     },
 
     servicios: (req, res) => {
-        res.render('servicios', { title: "Programa Ágora | Servicios" });
+        res.render('servicios', { title: "Servicios " });
     },
 
     contacto: (req, res) => {
@@ -163,10 +163,10 @@ const mainController = {
 
     // RUTAS ESTÁTICAS
     quienesSomos: (req, res) => {
-        res.render('quienes-somos', { title: "Programa Ágora | Quiénes Somos" });
+        res.render('quienes-somos', { title: "Quiénes Somos  " });
     },
     servicios: (req, res) => {
-        res.render('servicios', { title: "Programa Ágora | Servicios" });
+        res.render('servicios', { title: "Servicios  " });
     },
     contacto: (req, res) => {
         res.render('contacto', { title: "Programa Ágora | Contacto" });
