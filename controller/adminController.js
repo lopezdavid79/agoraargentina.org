@@ -69,6 +69,7 @@ update: async (req, res) => {
             imagenUrl,
             alt,
             slug,
+            fecha: new Date(), 
             fechaActualizacion: new Date() // Opcional: para saber cuándo se editó
         });
         res.redirect('/admin/dashboard');
