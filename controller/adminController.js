@@ -77,6 +77,19 @@ update: async (req, res) => {
         res.status(500).send("Error al actualizar la noticia");
     }
 },    
+// Borra la noticia de Firestore
+    delete: async (req, res) => {
+        try {
+            const id = req.params.id;
+            await db.collection('noticias').doc(id).delete();
+            
+            // Redirigir al dashboard (asegúrate de que esta ruta sea la que muestra la tabla)
+            res.redirect('/admin/dashboard'); 
+        } catch (error) {
+            console.error("Error al eliminar noticia:", error);
+            res.status(500).send("No se pudo eliminar la noticia. Inténtalo de nuevo.");
+        }
+    },
 // SECCIÓN CURSOS 
     // ==========================================
 
