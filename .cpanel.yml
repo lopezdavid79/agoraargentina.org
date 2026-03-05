@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/agoraargentinago/public_html/agoraargentina
+    - export DEPLOYPATH=/home/agoraargentina/public_html/agoraargentina
     - /bin/cp -R * $DEPLOYPATH
