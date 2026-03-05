@@ -6,7 +6,14 @@
     
     <title>
         <%= typeof title !== 'undefined' ? title + ' | ' : '' %> 
-        Programa Ágora Argentina | Inclusión Laboral para Personas con Discapacidad Visual</title>
+        Programa Ágora Argentina | Inclusión Laboral para Personas con Discapacidad Visual
+    </title>
+    <meta name="keywords" content="discapacidad visual, inclusión laboral, empleo argentina, programa ágora, accesibilidad, talento diverso">
+<meta name="author" content="Ágora Argentina">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://agoraargentina.ar/">
     <meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'Programa Ágora' %>">
 <meta property="og:description" content="<%= typeof noticia !== 'undefined' ? noticia.copete : 'Novedades sobre inclusión laboral.' %>">
 <% if (typeof noticia !== 'undefined' && noticia.imagenUrl) { %>
