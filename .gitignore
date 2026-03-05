@@ -3,4 +3,4 @@
 serviceAccount.json
 .env
 hash.js
-*.log
+*.log.cpanel.yml
