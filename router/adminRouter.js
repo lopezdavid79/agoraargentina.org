@@ -15,7 +15,7 @@ router.get('/admin/noticias/nuevo', isAdmin, adminController.create);
 router.post('/admin/noticias/nuevo', isAdmin, adminController.store);
 router.get('/admin/noticias/editar/:id', isAdmin, adminController.edit);
 router.put('/admin/noticias/editar/:id', isAdmin, adminController.update);
-router.delete('/noticias/eliminar/:id', adminController.delete);
+router.delete('/admin/noticias/eliminar/:id', isAdmin, adminController.delete);
 // rutas cursos
 router.get('/admin/cursos/nuevo', isAdmin, adminController.createCurso);
 router.post('/admin/cursos/nuevo', isAdmin, adminController.storeCurso);
