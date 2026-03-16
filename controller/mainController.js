@@ -168,6 +168,9 @@ const mainController = {
     servicios: (req, res) => {
         res.render('servicios', { title: "Servicios  " });
     },
+    preguntasFrecuentes:(req,res)=>{
+        res.render('preguntas-frecuentes',{title:"Preguntas Frecuentes"});
+    },
     contacto: (req, res) => {
         res.render('contacto', { title: "Programa Ágora | Contacto" });
     }

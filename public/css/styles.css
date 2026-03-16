@@ -60,3 +60,24 @@ a:focus, button:focus, input:focus, .card:focus-within {
 }
 /* Mantenemos la regla skip-link existente, ya que está bien implementada */
 /* .skip-link:focus {} */
+
+/* Estilo para suavizar el acordeón de Bootstrap */
+.accordion-item {
+    border: none;
+    border-bottom: 1px solid #eee;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.05); /* Color suave al abrir */
+    color: #0d6efd;
+    box-shadow: none;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(13, 110, 253, 0.25);
+}
+
+.rounded-4 {
+    border-radius: 1rem !important;
+}

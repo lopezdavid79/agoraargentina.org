@@ -15,6 +15,7 @@ router.get('/', mainController.home);
 router.get('/quienes-somos', mainController.quienesSomos);
 router.get('/servicios', mainController.servicios);
 router.get('/contacto', mainController.contacto);
+router.get('/preguntas-frecuentes', mainController.preguntasFrecuentes);
 
 // Capacitaciones
 router.get('/capacitaciones', mainController.capacitaciones); 
