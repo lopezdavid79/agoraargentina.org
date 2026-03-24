@@ -1,46 +1,216 @@
-<%
-    // Asumiendo que 'title' ya viene del controlador: "Programa Ágora | Contacto"
-%>
+<%- include('partials/header') %>
 
-<%- include('partials/header') %> 
-
-<main id="main-content" role="main" aria-labelledby="contacto-title">
-    
-    <section class="hero-subpage">
-        <h1 id="contacto-title" class="page-title">Contáctanos y Postúlate</h1>
-        <p class="subtitle">Estamos listos para ayudarte. Selecciona la vía de comunicación que mejor se adapte a tu necesidad.</p>
-    </section>
-
+<main>
     <div class="contact-grid">
         <section class="contact-form-block" aria-labelledby="form-title">
-            <h2 id="form-title" class="section-heading">Envíanos un Mensaje</h2>
             
-            <form action="/api/contact" method="POST" class="main-form">
-                
-                <label for="asunto">Selecciona el Asunto (Obligatorio)</label>
-                <select id="asunto" name="asunto" required>
-                    <option value="" disabled selected>— Elige una opción —</option>
+            <h2 id="form-title" class="section-heading">Envíanos un Mensaje</h2>
+
+            <!-- Región para lector de pantalla -->
+            <div id="live-region" tabindex="-1" aria-live="assertive" aria-atomic="true"></div>
+
+            <form action="/contacto" method="POST" class="main-form" novalidate>
+
+                <!-- NOMBRE -->
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" name="nombre"
+                       required aria-label="nombre" autofocus
+                       minlength="3"
+                       aria-describedby="error-nombre">
+                <span id="error-nombre" class="text-danger small"></span>
+
+
+                <!-- EMAIL -->
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email"
+                       required
+                       aria-describedby="error-email">
+                <span id="error-email" class="text-danger small"></span>
+
+
+                <!-- TELÉFONO -->
+                <label for="telefono">Teléfono</label>
+                <input 
+                    type="text" 
+                    id="telefono" 
+                    name="telefono" 
+                    required
+                    inputmode="numeric"
+                    pattern="[0-9]{10}"
+                    maxlength="10"
+                    aria-describedby="ayuda-telefono error-telefono"
+                    placeholder="Ej: 1123456789 (sin 0 ni 15)">
+
+                <small id="ayuda-telefono" class="text-muted">
+                    Ingresar 10 dígitos sin 0 ni 15
+                </small>
+                <span id="error-telefono" class="text-danger small"></span>
+
+
+                <!-- ASUNTO -->
+                <label for="asunto">Selecciona el Asunto</label>
+                <select id="asunto" name="asunto"
+                        required
+                        aria-describedby="error-asunto">
+                    <option value="">— Elige una opción —</option>
                     <option value="postulacion">Consulta para postulación</option>
                     <option value="empresa">Consulta de empresa / Búsqueda de talento</option>
                     <option value="general">Consulta general sobre el Programa Ágora</option>
                 </select>
+                <span id="error-asunto" class="text-danger small"></span>
 
-                <label for="nombre">Nombre Completo (Obligatorio)</label>
-                <input type="text" id="nombre" name="nombre" required aria-required="true">
-                
-                <label for="email">Correo Electrónico (Obligatorio)</label>
-                <input type="email" id="email" name="email" required aria-required="true">
-                
-                <label for="mensaje">Tu Mensaje (Obligatorio)</label>
-                <textarea id="mensaje" name="mensaje" rows="6" required aria-required="true"></textarea>
-                
-                <button type="submit" class="button button-submit">Enviar Consulta</button>
+
+                <!-- MENSAJE -->
+                <label for="mensaje">Tu Mensaje</label>
+                <textarea id="mensaje" name="mensaje"
+                          rows="6"
+                          required
+                          minlength="10"
+                          aria-describedby="error-mensaje"></textarea>
+                <span id="error-mensaje" class="text-danger small"></span>
+
+
+                <!-- ANTISPAM (OCULTO) -->
+                <input type="text" name="empresa" style="display:none">
+
+
+                <!-- BOTÓN -->
+                <button type="submit" class="button button-submit">
+                    Enviar Consulta
+                </button>
+
             </form>
+
+
+            <!-- MENSAJES DEL SERVIDOR -->
+            <div class="container mt-4">
+
+                <% if (successMsg) { %>
+                    <div class="alert alert-success" role="alert" aria-live="polite">
+                        <strong>¡Éxito!</strong> <%= successMsg %>
+                    </div>
+                <% } %>
+
+                <% if (errorMsg) { %>
+                    <div class="alert alert-danger" role="alert" aria-live="assertive">
+                        <strong>Error:</strong> <%= errorMsg %>
+                    </div>
+                <% } %>
+
+            </div>
+
         </section>
-
-
     </div>
+</main>
 
+<%- include('partials/footer') %><%- include('partials/header') %>
+
+<main>
+    <div class="contact-grid">
+        <section class="contact-form-block" aria-labelledby="form-title">
+            
+            <h2 id="form-title" class="section-heading">Envíanos un Mensaje</h2>
+
+            <!-- Región para lector de pantalla -->
+            <div id="live-region" tabindex="-1" aria-live="assertive" aria-atomic="true"></div>
+
+            <form action="/contacto" method="POST" class="main-form" novalidate>
+
+                <!-- NOMBRE -->
+                <label for="nombre">Nombre Completo</label>
+                <input type="text" id="nombre" name="nombre"
+                       required
+                       minlength="3"
+                       aria-describedby="error-nombre">
+                <span id="error-nombre" class="text-danger small"></span>
+
+
+                <!-- EMAIL -->
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" name="email"
+                       required
+                       aria-describedby="error-email">
+                <span id="error-email" class="text-danger small"></span>
+
+
+                <!-- TELÉFONO -->
+                <label for="telefono">Teléfono</label>
+                <input 
+                    type="text" 
+                    id="telefono" 
+                    name="telefono" 
+                    required
+                    inputmode="numeric"
+                    pattern="[0-9]{10}"
+                    maxlength="10"
+                    aria-describedby="ayuda-telefono error-telefono"
+                    placeholder="Ej: 1123456789 (sin 0 ni 15)">
+
+                <small id="ayuda-telefono" class="text-muted">
+                    Ingresar 10 dígitos sin 0 ni 15
+                </small>
+                <span id="error-telefono" class="text-danger small"></span>
+
+
+                <!-- ASUNTO -->
+                <label for="asunto">Selecciona el Asunto</label>
+                <select id="asunto" name="asunto"
+                        required
+                        aria-describedby="error-asunto">
+                    <option value="">— Elige una opción —</option>
+                    <option value="postulacion">Consulta para postulación</option>
+                    <option value="empresa">Consulta de empresa / Búsqueda de talento</option>
+                    <option value="general">Consulta general sobre el Programa Ágora</option>
+                </select>
+                <span id="error-asunto" class="text-danger small"></span>
+
+
+                <!-- MENSAJE -->
+                <label for="mensaje">Tu Mensaje</label>
+                <textarea id="mensaje" name="mensaje"
+                          rows="6"
+                          required
+                          minlength="10"
+                          aria-describedby="error-mensaje"></textarea>
+                <span id="error-mensaje" class="text-danger small"></span>
+
+
+                <!-- ANTISPAM (OCULTO) -->
+                <input type="text" name="empresa" style="display:none">
+
+
+                <!-- BOTÓN -->
+                <button type="submit" class="button button-submit">
+                    Enviar Consulta
+                </button>
+
+            </form>
+
+
+            <!-- MENSAJES DEL SERVIDOR -->
+            <div class="container mt-4">
+
+                <% if (successMsg) { %>
+                    <div id="mensaje-exito"
+     class="alert alert-success"
+     role="alert"
+     tabindex="-1"
+     aria-live="assertive">
+                        <strong>¡Éxito!</strong> <%= successMsg %>
+                    </div>
+                <% } %>
+
+                <% if (errorMsg) { %>
+                    <div class="alert alert-danger" role="alert" aria-live="assertive">
+                        <strong>Error:</strong> <%= errorMsg %>
+                    </div>
+                <% } %>
+
+            </div>
+
+        </section>
+    </div>
 </main>
 
 <%- include('partials/footer') %>
+<script src="/js/validacion-contacto.js"></script>

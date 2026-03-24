@@ -15,6 +15,7 @@ router.get('/', mainController.home);
 router.get('/quienes-somos', mainController.quienesSomos);
 router.get('/servicios', mainController.servicios);
 router.get('/contacto', mainController.contacto);
+router.post('/contacto', mainController.processContacto);
 router.get('/preguntas-frecuentes', mainController.preguntasFrecuentes);
 
 // Capacitaciones

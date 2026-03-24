@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer'); // Al principio del archivov
 const db = require('../config/firebase');
 
 const mainController = {
@@ -171,6 +172,50 @@ const mainController = {
     preguntasFrecuentes:(req,res)=>{
         res.render('preguntas-frecuentes',{title:"Preguntas Frecuentes"});
     },
+    
+
+// Dentro del objeto mainController:
+processContacto: async (req, res) => {
+    const { nombre, email, telefono,asunto, mensaje } = req.body;
+
+    // Configuración de tu servidor de correo (SMTP)
+    const transporter = nodemailer.createTransport({
+        host: "mail.agoraargentina.ar", // Host de cPanel
+        port: 465,
+        secure: true, 
+        auth: {
+            user: "info@agoraargentina.ar",
+            pass: process.env.EMAIL_PASS // Configura esto en tu archivo .env
+        }
+    });
+
+    try {
+        await transporter.sendMail({
+            from: `"Web Ágora" <info@agoraargentina.ar>`,
+            to: "info@agoraargentina.ar", 
+            replyTo: email,
+            subject: `Nueva Consulta: ${asunto}`,
+            html: `
+                <h3>Mensaje desde la web agoraargentina.ar</h3>
+                <p><strong>Nombre:</strong> ${nombre}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Teléfono:</strong> ${telefono || 'No informado'}</p>
+                <p><strong>Mensaje:</strong> ${mensaje}</p>
+            `
+        });
+
+        res.render('contacto', { 
+            title: "Contacto", 
+            successMsg: "Mensaje enviado con éxito! Estaremos en contacto pronto." 
+        });
+    } catch (error) {
+        console.error("Error enviando mail:", error);
+        res.render('contacto', { 
+            title: "Contacto", 
+            errorMsg: "Hubo un error al enviar el mensaje. Intenta más tarde." 
+        });
+    }
+},
     contacto: (req, res) => {
         res.render('contacto', { title: "Programa Ágora | Contacto" });
     }
