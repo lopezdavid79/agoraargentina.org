@@ -6,23 +6,23 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 
 const morgan = require('morgan');
-app.use(morgan('dev')); // Esto te dirá si la ruta es 200, 404 o 500
+
 // 🔥 PRIMERO crear la app
 const app = express();
 
 // =========================================================
 // 1. CONFIGURACIÓN DEL MOTOR DE VISTAS
-// =========================================================
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// =========================================================
+
 // 2. MIDDLEWARES GLOBALES (ORDEN IMPORTANTE)
-// =========================================================
+
 
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(morgan('dev')); // Esto te dirá si la ruta es 200, 404 o 500
 // Parseo de datos (🔥 clave para formularios)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
