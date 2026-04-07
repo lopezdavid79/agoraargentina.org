@@ -112,7 +112,7 @@ const mainController = {
         res.render('contacto', { title: "Programa Ágora | Contacto" });
     },
     // CAPACITACIONES: Listado completo de cursos
-    capacitaciones: async (req, res) => {
+    cursos: async (req, res) => {
         try {
             // Obtenemos todos los cursos de la colección 'cursos'
             const snapshot = await db.collection('cursos').get();

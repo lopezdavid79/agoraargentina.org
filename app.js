@@ -5,6 +5,8 @@ const path = require('path');
 const methodOverride = require('method-override');
 const session = require('express-session');
 
+const morgan = require('morgan');
+app.use(morgan('dev')); // Esto te dirá si la ruta es 200, 404 o 500
 // 🔥 PRIMERO crear la app
 const app = express();
 

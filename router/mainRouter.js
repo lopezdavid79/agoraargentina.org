@@ -18,8 +18,8 @@ router.get('/contacto', mainController.contacto);
 router.post('/contacto', mainController.processContacto);
 router.get('/preguntas-frecuentes', mainController.preguntasFrecuentes);
 
-// Capacitaciones
-router.get('/capacitaciones', mainController.capacitaciones); 
+// Capacitaciones y cursos
+router.get('/cursos', mainController.cursos); 
 router.get('/cursos/:slug', mainController.cursoDetail); 
 
 // Noticias (Vista pública)
