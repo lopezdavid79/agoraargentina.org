@@ -22,6 +22,9 @@ router.get('/preguntas-frecuentes', mainController.preguntasFrecuentes);
 router.get('/cursos', mainController.cursos); 
 router.get('/cursos/:slug', mainController.cursoDetail); 
 
+router.get('/capacitaciones', mainController.capacitacionesViews);
+router.get('/capacitaciones/:slug', mainController.detailCapacitaciones);
+
 // Noticias (Vista pública)
 router.get('/noticias', mainController.noticias); 
 // Crear noticia

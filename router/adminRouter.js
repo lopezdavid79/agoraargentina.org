@@ -21,4 +21,23 @@ router.get('/admin/cursos/nuevo', isAdmin, adminController.createCurso);
 router.post('/admin/cursos/nuevo', isAdmin, adminController.storeCurso);
 router.get('/admin/cursos/editar/:id', isAdmin, adminController.editCurso);
 router.put('/admin/cursos/editar/:id', isAdmin, adminController.updateCurso);
+// Gestión principal de la capacitación
+router.get('/admin/capacitaciones/nuevo', isAdmin, adminController.createCapacitacion);
+router.post('/admin/capacitaciones/nuevo', isAdmin, adminController.storeCapacitacion);
+router.get('/admin/capacitaciones/editar/:id', isAdmin, adminController.editCapacitacion);
+router.put('/admin/capacitaciones/editar/:id', isAdmin, adminController.updateCapacitacion);
+router.delete('/admin/capacitaciones/eliminar/:id', isAdmin, adminController.deleteCapacitacion);
+
+
+router.get('/admin/capacitaciones/:id/modulos', isAdmin, adminController.createModulos);
+// Agregar un nuevo módulo a la capacitación
+router.post('/admin/capacitaciones/:id/modulos/nuevo', isAdmin, adminController.storeModulo);
+
+// editar un módulo específico (requiere ID de capacitación e ID del módulo)
+router.get('/admin/capacitaciones/:idCap/modulos/editar/:idModulo', adminController.editModulo);
+router.post('/admin/capacitaciones/:idCap/modulos/editar/:idModulo', adminController.updateModulo);
+
+// Eliminar un módulo específico (requiere ID de capacitación e ID del módulo)
+router.delete('/admin/capacitaciones/:idCap/modulos/eliminar/:idMod', isAdmin, adminController.deleteModulo);
+
 module.exports = router;

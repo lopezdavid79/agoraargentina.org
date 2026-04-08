@@ -218,7 +218,44 @@ processContacto: async (req, res) => {
 },
     contacto: (req, res) => {
         res.render('contacto', { title: "Programa Ágora | Contacto" });
+    },
+    // SECCIÓN NUEVA: CAPACITACIONES ÁGORA
+    capacitacionesViews: async (req, res) => {
+        try {
+            const snapshot = await db.collection('capacitaciones').get();
+            const capacitaciones = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            res.render('capacitaciones/index', { title: "Capacitaciones Virtuales 2026", capacitaciones });
+        } catch (error) {
+            res.status(500).send("Error al cargar capacitaciones");
+        }
+    },
+
+    detailCapacitaciones: async (req, res) => {
+        try {
+            const { slug } = req.params;
+            const capQuery = await db.collection('capacitaciones').where('slug', '==', slug).limit(1).get();
+            if (capQuery.empty) return res.status(404).render('error', { message: "Capacitación no encontrada" });
+
+            const capDoc = capQuery.docs[0];
+            const capacitaciones = { id: capDoc.id, ...capDoc.data() };
+            const modulosSnapshot = await db.collection('capacitaciones').doc(capDoc.id).collection('modulos').orderBy('orden', 'asc').get();
+                    // 2. Mapeamos los datos y aplicamos el FILTRO de "activo"
+        const modulos = modulosSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(modulo => modulo.activo === true); // <--- SOLO LOS HABILITADOS
+
+        // 3. Enviamos solo los módulos visibles a la vista
+        res.render('capacitaciones/detail', { 
+            title: capacitaciones.titulo, 
+            capacitaciones, 
+            modulos 
+        });
+
+                   } catch (error) {
+            res.status(500).send("Error al cargar el detalle");
+        }
     }
+
 };
 
 module.exports = mainController;

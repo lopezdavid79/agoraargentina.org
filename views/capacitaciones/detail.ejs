@@ -1,0 +1,123 @@
+<%- include('../partials/header') %>
+
+<main id="main-content" class="container py-5">
+    <header class="mb-5">
+        <nav aria-label="Migas de pan" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="/capacitaciones">capacitaciones</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= capacitaciones.titulo %></li>
+            </ol>
+        </nav>
+        
+        <div class="row align-items-center bg-light p-4 rounded-4 shadow-sm">
+            <div class="col-lg-8">
+                <h1 class="display-5 fw-bold text-dark mb-3"><%= capacitaciones.titulo %></h1>
+                <div class="d-flex flex-wrap gap-3">
+                    <span class="text-muted"><i class="fas fa-user-tie me-2"></i><strong>Profesor:</strong> <%= capacitaciones.instructor %></span>
+                    <span class="text-muted"><i class="fas fa-folder me-2"></i><strong>Categoría:</strong> <%= capacitaciones.categoria %></span>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <% if (capacitaciones.link_vivo) { %>
+                    <a href="<%= capacitaciones.link_vivo %>" class="btn btn-danger btn-lg shadow-sm w-100" target="_blank">
+                        <i class="fas fa-broadcast-tower me-2"></i>Entrar al Aula en Vivo
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </header>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <h2 class="h4 fw-bold mb-4 border-bottom pb-2">Contenidos del Curso</h2>
+            
+            <div class="accordion accordion-flush" id="accordionModulos">
+                <% if (modulos && modulos.length > 0) { %>
+                    <% modulos.forEach((modulo, index) => { %>
+                        <div class="card mb-3 border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white p-0">
+                                <h3 class="h6 mb-0">
+                                    <button class="accordion-button <%= index !== 0 ? 'collapsed' : '' %> py-3 px-4" 
+                                            type="button" data-bs-toggle="collapse" 
+                                            data-bs-target="#collapse<%= index %>" 
+                                            aria-expanded="<%= index === 0 ? 'true' : 'false' %>">
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                                                <%= modulo.orden %>
+                                            </div>
+                                            <span class="fw-bold"><%= modulo.tituloModulo %></span>
+                                        </div>
+                                    </button>
+                                </h3>
+                            </div>
+
+                            <div id="collapse<%= index %>" class="accordion-collapse collapse <%= index === 0 ? 'show' : '' %>" data-bs-parent="#accordionModulos">
+                                <div class="card-body px-4 pb-4">
+                                    <p class="text-muted small mb-4"><%= modulo.descripcion %></p>
+                                    
+                                    <div class="list-group list-group-flush border-top">
+                                        <% if (modulo.linkMaterial) { %>
+                                            <a href="<%= modulo.linkMaterial %>" class="list-group-item list-group-item-action border-0 d-flex align-items-center py-3" target="_blank">
+                                                <div class="me-3 text-info"><i class="fas fa-file-alt fa-lg"></i></div>
+                                                <div>
+                                                    <span class="d-block fw-bold text-dark">Material de Lectura</span>
+                                                    <small class="text-muted">Documentos y guías de estudio</small>
+                                                </div>
+                                            </a>
+                                        <% } %>
+
+                                        <% if (modulo.claseGrabada) { %>
+                                            <a href="<%= modulo.claseGrabada %>" class="list-group-item list-group-item-action border-0 d-flex align-items-center py-3" target="_blank">
+                                                <div class="me-3 text-danger"><i class="fas fa-play-circle fa-lg"></i></div>
+                                                <div>
+                                                    <span class="d-block fw-bold text-dark">Clase Grabada</span>
+                                                    <small class="text-muted">Video del encuentro virtual</small>
+                                                </div>
+                                            </a>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="p-5 text-center bg-white border rounded-4 shadow-sm">
+                        <i class="fas fa-clock fa-3x mb-3 text-muted"></i>
+                        <p class="text-muted">Estamos preparando los materiales. Los módulos se habilitarán próximamente.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <aside class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="h6 fw-bold text-uppercase mb-3">Orientación</h4>
+                    <p class="small text-muted"><%= capacitaciones.infoClase %></p>
+                    <hr>
+                    <div class="alert alert-warning border-0 small mb-0">
+                        <i class="fas fa-universal-access me-2"></i>
+                        Contenido optimizado para lectores de pantalla.
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+<%- include('../partials/footer') %>
+<style>
+    .rounded-4 { border-radius: 1rem !important; }
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+        color: #0d6efd;
+    }
+    .accordion-button:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    .list-group-item-action:hover {
+        background-color: #e9ecef;
+    }
+</style>
+

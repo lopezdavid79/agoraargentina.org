@@ -1,0 +1,70 @@
+<%- include('../partials/header') %>
+
+<main id="main-content" class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold text-primary">Capacitaciones Virtuales</h1>
+            <p class="lead text-muted">Explora nuestra oferta de formación técnica y profesional con enfoque en accesibilidad.</p>
+            <hr class="w-25 mx-auto border-primary border-2 opacity-75">
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <% if (capacitaciones.length > 0) { %>
+            <% capacitaciones.forEach(cap => { %>
+                <div class="col">
+                    <article class="card h-100 border-0 shadow-sm rounded-4 hover-shadow transition">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="mb-3">
+                                <span class="badge rounded-pill bg-light text-primary px-3 py-2 border border-primary-subtle">
+                                    <i class="fas fa-tag me-1"></i> <%= cap.categoria %>
+                                </span>
+                            </div>
+                            
+                            <h2 class="h4 card-title fw-bold mb-3">
+                                <a href="/capacitaciones/<%= cap.slug %>" class="text-decoration-none text-dark stretched-link">
+                                    <%= cap.titulo %>
+                                </a>
+                            </h2>
+                            
+                            <p class="card-text text-muted flex-grow-1">
+                                <%= cap.descripcion.substring(0, 120) %>...
+                            </p>
+
+                            <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+                                <div class="small text-secondary">
+                                    <i class="fas fa-user-circle me-1"></i> <%= cap.instructor %>
+                                </div>
+                                <div class="text-primary fw-bold">
+                                    Ver más <i class="fas fa-arrow-right ms-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <div class="col-12">
+                <div class="alert alert-info text-center p-5 rounded-4 border-0 shadow-sm">
+                    <i class="fas fa-info-circle fa-3x mb-3 text-primary"></i>
+                    <h3 class="fw-bold">No hay capacitaciones disponibles por el momento</h3>
+                    <p class="mb-0">Vuelve pronto para conocer nuestras nuevas propuestas de formación.</p>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</main>
+
+<style>
+    .rounded-4 { border-radius: 1rem !important; }
+    .transition { transition: all 0.3s ease; }
+    .hover-shadow:hover { 
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important; 
+    }
+    /* Estilo para que el enlace ocupe toda la tarjeta pero mantenga el foco accesible */
+    .stretched-link::after { position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 1; content: ""; }
+    .card:focus-within { outline: 3px solid #0d6efd; }
+</style>
+
+<%- include('../partials/footer') %>
