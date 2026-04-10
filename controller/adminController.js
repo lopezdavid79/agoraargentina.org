@@ -4,6 +4,7 @@ const adminController = {
     // Muestra todas las noticias en una tabla para el admin
     index: async (req, res) => {
         try {
+                    const usuarioSesion = req.session.user; 
             const snapshot = await db.collection('noticias').orderBy('fecha', 'desc').get();
             const noticias = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     // 2. Obtener cursos 
@@ -16,7 +17,7 @@ const adminController = {
 
 
             res.render('admin/dashboard', { title: "Panel de Control",
-                 noticias ,cursos, capacitaciones });
+                 noticias ,cursos, capacitaciones,user: usuarioSesion  });
         } catch (error) {
             res.status(500).send("Error al cargar el panel");
         }

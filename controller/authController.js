@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 const authController = {
     // 1. Mostrar el formulario (GET /login)
     showLogin: (req, res) => {
-        res.render('admin/login', { title: "Login | Admin" });
-                    errores: null // <--- Agrega esto para que EJS no falle
+        res.render('admin/login', { title: "Login | Admin", });
+                    
     },
 
     // 2. Procesar el ingreso (POST /login)
