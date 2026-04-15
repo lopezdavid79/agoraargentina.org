@@ -152,6 +152,17 @@
                                                 <a href="/admin/capacitaciones/<%= cap.id %>/modulos" class="btn btn-sm btn-outline-warning" title="Gestionar Módulos" aria-label="Gestionar módulos de <%= cap.titulo %>">
                                                     <i class="fas fa-list-ol"></i>
                                                 </a>
+<!-- copiar link de la web -->
+
+<button type="button" 
+        class="btn btn-sm btn-outline-primary" 
+        onclick="copiarLink(this)"
+        data-link="https://agoraargentina.ar/capacitaciones/<%= cap.slug %>"
+        aria-label="Copiar link de capacitación pública">
+    <i class="fas fa-copy"></i>
+</button>                                                
+
+
                                                 <a href="/admin/capacitaciones/editar/<%= cap.id %>" class="btn btn-sm btn-outline-primary" aria-label="Editar capacitación">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
@@ -184,3 +195,36 @@
 </style>
 
 <%- include('../partials/footer') %>
+
+<script>
+function copiarLink(boton) {
+    // Obtenemos el link del atributo data-link
+    const urlParaCopiar = boton.getAttribute('data-link');
+
+    // Usamos la API del portapapeles
+    navigator.clipboard.writeText(urlParaCopiar).then(() => {
+        // Feedback visual: Cambiamos el icono temporalmente
+        const iconoOriginal = boton.innerHTML;
+        boton.innerHTML = '<i class="fas fa-check"></i>';
+        boton.classList.replace('btn-outline-primary', 'btn-success');
+
+        // Notificación para NVDA/Lectores de pantalla
+        const aviso = document.createElement('div');
+        aviso.setAttribute('role', 'status');
+        aviso.setAttribute('aria-live', 'polite');
+        aviso.classList.add('visually-hidden');
+        aviso.innerText = "Enlace copiado al portapapeles";
+        document.body.appendChild(aviso);
+
+        // Revertir el botón después de 2 segundos
+        setTimeout(() => {
+            boton.innerHTML = iconoOriginal;
+            boton.classList.replace('btn-success', 'btn-outline-primary');
+            document.body.removeChild(aviso);
+        }, 2000);
+    }).catch(err => {
+        console.error('Error al copiar: ', err);
+        alert('No se pudo copiar el link automáticamente.');
+    });
+}
+</script>
