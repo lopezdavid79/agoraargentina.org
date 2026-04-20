@@ -1,0 +1,107 @@
+<% 
+    // Si 'datos' no existe (modo creación), usamos un objeto vacío para evitar errores
+    const d = typeof datos !== 'undefined' ? datos : {}; 
+%>
+
+<div class="row">
+    <div class="col-md-7 mb-3">
+        <label for="titulo" class="form-label fw-bold">Título de la noticia</label>
+        <input type="text" class="form-control form-control-lg" 
+               id="titulo" name="titulo" 
+               value="<%= d.titulo || '' %>" 
+               placeholder="Ej: Gran avance en el Programa Ágora" required autofocus>
+    </div>
+
+    <div class="col-md-5 mb-3">
+        <label for="slug" class="form-label fw-bold text-muted">Slug (Enlace URL)</label>
+        <input type="text" class="form-control form-control-lg bg-light" 
+               id="slug" name="slug" 
+               value="<%= d.slug || '' %>" readonly required>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="copete" class="form-label fw-bold">Copete (Resumen corto)</label>
+    <textarea class="form-control" id="copete" name="copete" rows="2" 
+              placeholder="Un breve resumen que aparecerá en el listado..." required><%= d.copete || '' %></textarea>
+</div>
+
+<div class="row align-items-center mb-3 p-3 bg-light rounded border">
+    <div class="col-md-8">
+        <label for="imagenUrl" class="form-label fw-bold">URL de la Imagen</label>
+        <input type="url" class="form-control mb-2" id="imagenUrl" name="imagenUrl" 
+               value="<%= d.imagenUrl || '' %>" 
+               placeholder="https://link-de-tu-imagen.com/foto.jpg" required>
+        
+        <label for="alt" class="form-label fw-bold text-success">Texto Alternativo (Accesibilidad)</label>
+        <input type="text" class="form-control" id="alt" name="alt" 
+               value="<%= d.alt || '' %>" 
+               placeholder="Describe la imagen para personas con discapacidad visual" required>
+        <div class="form-text">Ej: "Persona utilizando una computadora con el lector de pantalla NVDA".</div>
+    </div>
+    
+    <div class="col-md-4 text-center">
+        <div id="preview-container" class="mt-2 border rounded d-flex align-items-center justify-content-center bg-white" style="height: 120px; overflow: hidden;">
+            <img id="img-preview" src="<%= d.imagenUrl || '' %>" 
+                 alt="<%= d.alt || 'Previsualización' %>" 
+                 class="img-fluid <%= d.imagenUrl ? '' : 'd-none' %>">
+            <small id="preview-text" class="text-muted <%= d.imagenUrl ? 'd-none' : '' %>">Vista previa</small>
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <label for="contenido" class="form-label fw-bold">Contenido Principal</label>
+    <textarea class="form-control" id="contenido" name="contenido" rows="10" 
+              placeholder="Escribe aquí toda la noticia..." required><%= d.contenido || '' %></textarea>
+    <div class="form-text">El sistema respetará tus párrafos y saltos de línea.</div>
+</div>
+
+<script>
+    // Lógica local para el formulario de noticias
+    (function() {
+        const tituloIn = document.getElementById('titulo');
+        const slugIn = document.getElementById('slug');
+        const imgIn = document.getElementById('imagenUrl');
+        const altIn = document.getElementById('alt');
+        const preview = document.getElementById('img-preview');
+        const preText = document.getElementById('preview-text');
+
+        // Generador de Slug [cite: 223, 224]
+        if (tituloIn && slugIn) {
+            tituloIn.addEventListener('input', () => {
+                const slug = tituloIn.value
+                    .toLowerCase()
+                    .trim()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9 -]/g, '')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-');
+                slugIn.value = slug;
+            });
+        }
+
+        // Previsualización de Imagen [cite: 225, 226]
+        if (imgIn && preview) {
+            imgIn.addEventListener('input', () => {
+                if (imgIn.value.trim() !== "") {
+                    preview.src = imgIn.value;
+                    preview.classList.remove('d-none');
+                    if (preText) preText.classList.add('d-none');
+                } else {
+                    preview.src = "";
+                    preview.classList.add('d-none');
+                    if (preText) preText.classList.remove('d-none');
+                }
+            });
+        }
+
+        // Actualización de Alt en tiempo real [cite: 227]
+        if (altIn && preview) {
+            altIn.addEventListener('input', () => {
+                preview.alt = altIn.value;
+            });
+        }
+    })();
+</script>

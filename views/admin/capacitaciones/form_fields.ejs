@@ -1,0 +1,70 @@
+<div class="mb-3">
+    <label for="titulo" class="form-label fw-bold">Título de la Capacitación</label>
+    <input type="text" class="form-control" id="titulo" name="titulo" 
+           value="<%= datos.titulo || '' %>" required>
+</div>
+
+<div class="mb-3">
+    <label for="slug" class="form-label fw-bold">Slug (URL)</label>
+    <input type="text" class="form-control" id="slug" name="slug" 
+           value="<%= datos.slug || '' %>" required>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="instructor" class="form-label fw-bold">Instructor</label>
+        <input type="text" class="form-control" id="instructor" name="instructor" 
+               value="<%= datos.instructor || '' %>">
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label for="infoClase" class="form-label fw-bold">Información de clase</label>
+        <input type="text" class="form-control" id="infoClase" name="infoClase" 
+               value="<%= datos.infoClase || '' %>">
+    </div>
+</div>
+
+<div class="mb-3">
+    <label for="descripcion" class="form-label fw-bold">Descripción</label>
+    <textarea class="form-control" id="descripcion" name="descripcion" rows="3">
+<%= datos.descripcion || '' %>
+    </textarea>
+</div>
+
+<!-- CATEGORIA -->
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="categoria" class="form-label fw-bold">Categoría</label>
+        <select class="form-select" id="categoria" name="categoria">
+            <option value="Herramientas para el trabajo" <%= datos.categoria === 'Herramientas para el trabajo' ? 'selected' : '' %>>
+                Herramientas para el trabajo
+            </option>
+            <option value="Accesibilidad digital" <%= datos.categoria === 'Accesibilidad digital' ? 'selected' : '' %>>
+                Accesibilidad Digital
+            </option>
+            <option value="Alfabetización Digital" <%= datos.categoria === 'Alfabetización Digital' ? 'selected' : '' %>>
+                Alfabetización Digital
+            </option>
+        </select>
+    </div>
+</div>
+
+<!-- ESTADO + PRIVADO -->
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label for="estado" class="form-label fw-bold">Estado</label>
+        <select class="form-select" id="estado" name="estado">
+            <option value="Borrador" <%= datos.estado === 'Borrador' ? 'selected' : '' %>>Borrador</option>
+            <option value="Activo" <%= datos.estado === 'Activo' ? 'selected' : '' %>>Activo</option>
+            <option value="Terminado" <%= datos.estado === 'Terminado' ? 'selected' : '' %>>Terminado</option>
+        </select>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <label for="privado" class="form-label fw-bold">Privacidad</label>
+        <select class="form-select" id="privado" name="privado">
+            <option value="false" <%= datos.privado === false ? 'selected' : '' %>>Público</option>
+            <option value="true" <%= datos.privado === true ? 'selected' : '' %>>Privado</option>
+        </select>
+    </div>
+</div>

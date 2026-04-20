@@ -1,0 +1,178 @@
+<%
+// Aseguramos que 'datos' sea un objeto aunque no se pase nada (para creación)
+const d = typeof datos !== 'undefined' ? datos : {};
+%>
+
+<div class="row">
+<!-- Título del Curso -->
+<div class="col-md-7 mb-3">
+<label for="titulo" class="form-label fw-bold text-primary">Título del Curso</label>
+<input type="text" class="form-control form-control-lg border-primary-subtle"
+id="titulo" name="titulo"
+value="<%= d.titulo || '' %>"
+placeholder="Ej: Word Accesible con NVDA" required autofocus>
+</div>
+
+<!-- Slug (URL amigable) -->
+<div class="col-md-5 mb-3">
+    <label for="slug" class="form-label fw-bold text-muted">Slug (URL amigable)</label>
+    <input type="text" class="form-control form-control-lg bg-light" 
+           id="slug" name="slug" 
+           value="<%= d.slug || '' %>" readonly required>
+    <small class="text-muted">Se genera automáticamente.</small>
+</div>
+
+
+</div>
+
+<div class="row mb-3">
+<!-- Modalidad -->
+<div class="col-md-6 mb-3">
+<label for="modalidad" class="form-label fw-bold">Modalidad</label>
+<select class="form-select" id="modalidad" name="modalidad" required>
+<option value="" disabled <%= !d.modalidad ? 'selected' : '' %>>Seleccionar...</option>
+<option value="Online - Sincrónico " <%= d.modalidad === 'Online - Sincrónico ' ? 'selected' : '' %>>Online - Sincrónico </option>
+<option value="Online - Asincrónico " <%= d.modalidad === 'Online - Asincrónico ' ? 'selected' : '' %>>Online - Asincrónico </option>
+<option value="Presencial" <%= d.modalidad === 'Presencial' ? 'selected' : '' %>>Presencial</option>
+<option value="Híbrido" <%= d.modalidad === 'Híbrido' ? 'selected' : '' %>>Híbrido</option>
+</select>
+</div>
+
+<!-- Duración -->
+<div class="col-md-3 mb-3">
+    <label for="duracion" class="form-label fw-bold">Duración</label>
+    <input type="text" class="form-control" id="duracion" name="duracion" 
+           value="<%= d.duracion || '' %>" placeholder="Ej: 20 horas" required>
+</div>
+
+
+
+<!-- link de inscripción -->
+<div class="mb-3">
+                            <label for="urlInscrip" class="form-label fw-bold text-danger">URL de Formulario de Inscripción</label>
+                            <input type="url" class="form-control" id="urlInscrip" name="urlInscrip" value="<%= d.urlInscrip || '' %>" required>
+                        </div>
+
+<!-- Objetivo General -->
+                         <div class="mb-3">
+                            <label for="objetivoGeneral" class="form-label fw-bold">Objetivo General</label>
+                            <textarea class="form-control" id="objetivoGeneral" name="objetivoGeneral" rows="2" required><%= d.objetivoGeneral %></textarea>
+                        </div>
+<!-- Descripción / Objetivo General -->
+<!-- Descripción -->
+<div class="mb-3">
+                            <label for="descripcionCorta" class="form-label fw-bold">Descripción Corta (Resumen)</label>
+                            <textarea class="form-control" id="descripcionCorta" name="descripcionCorta" rows="2" required><%= d.descripcion %></textarea>
+                        </div>
+
+                        <!-- objetivos geespecificos -->
+                         <div class="col-md-6 mb-3">
+                                <label for="objetivos" class="form-label fw-bold">Objetivos Específicos (Uno por línea)</label>
+                                <textarea class="form-control" id="objetivos" name="objetivos" rows="6"><%= d.objetivosText %></textarea>
+                            </div>
+                            
+                            <!-- temario -->
+<div class="col-md-6 mb-3">
+                                <label for="temario" class="form-label fw-bold">Temario (Uno por línea)</label>
+                                <textarea class="form-control" id="temario" name="temario" rows="6"><%= d.temarioText %></textarea>
+                            </div>
+                     
+<!-- Gestión de Imagen -->
+
+<div class="row align-items-center bg-light p-3 rounded-3 border">
+<div class="col-md-8">
+<label for="imagen" class="form-label fw-bold">Ruta de la Imagen</label>
+<input type="text" class="form-control mb-2" id="imagen" name="imagen"
+value="<%= d.imagen || '' %>" placeholder="Ej: /curso-nvda.webp" required>
+
+    <label for="alt" class="form-label fw-bold">Texto Alternativo (Accesibilidad NVDA)</label>
+    <textarea class="form-control" id="alt" name="alt" rows="2" 
+              placeholder="Describe la imagen para personas con discapacidad visual..." required><%= d.alt || '' %></textarea>
+</div>
+<div class="col-md-4 text-center">
+    <div id="preview-container" class="border rounded bg-white d-flex align-items-center justify-content-center" style="height: 120px; overflow: hidden;">
+        <img id="img-preview" src="<%= d.imagen || '' %>" 
+             class="img-fluid <%= d.imagen ? '' : 'd-none' %>" alt="Vista previa">
+        <p id="preview-text" class="text-muted small <%= d.imagen ? 'd-none' : '' %>">Sin vista previa</p>
+    </div>
+</div>
+
+
+</div>
+
+<script>
+// Este bloque debe ir dentro de etiquetas <script> en tu archivo .ejs
+(function() {
+    // 1. Selección de elementos
+    const titulo = document.querySelector('#titulo');
+    const slug = document.querySelector('#slug');
+    const imagen = document.querySelector('#imagen');
+    const preview = document.querySelector('#img-preview');
+    const textPre = document.querySelector('#preview-text');
+
+    // 2. Lógica para el Generador de Slug
+    if (titulo && slug) {
+        titulo.addEventListener('input', () => {
+            const text = titulo.value.toLowerCase()
+                .trim()
+                .normalize('NFD') // Quita acentos
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9 -]/g, '') // Quita caracteres raros
+                .replace(/\s+/g, '-') // Cambia espacios por guiones
+                .replace(/-+/g, '-'); // Quita guiones dobles
+            slug.value = text;
+        });
+    }
+
+    // 3. Lógica para la Previsualización de Imagen
+    if (imagen && preview) {
+        imagen.addEventListener('input', () => {
+            const url = imagen.value.trim();
+            if (url !== "") {
+                preview.src = url;
+                preview.classList.remove('d-none');
+                if (textPre) textPre.classList.add('d-none');
+            } else {
+                preview.classList.add('d-none');
+                if (textPre) textPre.classList.remove('d-none');
+            }
+        });
+    }
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Seleccionamos todos los modales de la página
+    const modales = document.querySelectorAll('.modal');
+
+    modales.forEach(modal => {
+        modal.addEventListener('hidden.bs.modal', function () {
+            // Buscamos el formulario dentro del modal que se acaba de cerrar
+            const formulario = modal.querySelector('form');
+            
+            if (formulario) {
+                // 1. Reseteamos los campos de texto, select y check
+                formulario.reset();
+
+                // 2. Limpiamos manualmente los campos ocultos o especiales (como el slug)
+                const slugInput = formulario.querySelector('#slug');
+                if (slugInput) {
+                    slugInput.value = '';
+                }
+
+                // 3. Limpiamos la previsualización de imagen
+                const previewImg = formulario.querySelector('#img-preview');
+                const previewText = formulario.querySelector('#preview-text');
+                
+                if (previewImg) {
+                    previewImg.src = '';
+                    previewImg.classList.add('d-none');
+                }
+                if (previewText) {
+                    previewText.classList.remove('d-none');
+                }
+            }
+        });
+    });
+});
+</script>
