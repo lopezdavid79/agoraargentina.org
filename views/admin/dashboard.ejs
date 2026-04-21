@@ -7,7 +7,7 @@
 
     <div class="row mb-5">
         <div class="col-12 text-center">
-            <h1 class="display-5 fw-bold text-primary">Panel de Administración</h1>
+            <h1 class="display-5 fw-bold text-primary">Panel de Administración -  <%= user.rol %></h1>
             <p class="lead text-muted">Gestiona el contenido de Ágora Argentina desde un solo lugar.</p>
 
             <!-- BOTONES -->
@@ -20,7 +20,7 @@
                     <i class="fas fa-chalkboard-teacher me-2"></i>
                     Nueva capacitación
                 </button>
-
+        <% if (user.rol !== 'instructor') { %>
                 <button type="button" class="btn btn-warning btn-lg px-4 shadow-sm"
                     data-bs-toggle="modal"
                     data-bs-target="#modalNuevaNoticia"
@@ -36,6 +36,7 @@
                     <i class="fas fa-book me-2"></i>
                     Nuevo curso
                 </button>
+                <% } %>
 
             </div>
         </div>
