@@ -2,13 +2,20 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controller/authController');
 
-// Ruta para mostrar el formulario de login
-router.get('/login', authController.showLogin);
+function isAdmin(req, res, next) {
+    if (req.session && req.session.user) return next();
+    res.redirect('/login');
+}
 
-// Ruta para procesar el formulario de login
+// Login
+router.get('/login', authController.showLogin);
 router.post('/login', authController.login);
 
-// Ruta para cerrar sesión
+// Logout
 router.get('/logout', authController.logout);
+
+// Perfil
+router.get('/admin/perfil', isAdmin, authController.showPerfil);
+router.put('/admin/perfil', isAdmin, authController.updatePerfil);
 
 module.exports = router;

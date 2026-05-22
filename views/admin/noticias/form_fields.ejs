@@ -1,5 +1,4 @@
 <% 
-    // Si 'datos' no existe (modo creación), usamos un objeto vacío para evitar errores
     const d = typeof datos !== 'undefined' ? datos : {}; 
 %>
 
@@ -14,9 +13,12 @@
 
     <div class="col-md-5 mb-3">
         <label for="slug" class="form-label fw-bold text-muted">Slug (Enlace URL)</label>
-        <input type="text" class="form-control form-control-lg bg-light" 
+        <input type="text" class="form-control form-control-lg" 
                id="slug" name="slug" 
-               value="<%= d.slug || '' %>" readonly required>
+               value="<%= d.slug || '' %>"
+               
+               required>
+        <!-- <div class="form-text">Se genera desde el título. Podés editarlo manualmente.</div> -->
     </div>
 </div>
 
@@ -57,51 +59,69 @@
     <div class="form-text">El sistema respetará tus párrafos y saltos de línea.</div>
 </div>
 
+
 <script>
-    // Lógica local para el formulario de noticias
-    (function() {
-        const tituloIn = document.getElementById('titulo');
-        const slugIn = document.getElementById('slug');
-        const imgIn = document.getElementById('imagenUrl');
-        const altIn = document.getElementById('alt');
-        const preview = document.getElementById('img-preview');
-        const preText = document.getElementById('preview-text');
+(function iniciarFormNoticias() {
+    // Buscar dentro del script actual, no en todo el document
+    var scripts = document.querySelectorAll('script');
+    var thisScript = scripts[scripts.length - 1];
+    var container = thisScript.closest('.modal, form') || document;
 
-        // Generador de Slug [cite: 223, 224]
-        if (tituloIn && slugIn) {
-            tituloIn.addEventListener('input', () => {
-                const slug = tituloIn.value
-                    .toLowerCase()
-                    .trim()
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '')
-                    .replace(/[^a-z0-9 -]/g, '')
-                    .replace(/\s+/g, '-')
-                    .replace(/-+/g, '-');
-                slugIn.value = slug;
-            });
-        }
+    var tituloIn = container.querySelector('[name="titulo"]');
+    var slugIn   = container.querySelector('[name="slug"]');
+    var imgIn    = container.querySelector('[name="imagenUrl"]');
+    var altIn    = container.querySelector('[name="alt"]');
+    var preview  = container.querySelector('#img-preview');
+    var preText  = container.querySelector('#preview-text');
 
-        // Previsualización de Imagen [cite: 225, 226]
-        if (imgIn && preview) {
-            imgIn.addEventListener('input', () => {
-                if (imgIn.value.trim() !== "") {
-                    preview.src = imgIn.value;
-                    preview.classList.remove('d-none');
-                    if (preText) preText.classList.add('d-none');
-                } else {
-                    preview.src = "";
-                    preview.classList.add('d-none');
-                    if (preText) preText.classList.remove('d-none');
-                }
-            });
-        }
+    if (!tituloIn || !slugIn) {
+        setTimeout(iniciarFormNoticias, 0);
+        return;
+    }
 
-        // Actualización de Alt en tiempo real [cite: 227]
-        if (altIn && preview) {
-            altIn.addEventListener('input', () => {
-                preview.alt = altIn.value;
-            });
+    function generarSlug(texto) {
+        return texto
+            .toLowerCase().trim()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+
+    var slugEditadoManualmente = slugIn.value !== '';
+
+    slugIn.addEventListener('input', function () {
+        slugEditadoManualmente = true;
+    });
+
+    tituloIn.addEventListener('input', function () {
+        if (!slugEditadoManualmente) {
+            slugIn.value = generarSlug(tituloIn.value);
         }
-    })();
+    });
+
+    if (!slugIn.value && tituloIn.value) {
+        slugIn.value = generarSlug(tituloIn.value);
+    }
+
+    if (imgIn && preview) {
+        imgIn.addEventListener('input', function () {
+            if (imgIn.value.trim() !== '') {
+                preview.src = imgIn.value;
+                preview.classList.remove('d-none');
+                if (preText) preText.classList.add('d-none');
+            } else {
+                preview.src = '';
+                preview.classList.add('d-none');
+                if (preText) preText.classList.remove('d-none');
+            }
+        });
+    }
+
+    if (altIn && preview) {
+        altIn.addEventListener('input', function () { preview.alt = altIn.value; });
+    }
+})();
 </script>

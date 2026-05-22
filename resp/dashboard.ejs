@@ -1,0 +1,334 @@
+<%- include('../partials/header') %>
+
+<div class="container py-5">
+
+    <!-- MENSAJES ACCESIBLES -->
+    <div id="liveRegion" class="visually-hidden" aria-live="assertive"></div>
+
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-5 fw-bold text-primary">Panel de Administración -  <%= user.rol %></h1>
+            <p class="lead text-muted">Gestiona el contenido de Ágora Argentina desde un solo lugar.</p>
+
+            <!-- BOTONES -->
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+
+                <button type="button" class="btn btn-warning btn-lg px-4 shadow-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalNuevaCapacitacion"
+                    aria-haspopup="dialog">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>
+                    Nueva capacitación
+                </button>
+        <% if (user.rol !== 'instructor') { %>
+                <button type="button" class="btn btn-warning btn-lg px-4 shadow-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalNuevaNoticia"
+                    aria-haspopup="dialog">
+                    <i class="fas fa-newspaper me-2"></i>
+                    Nueva noticia
+                </button>
+
+                <button type="button" class="btn btn-warning btn-lg px-4 shadow-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalNuevoCurso"
+                    aria-haspopup="dialog">
+                    <i class="fas fa-book me-2"></i>
+                    Nuevo curso
+                </button>
+                <% } %>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- PESTAÑAS -->
+    <ul class="nav nav-tabs mb-4 border-0" id="adminTabs" role="tablist">
+        <% if (user.rol !== 'instructor') { %>
+            <li class="nav-item">
+                <button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#noticias">
+                    Gestión de Noticias
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#cursos">
+                    Gestión de Cursos
+                </button>
+            </li>
+        <% } %>
+
+        <li class="nav-item">
+            <button class="nav-link <%= user.rol === 'instructor' ? 'active' : '' %> fw-bold"
+                data-bs-toggle="tab"
+                data-bs-target="#capacitaciones">
+                Gestión de Capacitaciones
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+
+        <% if (user.rol !== 'instructor') { %>
+        <!-- NOTICIAS -->
+        <div class="tab-pane fade show active" id="noticias">
+            <table class="table">
+                <tbody>
+                    <% noticias.forEach(noticia => { %>
+                        
+                        <tr>
+    <td><%= noticia.titulo %></td>
+    <td class="text-end">
+        <div class="btn-group">
+
+            <!-- EDITAR -->
+            <button 
+    type="button"
+    class="btn btn-sm btn-outline-warning"
+    data-bs-toggle="modal"
+    data-bs-target="#modalEditNoticia<%= noticia.id %>"
+    aria-label="Editar ">
+
+    <i class="fas fa-edit"></i>
+</button>
+            <!-- ELIMINAR -->
+            <form action="/admin/noticias/eliminar/<%= noticia.id %>?_method=DELETE"
+                  method="POST"
+                  onsubmit="return confirm('¿Eliminar noticia?')">
+
+                <button class="btn btn-sm btn-outline-danger"
+                        aria-label="Eliminar noticia">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </form>
+
+        </div>
+    </td>
+    <%- include('./modal_contenedor', { 
+    idModal: 'modalEditNoticia' + noticia.id, 
+    tituloModal: 'Editar: ' + noticia.titulo, 
+    actionForm: '/admin/noticias/editar/' + noticia.id + '?_method=PUT',
+    rutaFields: './noticias/form_fields', 
+    datosInyectados: noticia 
+}) %>
+</tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CURSOS -->
+        <div class="tab-pane fade" id="cursos">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Curso</th>
+                    <th>Categoría</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% cursos.forEach(curso => { %>
+                    <tr>
+                        <td class="fw-bold"><%= curso.titulo %></td>
+                        <td><%= curso.categoria %></td>
+
+                        <td class="text-end">
+                            <div class="btn-group">
+
+                                <!-- EDITAR -->
+                                <!-- boton editar -->
+                                 <button 
+    type="button"
+    class="btn btn-sm btn-outline-warning"
+    data-bs-toggle="modal"
+    data-bs-target="#modalEditCurso<%= curso.id %>"
+    aria-label="Editar Curso">
+
+    <i class="fas fa-edit"></i>
+</button>
+
+                                <!-- ELIMINAR -->
+                                <form action="/admin/cursos/eliminar/<%= curso.id %>?_method=DELETE"
+                                      method="POST"
+                                      onsubmit="return confirm('¿Eliminar curso?')">
+
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            aria-label="Eliminar curso">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                        <%- include('./modal_contenedor', { 
+    idModal: 'modalEditCurso' + curso.id, 
+    tituloModal: 'Editar: ' + curso.titulo, 
+    actionForm: '/admin/cursos/editar/' + curso.id + '?_method=PUT',
+    rutaFields: './cursos/form_fields', 
+    datosInyectados: curso 
+}) %>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<% } %>
+
+        <!-- CAPACITACIONES -->
+<div class="tab-pane fade <%= user.rol === 'instructor' ? 'show active' : '' %>" id="capacitaciones">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Capacitación</th>
+                    <th>Instructor</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% capacitaciones.forEach(cap => { %>
+                    <tr>
+                        <td>
+                            <strong><%= cap.titulo %></strong><br>
+                            <small class="text-muted"><%= cap.categoria %></small>
+                        </td>
+
+                        <td><%= cap.instructor %></td>
+
+                        <td>
+                            <span class="badge <%= cap.estado === 'Activo' ? 'bg-success' : 'bg-secondary' %>">
+                                <%= cap.estado %>
+                            </span>
+                        </td>
+
+                        <td class="text-end">
+                            <div class="btn-group">
+
+                                <!-- MODULOS -->
+                                <a href="/admin/capacitaciones/<%= cap.id %>/modulos"
+                                   class="btn btn-sm btn-outline-warning"
+                                   aria-label="Gestionar módulos">
+                                    <i class="fas fa-list-ol"></i>
+                                </a>
+
+                                <!-- COPIAR LINK -->
+                                <button class="btn btn-sm btn-outline-primary"
+                                    onclick="copyToClipboard('https://agoraargentina.ar/capacitaciones/<%= cap.slug %>')"
+                                    aria-label="Copiar link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+
+                                <!-- EDITAR -->
+                                <button 
+    type="button"
+    class="btn btn-sm btn-outline-warning"
+    data-bs-toggle="modal"
+    data-bs-target="#modalEdit<%= cap.id %>"
+    aria-label="Editar capacitación">
+
+    <i class="fas fa-edit"></i>
+</button>
+ <!-- ELIMINAR -->
+                                <form action="/admin/capacitaciones/eliminar/<%= cap.id %>?_method=DELETE"
+                                      method="POST"
+                                      onsubmit="return confirm('¿Eliminar capacitación?')">
+
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            aria-label="Eliminar capacitación">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                        <%- include('./modal_contenedor', { 
+    idModal: 'modalEdit' + cap.id, 
+    tituloModal: 'Editar: ' + cap.titulo, 
+    actionForm: '/admin/capacitaciones/editar/' + cap.id + '?_method=PUT',
+    rutaFields: './capacitaciones/form_fields', 
+    datosInyectados: cap 
+}) %>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<!-- MODALES (FUERA DEL LAYOUT) -->
+
+ <%- include('./modal_contenedor', { 
+    idModal: 'modalNuevaCapacitacion', 
+    tituloModal: 'Crear Nueva Capacitación', 
+    actionForm: '/admin/capacitaciones/nuevo',
+    rutaFields: './capacitaciones/form_fields', 
+    datosInyectados: {} 
+}) %> 
+
+<%- include('./modal_contenedor', { 
+    idModal: 'modalNuevaNoticia', 
+    tituloModal: 'Crear Nueva Noticia', 
+    actionForm: '/admin/noticias/nuevo',
+    rutaFields: './noticias/form_fields', 
+    datosInyectados: {} 
+}) %>
+
+<%- include('./modal_contenedor', { 
+    idModal: 'modalNuevoCurso', 
+    tituloModal: 'Crear Nuevo Curso', 
+    actionForm: '/admin/cursos/nuevo',
+    rutaFields: './cursos/form_fields', 
+    datosInyectados: {} 
+}) %>
+
+<!-- SCRIPTS -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const liveRegion = document.getElementById("liveRegion");
+
+    function announce(message) {
+        liveRegion.textContent = "";
+        setTimeout(() => {
+            liveRegion.textContent = message;
+        }, 100);
+    }
+
+    // Foco automático en modales
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('shown.bs.modal', () => {
+            const input = modal.querySelector('input, textarea, select, button');
+            if (input) input.focus();
+
+            const title = modal.querySelector('.modal-title');
+            if (title) announce("Se abrió: " + title.textContent);
+        });
+
+        modal.addEventListener('hidden.bs.modal', () => {
+            announce("Ventana cerrada");
+        });
+    });
+
+});
+
+// Copiar link accesible
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        document.getElementById("liveRegion").textContent = "Enlace copiado correctamente";
+    });
+}
+</script>
+
+<style>
+body { background-color: #f8f9fa; }
+.d-flex button { min-width: 220px; }
+</style>
+
+</body>
+</html>

@@ -3,25 +3,40 @@ const db = require('../config/firebase');
 const adminController = {
     // Muestra todas las noticias en una tabla para el admin
     index: async (req, res) => {
-        try {
-                    const usuarioSesion = req.session.user; 
-            const snapshot = await db.collection('noticias').orderBy('fecha', 'desc').get();
-            const noticias = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    // 2. Obtener cursos 
+    try {
+        const usuarioSesion = req.session.user;
+
+        const snapshot = await db.collection('noticias').orderBy('fecha', 'desc').get();
+        const noticias = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
         const snapshotCursos = await db.collection('cursos').get();
         const cursos = snapshotCursos.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                    // 3. Obtenemos las capacitaciones 
-            const capsSnapshot = await db.collection('capacitaciones').get();
-            const capacitaciones = capsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const capsSnap = await db.collection('capacitaciones').get();
+let capacitaciones = capsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+if (usuarioSesion.rol === 'instructor') {
+    capacitaciones = capacitaciones.filter(c => c.creadoPor === usuarioSesion.uid);
+}
 
 
-            res.render('admin/dashboard', { title: "Panel de Control",
-                 noticias ,cursos, capacitaciones,user: usuarioSesion  });
-        } catch (error) {
-            res.status(500).send("Error al cargar el panel");
+        // Usuarios: solo se carga si es admin
+        let usuarios = [];
+        if (usuarioSesion.rol === 'admin') {
+            const usersSnapshot = await db.collection('usuarios').get();
+            usuarios = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
-    },
+
+        res.render('admin/dashboard', {
+            title: 'Panel de Control',
+            noticias, cursos, capacitaciones, usuarios,
+            user: usuarioSesion,
+            exito: req.query.exito || null,
+            errores: req.query.errores || null
+        });
+    } catch (error) {
+        res.status(500).send('Error al cargar el panel');
+    }
+},
 
     // Muestra el formulario de creación
     create: (req, res) => {
@@ -283,7 +298,8 @@ storeCapacitacion: async (req, res) => {
             link_vivo: link_vivo || "",
             infoClase: infoClase || "",
             fecha: new Date(),
-            estado: "borrador"
+            estado: "borrador",
+                creadoPor: req.session.user.uid   // <-- línea nueva
         });
 
         console.log("¡Éxito! Capacitación guardada correctamente.");
