@@ -22,6 +22,15 @@
         <div class="col-12 text-center">
             <h1 class="display-5 fw-bold text-primary">Panel de Administración - <%= user.rol %></h1>
             <p class="lead text-muted">Gestiona el contenido de Ágora Argentina desde un solo lugar.</p>
+            <% if (isLogged) { %>
+                <nav></nav>
+                <ul>
+                <li class="nav-item"><a class="nav-link text-warning fw-bold" href="/admin/dashboard">⚙️ Admin</a></li>
+                            <li class="nav-item"><a class="nav-link text-dark fw-bold" href="/admin/perfil">Mi Perfil</a></li>  
+                            <li class="nav-item"><a class="nav-link text-danger fw-bold" href="/logout">Cerrar Sesión</a></li>
+                            </ul>            
+                        <% } %>
+</nav>
 
             <!-- BOTONES -->
             <div class="d-flex flex-wrap justify-content-center gap-3">
