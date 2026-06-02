@@ -1,0 +1,28 @@
+
+
+
+<div class="container my-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">✏️ Editar Informe</h2>
+        <a href="/admin/informes" class="btn btn-outline-secondary btn-sm">← Volver</a>
+    </div>
+
+    <form action="/admin/informes/editar/<%= datos.id %>" method="POST" id="form-informe">
+        <input type="hidden" name="_method" value="PUT">
+
+        <%- include('./form_fields', { datos }) %>
+
+        <div class="d-flex gap-2 justify-content-end mt-4">
+            <a href="/admin/informes" class="btn btn-outline-secondary">Cancelar</a>
+            <a href="/admin/informes/<%= datos.id %>/pdf"
+               class="btn btn-outline-danger fw-bold"
+               target="_blank">📄 Descargar PDF</a>
+            <button type="submit" class="btn btn-primary fw-bold">💾 Actualizar Informe</button>
+        </div>
+
+    </form>
+
+</div>
+
+

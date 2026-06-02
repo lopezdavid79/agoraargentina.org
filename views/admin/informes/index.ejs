@@ -1,0 +1,63 @@
+
+
+
+<div class="container my-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">📋 Informes de Formación</h2>
+        <a href="/admin/informes/nuevo" class="btn btn-primary fw-bold">＋ Nuevo Informe</a>
+    </div>
+
+    <% if (exito) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            ✅ Operación realizada correctamente.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    <% } %>
+
+    <% if (informes.length === 0) { %>
+        <div class="alert alert-info">No hay informes registrados aún.</div>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Capacitación</th>
+                        <th>Instructor/a</th>
+                        <th>Fecha inicio</th>
+                        <th>Participantes</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <% informes.forEach(inf => { %>
+                    <tr>
+                        <td class="fw-bold"><%= inf.nombre %></td>
+                        <td><%= inf.inst_nombre %></td>
+                        <td><%= inf.fecha_inicio || '—' %></td>
+                        <td><%= inf.part_inicia || '—' %></td>
+                        <td>
+                            <div class="d-flex gap-1 flex-wrap">
+                                <a href="/admin/informes/editar/<%= inf.id %>"
+                                   class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+                                <a href="/admin/informes/<%= inf.id %>/pdf"
+                                   class="btn btn-sm btn-outline-danger"
+                                   target="_blank">📄 PDF</a>
+                                <form action="/admin/informes/eliminar/<%= inf.id %>"
+                                      method="POST"
+                                      onsubmit="return confirm('¿Eliminar este informe?')">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+
+</div>
+        <a href="/admin/dashboard" class="btn btn-outline-secondary btn-sm">← Volver</a>
+

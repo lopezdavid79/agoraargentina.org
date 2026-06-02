@@ -24,6 +24,24 @@
             <form action="/admin/perfil?_method=PUT" method="POST">
 
                 <div class="mb-3">
+                    <label for="nuevoName" class="form-label fw-bold">Nombre y Apellido</label>
+                    <input type="text" class="form-control" id="nuevoName" name="nuevoName"
+                           value="<%= user.name %>" autocomplete="name">
+                </div>
+                <div class="mb-3">
+                    <label for="nuevoMail" class="form-label fw-bold">Mail</label>
+                    <input type="text" class="form-control" id="nuevoMail" name="nuevoMail"
+                           value="<%= user.mail %>" autocomplete="mail">
+                </div>
+                <div class="mb-3">
+                    <label for="nuevoTel" class="form-label fw-bold">Telefono</label>
+                    <input type="text" class="form-control" id="nuevoTel" name="nuevoTel"
+                           value="<%= user.tel%>" autocomplete="tel">
+                </div>
+
+
+
+                <div class="mb-3">
                     <label for="nuevoUsername" class="form-label fw-bold">Nuevo nombre de usuario</label>
                     <input type="text" class="form-control" id="nuevoUsername" name="nuevoUsername"
                            value="<%= user.username %>" autocomplete="username">

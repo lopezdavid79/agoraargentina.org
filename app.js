@@ -60,20 +60,20 @@ app.use((req, res, next) => {
     next();
 });
 
-// =========================================================
+
 // 5. IMPORTAR ROUTERS
-// =========================================================
+
 const mainRouter = require('./router/mainRouter');
 const authRouter = require('./router/authRouter');
 const adminRouter = require('./router/adminRouter');
-
+const informesRouter = require('./router/informesRouter');
 // =========================================================
 // 6. USO DE RUTAS
 // =========================================================
 app.use('/', authRouter);
 app.use('/', mainRouter);
 app.use('/', adminRouter);
-
+app.use('/', informesRouter);
 // =========================================================
 // 7. MANEJO DE ERROR 404
 // =========================================================

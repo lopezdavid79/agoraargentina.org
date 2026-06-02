@@ -1,4 +1,21 @@
 <% const d = typeof datos !== 'undefined' ? datos : {}; %>
+<div class="mb-3">
+    <label for="name" class="form-label fw-bold">Nombre y Apellido</label>
+    <input type="text" class="form-control" id="name" name="name"
+           value="<%= d.name|| '' %>" required autofocus>
+</div>
+
+<div class="mb-3">
+    <label for="mail" class="form-label fw-bold">Mail</label>
+    <input type="text" class="form-control" id="mail" name="mail"
+           value="<%= d.mail|| '' %>" required >
+</div>
+
+<div class="mb-3">
+    <label for="tel" class="form-label fw-bold">Telefono</label>
+    <input type="text" class="form-control" id="tel" name="tel"
+           value="<%= d.tel || '' %>" required >
+</div>
 
 <div class="mb-3">
     <label for="username" class="form-label fw-bold">Nombre de usuario</label>

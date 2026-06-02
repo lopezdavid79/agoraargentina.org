@@ -16,6 +16,8 @@ router.get('/logout', authController.logout);
 
 // Perfil
 router.get('/admin/perfil', isAdmin, authController.showPerfil);
-router.put('/admin/perfil', isAdmin, authController.updatePerfil);
+// Nota: la ruta PUT /admin/perfil la maneja usuariosController en adminRouter.js
+// para centralizar la lógica de edición de usuarios. Evitamos definirla aquí
+// para no crear rutas duplicadas que interfieran entre controladores.
 
 module.exports = router;

@@ -26,9 +26,16 @@ if (usuarioSesion.rol === 'instructor') {
             usuarios = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
 
+        // Informes: admin ve todos, instructor solo los suyos
+        const informesSnap = await db.collection('informes').orderBy('fecha', 'desc').get();
+        let informes = informesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (usuarioSesion.rol === 'instructor') {
+            informes = informes.filter(inf => inf.creadoPor === usuarioSesion.uid);
+        }
+
         res.render('admin/dashboard', {
             title: 'Panel de Control',
-            noticias, cursos, capacitaciones, usuarios,
+            noticias, cursos, capacitaciones, usuarios, informes,
             user: usuarioSesion,
             exito: req.query.exito || null,
             errores: req.query.errores || null
@@ -299,7 +306,7 @@ storeCapacitacion: async (req, res) => {
             infoClase: infoClase || "",
             fecha: new Date(),
             estado: "borrador",
-                creadoPor: req.session.user.uid   // <-- línea nueva
+                creadoPor: req.session.user.uid   
         });
 
         console.log("¡Éxito! Capacitación guardada correctamente.");

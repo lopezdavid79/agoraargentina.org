@@ -1,0 +1,374 @@
+<% const d = typeof datos !== 'undefined' ? datos : {}; %>
+
+<!-- ══════════════════════════════════════════
+     1. RESUMEN DE LA CAPACITACIÓN
+═══════════════════════════════════════════ -->
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white fw-bold">📊 1. Resumen de la capacitación</div>
+    <div class="card-body">
+
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <label for="nombre" class="form-label fw-bold">Nombre de la capacitación *</label>
+                <input type="text" class="form-control form-control-lg"
+                       id="nombre" name="nombre"
+                       value="<%= d.nombre || '' %>"
+                       placeholder="Ej: Word Accesible con NVDA"
+                       aria-required="true" required>
+            </div>
+            <div class="col-md-4">
+                <label for="duracion" class="form-label fw-bold">Duración</label>
+                <input type="number" class="form-control form-control-lg"
+                       id="duracion" name="duracion"
+                       value="<%= d.duracion || '' %>"
+                       >
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="modalidad" class="form-label fw-bold">Modalidad</label>
+                <select class="form-select" id="modalidad" name="modalidad">
+                    <option value="">Seleccionar...</option>
+                    <% ['Online - Sincrónico','Online - Asincrónico','Presencial','Híbrido'].forEach(op => { %>
+                        <option value="<%= op %>" <%= d.modalidad === op ? 'selected' : '' %>><%= op %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="fecha_inicio" class="form-label fw-bold">Fecha de inicio</label>
+                <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio"
+                       value="<%= d.fecha_inicio || '' %>">
+            </div>
+            <div class="col-md-4">
+                <label for="fecha_fin" class="form-label fw-bold">Fecha de finalización</label>
+                <input type="date" class="form-control" id="fecha_fin" name="fecha_fin"
+                       value="<%= d.fecha_fin || '' %>">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6 col-md-3">
+                <label for="part_inicia" class="form-label fw-bold">Inician</label>
+                <input type="number" class="form-control" id="part_inicia" name="part_inicia"
+                       value="<%= d.part_inicia || '' %>" min="0" placeholder="0">
+            </div>
+            <div class="col-6 col-md-3">
+                <label for="part_aprueba" class="form-label fw-bold">Aprueban</label>
+                <input type="number" class="form-control" id="part_aprueba" name="part_aprueba"
+                       value="<%= d.part_aprueba || '' %>" min="0" placeholder="0">
+            </div>
+            <div class="col-6 col-md-3">
+                <label for="mujeres" class="form-label fw-bold">N.º mujeres</label>
+                <input type="number" class="form-control" id="mujeres" name="mujeres"
+                       value="<%= d.mujeres || '' %>" min="0" placeholder="0">
+            </div>
+            <div class="col-6 col-md-3">
+                <label for="hombres" class="form-label fw-bold">N.º hombres</label>
+                <input type="number" class="form-control" id="hombres" name="hombres"
+                       value="<%= d.hombres || '' %>" min="0" placeholder="0">
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     2. DATOS DEL INSTRUCTOR/A
+═══════════════════════════════════════════ -->
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white fw-bold">👤 2. Datos del Instructor/a</div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="inst_nombre" class="form-label fw-bold">Nombres y Apellidos del Instructor *</label>
+                <input type="text" class="form-control" id="inst_nombre" name="inst_nombre"
+                       value="<%= d.inst_nombre || '' %>" required>
+            </div>
+            <div class="col-md-6">
+                <label for="inst_dni" class="form-label fw-bold">Documento de Identidad</label>
+                <input type="text" class="form-control" id="inst_dni" name="inst_dni"
+                       value="<%= d.inst_dni || '' %>" placeholder="12.345.678">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <label for="inst_tel" class="form-label fw-bold">Teléfono</label>
+                <input type="tel" class="form-control" id="inst_tel" name="inst_tel"
+                       value="<%= d.inst_tel || '' %>">
+            </div>
+            <div class="col-md-6">
+                <label for="inst_mail" class="form-label fw-bold">Mail</label>
+                <input type="email" class="form-control" id="inst_mail" name="inst_mail"
+                       value="<%= d.inst_mail || '' %>">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     3. DESARROLLO
+═══════════════════════════════════════════ -->
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white fw-bold">📚 3. Desarrollo</div>
+    <div class="card-body">
+
+        <div class="mb-3">
+            <label for="obj_general" class="form-label fw-bold">Objetivo general *</label>
+            <textarea class="form-control" id="obj_general" name="obj_general"
+                      rows="3" required><%= d.obj_general || '' %></textarea>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="obj_especificos" class="form-label fw-bold">Objetivos específicos</label>
+                <div id="obj-ayuda" class="form-text mb-1">Uno por línea.</div>
+                <textarea class="form-control" id="obj_especificos" name="obj_especificos"
+                          rows="5" aria-describedby="obj-ayuda"><%= d.obj_especificos || '' %></textarea>
+            </div>
+            <div class="col-md-6">
+                <label for="temario" class="form-label fw-bold">Temario</label>
+                <div id="temario-ayuda" class="form-text mb-1">Uno por línea.</div>
+                <textarea class="form-control" id="temario" name="temario"
+                          rows="5" aria-describedby="temario-ayuda"><%= d.temario || '' %></textarea>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="metodologia" class="form-label fw-bold">Metodología utilizada</label>
+            <textarea class="form-control" id="metodologia" name="metodologia"
+                      rows="3"><%= d.metodologia || '' %></textarea>
+        </div>
+
+        <!-- Dosificación por clase -->
+        <div class="mb-2 fw-bold">Dosificación por clase</div>
+        <div id="dosificacion-container" class="mb-2">
+            <!-- Las filas se generan por JS -->
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-add-clase">＋ Agregar clase</button>
+            <button type="button" class="btn btn-outline-danger btn-sm"  id="btn-remove-clase">− Quitar última</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     4. EVALUACIÓN
+═══════════════════════════════════════════ -->
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white fw-bold">✅ 4. Evaluación</div>
+    <div class="card-body row">
+        <div class="col-md-6 mb-3">
+            <label for="eval_teorica" class="form-label fw-bold">Evaluación Teórica</label>
+            <textarea class="form-control" id="eval_teorica" name="eval_teorica"
+                      rows="3"><%= d.eval_teorica || '' %></textarea>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="eval_practica" class="form-label fw-bold">Evaluación Práctica</label>
+            <textarea class="form-control" id="eval_practica" name="eval_practica"
+                      rows="3"><%= d.eval_practica || '' %></textarea>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     5. PARTICIPANTES
+═══════════════════════════════════════════ -->
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white fw-bold">👥 5. Participantes</div>
+    <div class="card-body">
+        <p class="form-text mb-3">
+            Completar con <strong>SÍ / NO / DR</strong> (Debe Reforzar) o valor numérico.
+        </p>
+        <div class="table-responsive">
+            <table class="table table-sm table-bordered align-middle" id="tabla-participantes">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nombre y Apellido</th>
+                        <th>Puntual</th>
+                        <th>Asistencia %</th>
+                        <th>Participó</th>
+                        <th>Instrucciones</th>
+                        <th>Interés</th>
+                        <th>Ejercicios</th>
+                        <th>Trabajos %</th>
+                        <th>Objetivos</th>
+                        <th>Calificación</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="participantes-body"></tbody>
+            </table>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-add-part">
+            ＋ Agregar participante
+        </button>
+        <!-- JSON serializado de participantes para envío en el POST -->
+        <input type="hidden" name="participantes" id="input-participantes">
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     6 & 7. OBSERVACIONES Y RECOMENDACIONES
+═══════════════════════════════════════════ -->
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white fw-bold">📝 6 & 7. Observaciones y Recomendaciones</div>
+    <div class="card-body row">
+        <div class="col-md-6 mb-3">
+            <label for="observaciones" class="form-label fw-bold">Observaciones</label>
+            <textarea class="form-control" id="observaciones" name="observaciones"
+                      rows="4"><%= d.observaciones || '' %></textarea>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="recomendaciones" class="form-label fw-bold">Recomendaciones</label>
+            <textarea class="form-control" id="recomendaciones" name="recomendaciones"
+                      rows="4"><%= d.recomendaciones || '' %></textarea>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     FIRMA
+═══════════════════════════════════════════ -->
+<div class="card mb-3">
+    <div class="card-header bg-secondary text-white fw-bold">✍️ Datos para la firma</div>
+    <div class="card-body row">
+        <div class="col-md-6">
+            <label for="ciudad" class="form-label fw-bold">Ciudad</label>
+            <input type="text" class="form-control" id="ciudad" name="ciudad"
+                   value="<%= d.ciudad || '' %>" placeholder="Buenos Aires">
+        </div>
+        <div class="col-md-6">
+            <label for="fecha_firma" class="form-label fw-bold">Fecha de firma</label>
+            <input type="text" class="form-control" id="fecha_firma" name="fecha_firma"
+                   value="<%= d.fecha_firma || '' %>" placeholder="Ej: 30 de abril de 2025">
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SCRIPT DEL FORMULARIO
+═══════════════════════════════════════════ -->
+<script>
+(function iniciarFormInforme() {
+    var dosContainer  = document.getElementById('dosificacion-container');
+    var partBody      = document.getElementById('participantes-body');
+    var inputPart     = document.getElementById('input-participantes');
+    var form          = document.getElementById('form-informe');
+
+    if (!dosContainer || !partBody) {
+        setTimeout(iniciarFormInforme, 0);
+        return;
+    }
+
+    // ── Clases preexistentes desde edición ──
+    var clasesIniciales = [];
+    <% if (d.clasesText) { %>
+        clasesIniciales = <%- JSON.stringify((d.clasesText || '').split('\n').map(l => l.replace(/^\d+\|/, ''))) %>;
+    <% } %>
+
+    var numClases = clasesIniciales.length || 10;
+
+    function renderClases() {
+        dosContainer.innerHTML = '';
+        for (var i = 1; i <= numClases; i++) {
+            var val = clasesIniciales[i - 1] || '';
+            var div = document.createElement('div');
+            div.className = 'input-group input-group-sm mb-1';
+            div.innerHTML =
+                '<span class="input-group-text fw-bold" style="min-width:3rem">' + i + '</span>' +
+                '<input type="text" class="form-control" name="clase_' + i + '" ' +
+                'value="' + val.replace(/"/g, '&quot;') + '" ' +
+                'aria-label="Clase ' + i + '" placeholder="Contenido de la clase ' + i + '">';
+            dosContainer.appendChild(div);
+        }
+    }
+
+    document.getElementById('btn-add-clase').addEventListener('click', function () {
+        numClases++;
+        renderClases();
+    });
+    document.getElementById('btn-remove-clase').addEventListener('click', function () {
+        if (numClases > 1) { numClases--; renderClases(); }
+    });
+
+    renderClases();
+
+    // ── Participantes ──
+    var partData = [];
+
+    <% if (d.participantesJSON) { %>
+        try { partData = <%- d.participantesJSON %>; } catch(e) {}
+    <% } %>
+
+    var campos = ['puntual','asistencia','participo','instrucciones',
+                  'interes','ejercicios','trabajos','objetivos','calificacion'];
+
+    function renderParticipantes() {
+        partBody.innerHTML = '';
+        partData.forEach(function(p, idx) {
+            var tr = document.createElement('tr');
+            var celdas = '<td><input type="text" class="form-control form-control-sm" ' +
+                'data-idx="' + idx + '" data-campo="nombre" ' +
+                'value="' + (p.nombre || '').replace(/"/g, '&quot;') + '" ' +
+                'aria-label="Nombre participante ' + (idx + 1) + '" style="min-width:140px"></td>';
+
+            campos.forEach(function(c) {
+                celdas += '<td><input type="text" class="form-control form-control-sm" ' +
+                    'data-idx="' + idx + '" data-campo="' + c + '" ' +
+                    'value="' + (p[c] || '').replace(/"/g, '&quot;') + '" ' +
+                    'aria-label="' + c + ' participante ' + (idx + 1) + '" ' +
+                    'style="min-width:55px"></td>';
+            });
+
+            celdas += '<td><button type="button" class="btn btn-sm btn-outline-danger" ' +
+                'data-idx="' + idx + '" aria-label="Eliminar participante ' + (idx + 1) + '">✕</button></td>';
+            tr.innerHTML = celdas;
+            partBody.appendChild(tr);
+        });
+
+        // Actualiza JSON oculto al escribir en cualquier celda
+        partBody.querySelectorAll('input').forEach(function(inp) {
+            inp.addEventListener('input', function() {
+                var i = parseInt(this.dataset.idx);
+                var c = this.dataset.campo;
+                partData[i][c] = this.value;
+                sincronizarJSON();
+            });
+        });
+
+        // Botones eliminar
+        partBody.querySelectorAll('button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                partData.splice(parseInt(this.dataset.idx), 1);
+                renderParticipantes();
+                sincronizarJSON();
+            });
+        });
+    }
+
+    function sincronizarJSON() {
+        inputPart.value = JSON.stringify(partData);
+    }
+
+    document.getElementById('btn-add-part').addEventListener('click', function() {
+        var obj = { nombre: '', puntual: '', asistencia: '', participo: '',
+                    instrucciones: '', interes: '', ejercicios: '',
+                    trabajos: '', objetivos: '', calificacion: '' };
+        partData.push(obj);
+        renderParticipantes();
+        sincronizarJSON();
+    });
+
+    // Sincronizar antes de enviar el form
+    if (form) {
+        form.addEventListener('submit', function() {
+            sincronizarJSON();
+        });
+    }
+
+    renderParticipantes();
+    sincronizarJSON();
+})();
+</script>
