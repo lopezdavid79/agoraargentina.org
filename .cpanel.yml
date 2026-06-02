@@ -3,3 +3,4 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/agoraargentina/public_html/agoraargentina
     - /bin/cp -R * $DEPLOYPATH
+    # Force update: 02-06-2026
