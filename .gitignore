@@ -1,8 +1,6 @@
-/cypress
-/node_modules
-serviceAccount.json
 .env
-hash.js
-*.log.cpanel.yml
-test-mail.js
-agoraargentina.org.code-workspace
+serviceAccount.json
+node_modules/
+test-output/
+*.log
+/.env

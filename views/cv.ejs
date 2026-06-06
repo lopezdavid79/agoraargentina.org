@@ -1,0 +1,333 @@
+<%- include('partials/header', { title: 'Generador de CV | Programa Ágora' }) %>
+
+<main id="main-content" role="main">
+<div class="container py-5" style="max-width:800px">
+
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">📄 Generador de Currículum Vitae</h1>
+        <p class="lead text-muted">Completá el formulario y descargá tu CV en PDF de forma gratuita.</p>
+    </div>
+
+    <% if (typeof errores !== 'undefined' && errores) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            ⚠️ <%= errores %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    <% } %>
+
+    <form action="/cv/generar" method="POST" id="form-cv">
+
+        <!-- DATOS PERSONALES -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white fw-bold">👤 Datos Personales</div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="nombre" class="form-label fw-bold">Nombre y Apellido *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre"
+                               placeholder="Ej: María González" required
+                               aria-required="true">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ubicacion" class="form-label fw-bold">Ubicación</label>
+                        <input type="text" class="form-control" id="ubicacion" name="ubicacion"
+                               placeholder="Ej: Buenos Aires, Argentina">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="telefono" class="form-label fw-bold">Teléfono</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono"
+                               placeholder="Ej: 011-1234-5678">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="tu@email.com">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="direccion" class="form-label fw-bold">Dirección</label>
+                        <input type="text" class="form-control" id="direccion" name="direccion"
+                               placeholder="Calle y número">
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <label for="linkedin" class="form-label fw-bold">LinkedIn</label>
+                        <input type="url" class="form-control" id="linkedin" name="linkedin"
+                               placeholder="https://www.linkedin.com/in/tu-perfil">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PERFIL PROFESIONAL -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white fw-bold">💼 Perfil Profesional</div>
+            <div class="card-body">
+                <label for="perfil" class="form-label fw-bold">Descripción breve de tu perfil *</label>
+                <div id="perfil-ayuda" class="form-text mb-1">2-3 oraciones sobre tu experiencia y fortalezas.</div>
+                <textarea class="form-control" id="perfil" name="perfil" rows="3"
+                          aria-describedby="perfil-ayuda" required
+                          placeholder="Ej: Administrativa con más de 3 años de experiencia en atención al cliente..."></textarea>
+            </div>
+        </div>
+
+        <!-- EXPERIENCIA LABORAL -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white fw-bold">🏢 Experiencia Laboral</div>
+            <div class="card-body">
+                <div id="experiencia-container"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-add-exp">
+                    ＋ Agregar experiencia
+                </button>
+            </div>
+        </div>
+
+        <!-- EDUCACIÓN -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white fw-bold">🎓 Educación</div>
+            <div class="card-body">
+                <div id="educacion-container"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-add-edu">
+                    ＋ Agregar educación
+                </button>
+            </div>
+        </div>
+
+        <!-- HABILIDADES -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white fw-bold">🛠 Habilidades</div>
+            <div class="card-body">
+                <label for="habilidades" class="form-label fw-bold">Habilidades</label>
+                <div id="habilidades-ayuda" class="form-text mb-1">Una por línea.</div>
+                <textarea class="form-control" id="habilidades" name="habilidades" rows="4"
+                          aria-describedby="habilidades-ayuda"
+                          placeholder="Buena comunicación&#10;Manejo de Office&#10;Trabajo en equipo"></textarea>
+            </div>
+        </div>
+
+        <!-- IDIOMAS -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white fw-bold">🌐 Idiomas</div>
+            <div class="card-body">
+                <div id="idiomas-container"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-add-idioma">
+                    ＋ Agregar idioma
+                </button>
+            </div>
+        </div>
+
+        <!-- MÁS INFORMACIÓN -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white fw-bold">📋 Más Información</div>
+            <div class="card-body">
+                <label for="mas_info" class="form-label fw-bold">Información adicional</label>
+                <div id="masinfo-ayuda" class="form-text mb-1">Ej: Carné de conducir, vehículo propio, disponibilidad. Una por línea.</div>
+                <textarea class="form-control" id="mas_info" name="mas_info" rows="3"
+                          aria-describedby="masinfo-ayuda"
+                          placeholder="Carné de conducir&#10;Disponibilidad total"></textarea>
+            </div>
+        </div>
+
+        <!-- Campos ocultos para arrays -->
+        <input type="hidden" name="experiencias" id="input-experiencias">
+        <input type="hidden" name="educaciones"  id="input-educaciones">
+        <input type="hidden" name="idiomas"      id="input-idiomas">
+
+        <div class="d-flex gap-2 justify-content-end mb-5">
+            <button type="reset" class="btn btn-outline-secondary fw-bold">🗑 Limpiar</button>
+            <button type="button" id="btn-preview" class="btn btn-secondary fw-bold">👁️ Previsualizar</button>
+            <button type="submit" class="btn btn-primary fw-bold px-5">📄 Descargar CV en PDF</button>
+        </div>
+
+    </form>
+</div>
+</main>
+
+<script>
+// Ensure DOM is ready before wiring handlers. This prevents "null" errors
+// if the script executes before elements are parsed (more robust across setups).
+document.addEventListener('DOMContentLoaded', function() {
+    // Referencias globales
+    const inputExp = document.getElementById('input-experiencias');
+    const inputEdu = document.getElementById('input-educaciones');
+    const inputIdioma = document.getElementById('input-idiomas');
+
+    const expCont = document.getElementById('experiencia-container');
+    const eduCont = document.getElementById('educacion-container');
+    const idiomaCont = document.getElementById('idiomas-container');
+
+    let expData = [];
+    let eduData = [];
+    let idiomaData = [];
+
+    // ── Experiencias ──────────────────────────────────────────────────
+
+    function renderExp() {
+        expCont.innerHTML = '';
+        expData.forEach(function(e, i) {
+            var div = document.createElement('div');
+            div.className = 'border rounded p-3 mb-3 bg-light';
+            div.innerHTML =
+                '<div class="row g-2 mb-2">' +
+                    '<div class="col-md-5"><label class="form-label fw-bold small">Cargo / Puesto</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="cargo" value="' + (e.cargo||'') + '" placeholder="Ej: Administrativa" aria-label="Cargo"></div>' +
+                    '<div class="col-md-5"><label class="form-label fw-bold small">Empresa</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="empresa" value="' + (e.empresa||'') + '" placeholder="Ej: Clínica Los Álamos" aria-label="Empresa"></div>' +
+                    '<div class="col-md-2 d-flex align-items-end">' +
+                    '<button type="button" class="btn btn-outline-danger btn-sm w-100" data-remove="exp" data-idx="' + i + '">✕</button></div>' +
+                '</div>' +
+                '<div class="row g-2 mb-2">' +
+                    '<div class="col-md-6"><label class="form-label fw-bold small">Período</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="periodo" value="' + (e.periodo||'') + '" placeholder="Ej: Ene 2021 - Actualidad" aria-label="Período"></div>' +
+                '</div>' +
+                '<label class="form-label fw-bold small">Tareas (una por línea)</label>' +
+                '<textarea class="form-control form-control-sm" data-idx="' + i + '" data-campo="tareas" rows="3" placeholder="Creación de un plan de marketing.&#10;Definición de estrategias." aria-label="Tareas">' + (e.tareas||'') + '</textarea>';
+            expCont.appendChild(div);
+        });
+        syncAll();
+        expCont.querySelectorAll('input, textarea').forEach(function(el) {
+            el.addEventListener('input', function() {
+                expData[this.dataset.idx][this.dataset.campo] = this.value;
+                syncAll();
+            });
+        });
+        expCont.querySelectorAll('[data-remove="exp"]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                expData.splice(parseInt(this.dataset.idx), 1);
+                renderExp();
+            });
+        });
+    }
+    var btnAddExp = document.getElementById('btn-add-exp');
+    if (btnAddExp) {
+        btnAddExp.addEventListener('click', function() {
+            expData.push({ cargo:'', empresa:'', periodo:'', tareas:'' });
+            renderExp();
+        });
+    }
+    expData.push({ cargo:'', empresa:'', periodo:'', tareas:'' });
+    renderExp();
+
+    // ── Educaciones ───────────────────────────────────────────────────
+
+
+    function renderEdu() {
+        eduCont.innerHTML = '';
+        eduData.forEach(function(e, i) {
+            var div = document.createElement('div');
+            div.className = 'border rounded p-3 mb-3 bg-light';
+            div.innerHTML =
+                '<div class="row g-2">' +
+                    '<div class="col-md-5"><label class="form-label fw-bold small">Institución</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="institucion" value="' + (e.institucion||'') + '" placeholder="Ej: Universidad del Mar" aria-label="Institución"></div>' +
+                    '<div class="col-md-4"><label class="form-label fw-bold small">Título / Carrera</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="titulo" value="' + (e.titulo||'') + '" placeholder="Ej: Marketing" aria-label="Título"></div>' +
+                    '<div class="col-md-2"><label class="form-label fw-bold small">Período</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="periodo" value="' + (e.periodo||'') + '" placeholder="2020 - Actual" aria-label="Período"></div>' +
+                    '<div class="col-md-1 d-flex align-items-end">' +
+                    '<button type="button" class="btn btn-outline-danger btn-sm w-100" data-remove="edu" data-idx="' + i + '">✕</button></div>' +
+                '</div>';
+            eduCont.appendChild(div);
+        });
+        syncAll();
+        eduCont.querySelectorAll('input').forEach(function(el) {
+            el.addEventListener('input', function() {
+                eduData[this.dataset.idx][this.dataset.campo] = this.value;
+                syncAll();
+            });
+        });
+        eduCont.querySelectorAll('[data-remove="edu"]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                eduData.splice(parseInt(this.dataset.idx), 1);
+                renderEdu();
+            });
+        });
+    }
+    var btnAddEdu = document.getElementById('btn-add-edu');
+    if (btnAddEdu) {
+        btnAddEdu.addEventListener('click', function() {
+            eduData.push({ institucion:'', titulo:'', periodo:'' });
+            renderEdu();
+        });
+    }
+    eduData.push({ institucion:'', titulo:'', periodo:'' });
+    renderEdu();
+
+    // ── Idiomas ───────────────────────────────────────────────────────
+
+
+    function renderIdiomas() {
+        idiomaCont.innerHTML = '';
+        idiomaData.forEach(function(e, i) {
+            var div = document.createElement('div');
+            div.className = 'd-flex gap-2 mb-2 align-items-center';
+            div.innerHTML =
+                '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="idioma" value="' + (e.idioma||'') + '" placeholder="Ej: Inglés" aria-label="Idioma">' +
+                '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="nivel" value="' + (e.nivel||'') + '" placeholder="Ej: Nivel alto" aria-label="Nivel">' +
+                '<button type="button" class="btn btn-outline-danger btn-sm" data-remove="idioma" data-idx="' + i + '">✕</button>';
+            idiomaCont.appendChild(div);
+        });
+        syncAll();
+        idiomaCont.querySelectorAll('input').forEach(function(el) {
+            el.addEventListener('input', function() {
+                idiomaData[this.dataset.idx][this.dataset.campo] = this.value;
+                syncAll();
+            });
+        });
+        idiomaCont.querySelectorAll('[data-remove="idioma"]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                idiomaData.splice(parseInt(this.dataset.idx), 1);
+                renderIdiomas();
+            });
+        });
+    }
+    var btnAddIdioma = document.getElementById('btn-add-idioma');
+    if (btnAddIdioma) {
+        btnAddIdioma.addEventListener('click', function() {
+            idiomaData.push({ idioma:'', nivel:'' });
+            renderIdiomas();
+        });
+    }
+    idiomaData.push({ idioma:'Castellano', nivel:'Nativo' });
+    renderIdiomas();
+
+    // ── Sincronizar campos ocultos ────────────────────────────────────
+    function syncAll() {
+        if (inputExp) inputExp.value = JSON.stringify(expData);
+        if (inputEdu) inputEdu.value = JSON.stringify(eduData);
+        if (inputIdioma) inputIdioma.value = JSON.stringify(idiomaData);
+    }
+
+    // Sincronizar antes del submit
+    var formCv = document.getElementById('form-cv');
+    if (formCv) formCv.addEventListener('submit', syncAll);
+
+    // Previsualizar: enviar los mismos datos y abrir PDF en nueva ventana
+    var btnPreview = document.getElementById('btn-preview');
+    if (btnPreview) btnPreview.addEventListener('click', function() {
+        syncAll();
+        var form = document.getElementById('form-cv');
+        // Convertimos a application/x-www-form-urlencoded para que express.urlencoded lo parsee
+        var formParams = new URLSearchParams(new FormData(form));
+
+        // Usamos fetch para obtener el PDF como blob y abrir en nueva pestaña
+        fetch('/cv/preview', { method: 'POST', body: formParams, headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' } })
+            .then(function(resp) {
+                if (!resp.ok) return resp.json().then(function(j){ throw j; });
+                return resp.blob();
+            })
+            .then(function(blob) {
+                var url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                // Liberar después de un tiempo
+                setTimeout(function(){ URL.revokeObjectURL(url); }, 10000);
+            })
+            .catch(function(err) {
+                var msg = (err && err.error) ? err.error : 'Error al generar la previsualización.';
+                alert(msg);
+            });
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

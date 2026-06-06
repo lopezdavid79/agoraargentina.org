@@ -67,6 +67,8 @@ const mainRouter = require('./router/mainRouter');
 const authRouter = require('./router/authRouter');
 const adminRouter = require('./router/adminRouter');
 const informesRouter = require('./router/informesRouter');
+const cvRouter = require('./router/cvRouter');
+app.use('/', cvRouter);
 // =========================================================
 // 6. USO DE RUTAS
 // =========================================================
@@ -74,6 +76,7 @@ app.use('/', authRouter);
 app.use('/', mainRouter);
 app.use('/', adminRouter);
 app.use('/', informesRouter);
+app.use('/', cvRouter);
 // =========================================================
 // 7. MANEJO DE ERROR 404
 // =========================================================
