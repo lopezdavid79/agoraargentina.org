@@ -4,3 +4,4 @@ node_modules/
 test-output/
 *.log
 /.env
+agoraargentina.org.code-workspace
