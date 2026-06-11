@@ -45,11 +45,6 @@
                         <input type="email" class="form-control" id="email" name="email"
                                placeholder="tu@email.com">
                     </div>
-                    <div class="col-md-4">
-                        <label for="direccion" class="form-label fw-bold">Dirección</label>
-                        <input type="text" class="form-control" id="direccion" name="direccion"
-                               placeholder="Calle y número">
-                    </div>
                     <div class="col-md-4 mt-3">
                         <label for="linkedin" class="form-label fw-bold">LinkedIn</label>
                         <input type="url" class="form-control" id="linkedin" name="linkedin"
@@ -67,7 +62,7 @@
                 <div id="perfil-ayuda" class="form-text mb-1">2-3 oraciones sobre tu experiencia y fortalezas.</div>
                 <textarea class="form-control" id="perfil" name="perfil" rows="3"
                           aria-describedby="perfil-ayuda" required
-                          placeholder="Ej: Administrativa con más de 3 años de experiencia en atención al cliente..."></textarea>
+                          placeholder="Ej: Estudiante avanzado de Relaciones Públicas con excelentes habilidades de comunicación y empatía. Destaco por mi orientación al cliente, manejo de situaciones de estrés y capacidad de adaptación. Busco un puesto como representante de atención al cliente para brindar soluciones rápidas y una  experiencia de usuario excepcional."></textarea>
             </div>
         </div>
 
@@ -86,10 +81,21 @@
         <div class="card mb-4">
             <div class="card-header bg-primary text-white fw-bold">🎓 Educación</div>
             <div class="card-body">
-                <div id="educacion-container"></div>
-                <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-add-edu">
-                    ＋ Agregar educación
+
+                <!-- Formación Académica -->
+                <h5 class="fw-bold mb-2">Formación Académica</h5>
+                <div id="edu-academica-container"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2 mb-4" id="btn-add-edu-academica">
+                    ＋ Agregar formación académica
                 </button>
+
+                <!-- Formación Complementaria -->
+                <h5 class="fw-bold mb-2">Formación Complementaria</h5>
+                <div id="edu-complementaria-container"></div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btn-add-edu-complementaria">
+                    ＋ Agregar formación complementaria
+                </button>
+
             </div>
         </div>
 
@@ -101,7 +107,7 @@
                 <div id="habilidades-ayuda" class="form-text mb-1">Una por línea.</div>
                 <textarea class="form-control" id="habilidades" name="habilidades" rows="4"
                           aria-describedby="habilidades-ayuda"
-                          placeholder="Buena comunicación&#10;Manejo de Office&#10;Trabajo en equipo"></textarea>
+                          placeholder="flexibilidad y adaptabilidad, gestión eficaz del tiempo,Compromiso y responsabilidad"></textarea>
             </div>
         </div>
 
@@ -124,7 +130,7 @@
                 <div id="masinfo-ayuda" class="form-text mb-1">Ej: Carné de conducir, vehículo propio, disponibilidad. Una por línea.</div>
                 <textarea class="form-control" id="mas_info" name="mas_info" rows="3"
                           aria-describedby="masinfo-ayuda"
-                          placeholder="Carné de conducir&#10;Disponibilidad total"></textarea>
+                          placeholder="Información adicional: voluntariado en ... fecha de inicio - fecha de finalización... - pasantía profesional en ... fecha de inicio- fecha de finalización - formo parte de  ... desde ... en el área de ... - En mis ratos libres disfruto de... (insertar aquí proyectos informales o alternativos no vinculados a su profesión)"></textarea>
             </div>
         </div>
 
@@ -153,11 +159,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const inputIdioma = document.getElementById('input-idiomas');
 
     const expCont = document.getElementById('experiencia-container');
-    const eduCont = document.getElementById('educacion-container');
+    const eduAcademicaCont = document.getElementById('edu-academica-container');
+    const eduComplementariaCont = document.getElementById('edu-complementaria-container');
     const idiomaCont = document.getElementById('idiomas-container');
 
     let expData = [];
-    let eduData = [];
+    let eduAcademicaData = [];
+    let eduComplementariaData = [];
     let idiomaData = [];
 
     // ── Experiencias ──────────────────────────────────────────────────
@@ -174,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     '<div class="col-md-5"><label class="form-label fw-bold small">Empresa</label>' +
                     '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="empresa" value="' + (e.empresa||'') + '" placeholder="Ej: Clínica Los Álamos" aria-label="Empresa"></div>' +
                     '<div class="col-md-2 d-flex align-items-end">' +
-                    '<button type="button" class="btn btn-outline-danger btn-sm w-100" data-remove="exp" data-idx="' + i + '">✕</button></div>' +
+                    '<button type="button" class="btn btn-outline-danger btn-sm w-100" data-remove="exp" data-idx="' + i + '" aria-label="Eliminar experiencia">✕</button></div>' +
                 '</div>' +
                 '<div class="row g-2 mb-2">' +
                     '<div class="col-md-6"><label class="form-label fw-bold small">Período</label>' +
@@ -208,12 +216,11 @@ document.addEventListener('DOMContentLoaded', function() {
     expData.push({ cargo:'', empresa:'', periodo:'', tareas:'' });
     renderExp();
 
-    // ── Educaciones ───────────────────────────────────────────────────
+    // ── Formación Académica ───────────────────────────────────────────
 
-
-    function renderEdu() {
-        eduCont.innerHTML = '';
-        eduData.forEach(function(e, i) {
+    function renderEduAcademica() {
+        eduAcademicaCont.innerHTML = '';
+        eduAcademicaData.forEach(function(e, i) {
             var div = document.createElement('div');
             div.className = 'border rounded p-3 mb-3 bg-light';
             div.innerHTML =
@@ -225,33 +232,77 @@ document.addEventListener('DOMContentLoaded', function() {
                     '<div class="col-md-2"><label class="form-label fw-bold small">Período</label>' +
                     '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="periodo" value="' + (e.periodo||'') + '" placeholder="2020 - Actual" aria-label="Período"></div>' +
                     '<div class="col-md-1 d-flex align-items-end">' +
-                    '<button type="button" class="btn btn-outline-danger btn-sm w-100" data-remove="edu" data-idx="' + i + '">✕</button></div>' +
+                    '<button type="button" class="btn btn-outline-danger btn-sm w-100" data-remove="edu-academica" data-idx="' + i + '" aria-label="Eliminar formación académica">✕</button></div>' +
                 '</div>';
-            eduCont.appendChild(div);
+            eduAcademicaCont.appendChild(div);
         });
         syncAll();
-        eduCont.querySelectorAll('input').forEach(function(el) {
+        eduAcademicaCont.querySelectorAll('input').forEach(function(el) {
             el.addEventListener('input', function() {
-                eduData[this.dataset.idx][this.dataset.campo] = this.value;
+                eduAcademicaData[this.dataset.idx][this.dataset.campo] = this.value;
                 syncAll();
             });
         });
-        eduCont.querySelectorAll('[data-remove="edu"]').forEach(function(btn) {
+        eduAcademicaCont.querySelectorAll('[data-remove="edu-academica"]').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                eduData.splice(parseInt(this.dataset.idx), 1);
-                renderEdu();
+                eduAcademicaData.splice(parseInt(this.dataset.idx), 1);
+                renderEduAcademica();
             });
         });
     }
-    var btnAddEdu = document.getElementById('btn-add-edu');
-    if (btnAddEdu) {
-        btnAddEdu.addEventListener('click', function() {
-            eduData.push({ institucion:'', titulo:'', periodo:'' });
-            renderEdu();
+    var btnAddEduAcademica = document.getElementById('btn-add-edu-academica');
+    if (btnAddEduAcademica) {
+        btnAddEduAcademica.addEventListener('click', function() {
+            eduAcademicaData.push({ institucion:'', titulo:'', periodo:'' });
+            renderEduAcademica();
         });
     }
-    eduData.push({ institucion:'', titulo:'', periodo:'' });
-    renderEdu();
+    eduAcademicaData.push({ institucion:'', titulo:'', periodo:'' });
+    renderEduAcademica();
+
+    // ── Formación Complementaria ──────────────────────────────────────
+
+    function renderEduComplementaria() {
+        eduComplementariaCont.innerHTML = '';
+        eduComplementariaData.forEach(function(e, i) {
+            var div = document.createElement('div');
+            div.className = 'border rounded p-3 mb-3 bg-light';
+            div.innerHTML =
+                '<div class="row g-2">' +
+                    '<div class="col-md-5"><label class="form-label fw-bold small">Institución</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="institucion" value="' + (e.institucion||'') + '" placeholder="Ej: Universidad del Mar" aria-label="Institución"></div>' +
+                    '<div class="col-md-4"><label class="form-label fw-bold small">Título / Carrera</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="titulo" value="' + (e.titulo||'') + '" placeholder="Ej: Marketing" aria-label="Título"></div>' +
+                    '<div class="col-md-2"><label class="form-label fw-bold small">Período</label>' +
+                    '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="periodo" value="' + (e.periodo||'') + '" placeholder="2020 - Actual" aria-label="Período"></div>' +
+                    '<div class="col-md-1 d-flex align-items-end">' +
+                    '<button type="button" class="btn btn-outline-danger btn-sm w-100" data-remove="edu-complementaria" data-idx="' + i + '" aria-label="Eliminar formación complementaria">✕</button></div>' +
+                '</div>';
+            eduComplementariaCont.appendChild(div);
+        });
+        syncAll();
+        eduComplementariaCont.querySelectorAll('input').forEach(function(el) {
+            el.addEventListener('input', function() {
+                eduComplementariaData[this.dataset.idx][this.dataset.campo] = this.value;
+                syncAll();
+            });
+        });
+        eduComplementariaCont.querySelectorAll('[data-remove="edu-complementaria"]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                eduComplementariaData.splice(parseInt(this.dataset.idx), 1);
+                renderEduComplementaria();
+            });
+        });
+    }
+    var btnAddEduComplementaria = document.getElementById('btn-add-edu-complementaria');
+    if (btnAddEduComplementaria) {
+        btnAddEduComplementaria.addEventListener('click', function() {
+            eduComplementariaData.push({ institucion:'', titulo:'', periodo:'' });
+            renderEduComplementaria();
+        });
+    }
+    eduComplementariaData.push({ institucion:'', titulo:'', periodo:'' });
+    renderEduComplementaria();
 
     // ── Idiomas ───────────────────────────────────────────────────────
 
@@ -264,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
             div.innerHTML =
                 '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="idioma" value="' + (e.idioma||'') + '" placeholder="Ej: Inglés" aria-label="Idioma">' +
                 '<input type="text" class="form-control form-control-sm" data-idx="' + i + '" data-campo="nivel" value="' + (e.nivel||'') + '" placeholder="Ej: Nivel alto" aria-label="Nivel">' +
-                '<button type="button" class="btn btn-outline-danger btn-sm" data-remove="idioma" data-idx="' + i + '">✕</button>';
+                '<button type="button" class="btn btn-outline-danger btn-sm" data-remove="idioma" data-idx="' + i + '" aria-label="Eliminar idioma">✕</button>';
             idiomaCont.appendChild(div);
         });
         syncAll();
@@ -288,13 +339,13 @@ document.addEventListener('DOMContentLoaded', function() {
             renderIdiomas();
         });
     }
-    idiomaData.push({ idioma:'Castellano', nivel:'Nativo' });
+    idiomaData.push({ idioma:'Inglés', nivel:'Básico    ' });
     renderIdiomas();
 
     // ── Sincronizar campos ocultos ────────────────────────────────────
     function syncAll() {
         if (inputExp) inputExp.value = JSON.stringify(expData);
-        if (inputEdu) inputEdu.value = JSON.stringify(eduData);
+        if (inputEdu) inputEdu.value = JSON.stringify(eduAcademicaData.concat(eduComplementariaData));
         if (inputIdioma) inputIdioma.value = JSON.stringify(idiomaData);
     }
 
