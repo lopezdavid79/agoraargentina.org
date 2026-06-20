@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const { validateEnv } = require('./config/validateEnv');
 const express = require('express');
 const path = require('path');
 const methodOverride = require('method-override');
@@ -61,7 +62,13 @@ app.use((req, res, next) => {
 });
 
 
-// 5. IMPORTAR ROUTERS
+// 5. HEALTH ENDPOINT (before routers — no auth, no middleware chain)
+app.get('/health', (req, res) => {
+    res.json({ status: "ok", uptime: process.uptime(), env: process.env.NODE_ENV || "development" });
+});
+
+// =========================================================
+// 6. IMPORTAR ROUTERS
 
 const mainRouter = require('./router/mainRouter');
 const authRouter = require('./router/authRouter');
@@ -70,7 +77,7 @@ const informesRouter = require('./router/informesRouter');
 const cvRouter = require('./router/cvRouter');
 app.use('/', cvRouter);
 // =========================================================
-// 6. USO DE RUTAS
+// 7. USO DE RUTAS
 // =========================================================
 app.use('/', authRouter);
 app.use('/', mainRouter);
@@ -78,17 +85,34 @@ app.use('/', adminRouter);
 app.use('/', informesRouter);
 app.use('/', cvRouter);
 // =========================================================
-// 7. MANEJO DE ERROR 404
+// 8. MANEJO DE ERROR 404
 // =========================================================
 app.use((req, res) => {
-    res.status(404).redirect('/');
+    res.status(404).render('error', { status: 404, message: 'Página no encontrada' });
 });
 
 // =========================================================
-// 8. INICIO DEL SERVIDOR
+// 9. ERROR MIDDLEWARE (4-arg handler)
+// =========================================================
+app.use((err, req, res, next) => {
+    const status = err.status || 500;
+    const message = (process.env.NODE_ENV === 'production')
+        ? 'Error interno del servidor'
+        : err.message || 'Error interno del servidor';
+    res.status(status).render('error', { status, message });
+});
+
+// =========================================================
+// 10. VALIDAR ENTORNO E INICIAR SERVIDOR
 // =========================================================
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
+if (require.main === module) {
+    validateEnv();
+
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`[server] listening on port ${PORT} in ${process.env.NODE_ENV || "development"} mode`);
+    });
+}
+
+module.exports = app;
