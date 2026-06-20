@@ -1,0 +1,46 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Node.js, Express 5, EJS, Firebase Admin (Firestore)
+  Architecture: Layered MVC (router → controller → model), session-based auth
+  Testing: Jest unit (--runInBand), Cypress 15 E2E (baseUrl: localhost:3000)
+  Style: No linter, no formatter, no type checker
+
+strict_tdd: true
+
+testing:
+  runner: jest
+  command: npm test
+  layers:
+    unit: jest
+    integration: jest (mocked deps: firebase, nodemailer)
+    e2e: cypress
+  coverage:
+    available: false
+  quality:
+    linter: false
+    type_checker: false
+    formatter: false
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    - Follow existing code patterns
+    tdd: true
+    test_command: npm test
+  verify:
+    test_command: npm test
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
