@@ -37,8 +37,8 @@ router.put('/admin/capacitaciones/editar/:id', isAdmin, adminController.updateCa
 router.delete('/admin/capacitaciones/eliminar/:id', isAdmin, adminController.deleteCapacitacion);
 router.get('/admin/capacitaciones/:id/modulos', isAdmin, adminController.createModulos);
 router.post('/admin/capacitaciones/:id/modulos/nuevo', isAdmin, adminController.storeModulo);
-router.get('/admin/capacitaciones/:idCap/modulos/editar/:idModulo', adminController.editModulo);
-router.post('/admin/capacitaciones/:idCap/modulos/editar/:idModulo', adminController.updateModulo);
+router.get('/admin/capacitaciones/:idCap/modulos/editar/:idModulo', isAdmin, adminController.editModulo);
+router.post('/admin/capacitaciones/:idCap/modulos/editar/:idModulo', isAdmin, adminController.updateModulo);
 router.delete('/admin/capacitaciones/:idCap/modulos/eliminar/:idMod', isAdmin, adminController.deleteModulo);
 
 // Usuarios (solo admin)
