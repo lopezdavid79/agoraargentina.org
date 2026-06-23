@@ -35,7 +35,7 @@ app.use(methodOverride('_method'));
 // 3. SESIONES
 // =========================================================
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "Adm@gora$",
     resave: false,
     saveUninitialized: false,
     cookie: { 
