@@ -1,13 +1,6 @@
 require('dotenv').config();
 
 const { validateEnv } = require('./config/validateEnv');
-
-// Run environment validation early when the app is started directly.
-// This prevents creating middleware (like express-session) that would
-// crash later with an unclear 500 if required env vars are missing.
-if (require.main === module) {
-    validateEnv();
-}
 const express = require('express');
 const path = require('path');
 const methodOverride = require('method-override');
@@ -39,14 +32,7 @@ app.use(express.json());
 app.use(methodOverride('_method'));
 
 // =========================================================
-// 3. HEALTH ENDPOINT (antes de session — responde aunque falle la sesión)
-// =========================================================
-app.get('/health', (req, res) => {
-    res.json({ status: "ok", uptime: process.uptime(), env: process.env.NODE_ENV || "development" });
-});
-
-// =========================================================
-// 4. SESIONES (antes: 3, desplazado por health endpoint)
+// 3. SESIONES
 // =========================================================
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -59,7 +45,7 @@ app.use(session({
 }));
 
 // =========================================================
-// 5. VARIABLES GLOBALES PARA LAS VISTAS
+// 4. VARIABLES GLOBALES PARA LAS VISTAS
 // =========================================================
 app.use((req, res, next) => {
     res.locals.successMsg = null;
@@ -73,6 +59,12 @@ app.use((req, res, next) => {
     }
 
     next();
+});
+
+
+// 5. HEALTH ENDPOINT (before routers — no auth, no middleware chain)
+app.get('/health', (req, res) => {
+    res.json({ status: "ok", uptime: process.uptime(), env: process.env.NODE_ENV || "development" });
 });
 
 // =========================================================
@@ -103,7 +95,6 @@ app.use((req, res) => {
 // 9. ERROR MIDDLEWARE (4-arg handler)
 // =========================================================
 app.use((err, req, res, next) => {
-    console.error('[error]', err.stack || err.message || err);
     const status = err.status || 500;
     const message = (process.env.NODE_ENV === 'production')
         ? 'Error interno del servidor'
@@ -117,9 +108,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 if (require.main === module) {
-    // Startup diagnostics — log presence of critical env vars (not values)
-    console.log(`[server] SESSION_SECRET is ${process.env.SESSION_SECRET ? 'SET' : 'MISSING'}`);
-    console.log(`[server] NODE_ENV=${process.env.NODE_ENV || 'development'}`);
+    validateEnv();
 
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`[server] listening on port ${PORT} in ${process.env.NODE_ENV || "development"} mode`);
