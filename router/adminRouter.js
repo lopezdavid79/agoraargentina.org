@@ -1,7 +1,26 @@
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const adminController = require('../controller/adminController');
 const usuariosController = require('../controller/usuariosController');
+
+// Rate limiter para rutas admin: máx 30 POST/PUT/DELETE cada 15 minutos por IP
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => ['GET', 'HEAD', 'OPTIONS'].includes(req.method),
+  handler: (req, res) => {
+    res.status(429).render('error', {
+      message: 'Demasiadas solicitudes. Esperá 15 minutos antes de reintentar.',
+      error: {}
+    });
+  }
+});
+
+// Apply rate limiter to all admin routes (skips GET/HEAD/OPTIONS)
+router.use(adminLimiter);
 
 function isAdmin(req, res, next) {
     if (req.session && req.session.user) return next();
