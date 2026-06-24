@@ -1,5 +1,6 @@
 const db = require('../config/firebase');
 const bcrypt = require('bcryptjs');
+const logger = require('../config/logger');
 
 const authController = {
     showLogin: (req, res) => {
@@ -53,8 +54,10 @@ const authController = {
     },
 
     logout: (req, res) => {
-        req.session.destroy();
-        res.redirect('/login');
+        req.session.destroy((err) => {
+            if (err) logger.error('Error al destruir sesión:', err);
+            res.redirect('/login');
+        });
     },
 
     showPerfil: async (req, res) => {

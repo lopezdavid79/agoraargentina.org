@@ -80,7 +80,6 @@ const authRouter = require('./router/authRouter');
 const adminRouter = require('./router/adminRouter');
 const informesRouter = require('./router/informesRouter');
 const cvRouter = require('./router/cvRouter');
-app.use('/', cvRouter);
 // =========================================================
 // 7. USO DE RUTAS
 // =========================================================
