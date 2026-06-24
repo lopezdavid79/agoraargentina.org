@@ -333,6 +333,19 @@ describe('Admin Controller', () => {
       expect(updateData.fecha).toBeInstanceOf(Date);
       expect(updateData.fechaActualizacion).toBeInstanceOf(Date);
     });
+
+    test('returns 500 when Firebase update fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockRejectedValue(new Error('Firebase error'));
+
+      const res = await agent
+        .put('/admin/noticias/editar/noticia123')
+        .send({ titulo: 'Falla' });
+
+      expect(res.status).toBe(500);
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -352,6 +365,17 @@ describe('Admin Controller', () => {
       expect(db.collection).toHaveBeenCalledWith('noticias');
       expect(mockDoc).toHaveBeenCalledWith('noticia123');
       expect(mockDelete).toHaveBeenCalledTimes(1);
+    });
+
+    test('returns 500 when Firebase delete fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockDelete.mockRejectedValue(new Error('Firebase error'));
+
+      const res = await agent.delete('/admin/noticias/eliminar/noticia123');
+
+      expect(res.status).toBe(500);
     });
   });
 
@@ -391,6 +415,19 @@ describe('Admin Controller', () => {
       expect(updateData.temario).toEqual(['Tema1', 'Tema2']);
       expect(updateData.fechaActualizacion).toBeInstanceOf(Date);
     });
+
+    test('returns 500 when Firebase update fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockRejectedValue(new Error('Firebase error'));
+
+      const res = await agent
+        .put('/admin/cursos/editar/curso-uno')
+        .send({ titulo: 'Falla', descripcionCorta: 'x' });
+
+      expect(res.status).toBe(500);
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -410,6 +447,17 @@ describe('Admin Controller', () => {
       expect(db.collection).toHaveBeenCalledWith('cursos');
       expect(mockDoc).toHaveBeenCalledWith('curso-uno');
       expect(mockDelete).toHaveBeenCalledTimes(1);
+    });
+
+    test('returns 500 when Firebase delete fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockDelete.mockRejectedValue(new Error('Firebase error'));
+
+      const res = await agent.delete('/admin/cursos/eliminar/curso-uno');
+
+      expect(res.status).toBe(500);
     });
   });
 
@@ -458,6 +506,34 @@ describe('Admin Controller', () => {
       expect(res.status).toBe(400);
       expect(mockUpdate).not.toHaveBeenCalled();
     });
+
+    test('returns 500 when Firebase update fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockRejectedValue(new Error('Generic error'));
+
+      const res = await agent
+        .put('/admin/capacitaciones/editar/cap-uno')
+        .send({ titulo: 'Capacitación' });
+
+      expect(res.status).toBe(500);
+    });
+
+    test('returns 404 when Firebase reports NOT_FOUND', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      const notFoundError = new Error('Document not found');
+      notFoundError.code = 5;
+      mockUpdate.mockRejectedValue(notFoundError);
+
+      const res = await agent
+        .put('/admin/capacitaciones/editar/cap-uno')
+        .send({ titulo: 'Capacitación' });
+
+      expect(res.status).toBe(404);
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -477,6 +553,17 @@ describe('Admin Controller', () => {
       expect(db.collection).toHaveBeenCalledWith('capacitaciones');
       expect(mockDoc).toHaveBeenCalledWith('cap-uno');
       expect(mockDelete).toHaveBeenCalledTimes(1);
+    });
+
+    test('returns 500 when Firebase delete fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockDelete.mockRejectedValue(new Error('Firebase error'));
+
+      const res = await agent.delete('/admin/capacitaciones/eliminar/cap-uno');
+
+      expect(res.status).toBe(500);
     });
   });
 
@@ -524,6 +611,19 @@ describe('Admin Controller', () => {
       expect(res.status).toBe(400);
       expect(mockAdd).not.toHaveBeenCalled();
     });
+
+    test('returns 500 when Firebase add fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockAdd.mockRejectedValue(new Error('Firebase error'));
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/nuevo')
+        .send({ orden: '1', tituloModulo: 'Módulo' });
+
+      expect(res.status).toBe(500);
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -545,6 +645,17 @@ describe('Admin Controller', () => {
       expect(mockDocCollection).toHaveBeenCalledWith('modulos');
       expect(mockSubDoc).toHaveBeenCalledWith('mod123');
       expect(mockDelete).toHaveBeenCalledTimes(1);
+    });
+
+    test('returns 500 when Firebase delete fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockDelete.mockRejectedValue(new Error('Firebase error'));
+
+      const res = await agent.delete('/admin/capacitaciones/cap-uno/modulos/eliminar/mod123');
+
+      expect(res.status).toBe(500);
     });
   });
 });
