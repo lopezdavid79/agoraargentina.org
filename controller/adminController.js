@@ -47,7 +47,7 @@ if (usuarioSesion.rol === 'instructor') {
 
     // Muestra el formulario de creación
     create: (req, res) => {
-        res.render('admin/noticias/create', { title: "Nueva Noticia" });
+        res.redirect('/admin');
     },
 
     // Procesa el guardado en Firestore
@@ -77,10 +77,7 @@ edit: async (req, res) => {
         if (!doc.exists) {
             return res.status(404).send("Noticia no encontrada");
         }
-        res.render('admin/noticias/edit', { 
-            title: "Editar Noticia", 
-            noticia: { id: doc.id, ...doc.data() } 
-        });
+        res.redirect('/admin');
     } catch (error) {
         res.status(500).send("Error al cargar la noticia");
     }
@@ -126,14 +123,14 @@ update: async (req, res) => {
         try {
             const snapshot = await db.collection('cursos').get();
             const cursos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            res.render('admin/cursos/index', { title: "Gestión de Cursos", cursos });
+            res.redirect('/admin');
         } catch (error) {
             res.status(500).send("Error al cargar cursos");
         }
     },
     // Formulario de nuevo curso
     createCurso: (req, res) => {
-        res.render('admin/cursos/create', { title: "Nuevo Curso" });
+        res.redirect('/admin');
     },
 
     // Guardar curso en Firebase
@@ -266,7 +263,7 @@ update: async (req, res) => {
     // SECCIÓN CAPACITACIONES (ÁGORA)
     
     createCapacitacion: (req, res) => {
-        res.render('admin/capacitaciones/create', { title: "Nueva Capacitación" });
+        res.redirect('/admin');
     },
 
 storeCapacitacion: async (req, res) => {
@@ -335,7 +332,7 @@ storeCapacitacion: async (req, res) => {
         try {
             const doc = await db.collection('capacitaciones').doc(req.params.id).get();
             if (!doc.exists) return res.status(404).send("No encontrada");
-            res.render('admin/capacitaciones/edit', { title: "Editar", cap: { id: doc.id, ...doc.data() } });
+            res.redirect('/admin');
         } catch (error) {
             res.status(500).send("Error al cargar");
         }
