@@ -49,6 +49,9 @@ app.use(session({
     }
 }));
 
+const csrfMiddleware = require('./middleware/csrfMiddleware');
+app.use(csrfMiddleware);
+
 // =========================================================
 // 4. VARIABLES GLOBALES PARA LAS VISTAS
 // =========================================================

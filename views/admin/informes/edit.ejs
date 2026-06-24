@@ -9,6 +9,7 @@
     </div>
 
     <form action="/admin/informes/editar/<%= datos.id %>" method="POST" id="form-informe">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <input type="hidden" name="_method" value="PUT">
 
         <%- include('./form_fields', { datos }) %>

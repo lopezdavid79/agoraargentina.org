@@ -6,6 +6,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <form action="<%= actionForm %>" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <div class="modal-body text-start">
                                         <%- include(rutaFields, { datos: datosInyectados }) %>
                 </div>

@@ -7,6 +7,7 @@
     </div>
 
     <form action="/admin/informes/nuevo" method="POST" id="form-informe">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
         <%- include('./form_fields', { datos: {} }) %>
 

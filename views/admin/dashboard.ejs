@@ -126,6 +126,7 @@
                                         aria-label="Editar noticia"><i class="fas fa-edit"></i></button>
                                     <form action="/admin/noticias/eliminar/<%= noticia.id %>?_method=DELETE"
                                           method="POST" onsubmit="return confirm('¿Eliminar noticia?')">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                         <button class="btn btn-sm btn-outline-danger" aria-label="Eliminar noticia">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -166,6 +167,7 @@
                                             aria-label="Editar Curso"><i class="fas fa-edit"></i></button>
                                         <form action="/admin/cursos/eliminar/<%= curso.id %>?_method=DELETE"
                                               method="POST" onsubmit="return confirm('¿Eliminar curso?')">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                             <button class="btn btn-sm btn-outline-danger" aria-label="Eliminar curso">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -224,6 +226,7 @@
                                             aria-label="Editar capacitación"><i class="fas fa-edit"></i></button>
                                         <form action="/admin/capacitaciones/eliminar/<%= cap.id %>?_method=DELETE"
                                               method="POST" onsubmit="return confirm('¿Eliminar capacitación?')">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                             <button class="btn btn-sm btn-outline-danger" aria-label="Eliminar capacitación">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -267,6 +270,7 @@
                                         <% if (u.username !== user.username) { %>
                                         <form action="/admin/usuarios/eliminar/<%= u.id %>?_method=DELETE"
                                               method="POST" onsubmit="return confirm('¿Eliminar usuario <%= u.username %>?')">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                             <button class="btn btn-sm btn-outline-danger" aria-label="Eliminar usuario">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -331,6 +335,7 @@
                                     <form action="/admin/informes/eliminar/<%= inf.id %>?_method=DELETE"
                                           method="POST"
                                           onsubmit="return confirm('¿Eliminar este informe?')">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                         <button class="btn btn-sm btn-outline-danger" aria-label="Eliminar informe">
                                             <i class="fas fa-trash"></i>
                                         </button>

@@ -10,6 +10,7 @@
             <div id="live-region" tabindex="-1" aria-live="assertive" aria-atomic="true"></div>
 
             <form action="/contacto" method="POST" class="main-form" novalidate>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
                 <!-- NOMBRE -->
                 <label for="nombre">Nombre Completo</label>

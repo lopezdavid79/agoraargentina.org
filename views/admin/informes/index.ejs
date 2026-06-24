@@ -43,10 +43,11 @@
                                 <a href="/admin/informes/<%= inf.id %>/pdf"
                                    class="btn btn-sm btn-outline-danger"
                                    target="_blank">📄 PDF</a>
-                                <form action="/admin/informes/eliminar/<%= inf.id %>"
-                                      method="POST"
-                                      onsubmit="return confirm('¿Eliminar este informe?')">
-                                    <input type="hidden" name="_method" value="DELETE">
+                                 <form action="/admin/informes/eliminar/<%= inf.id %>"
+                                       method="POST"
+                                       onsubmit="return confirm('¿Eliminar este informe?')">
+                                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
                                 </form>
                             </div>
