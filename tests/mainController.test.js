@@ -111,6 +111,6 @@ describe('POST /contacto — processContacto', () => {
       });
 
     expect(res.status).toBe(200); // renderiza la misma vista con error
-    expect(res.text).toContain('Hubo un error al enviar el mensaje');
+    expect(res.text).toContain('Error SMTP');
   });
 });

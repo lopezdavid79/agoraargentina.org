@@ -110,7 +110,9 @@ const mainController = {
                 response: error.response,
                 responseCode: error.responseCode
             });
-            res.render('contacto', { title: "Contacto", errorMsg: "Hubo un error al enviar el mensaje. Intenta más tarde." });
+            const debugInfo = `[${error.code || '?'}] ${error.message}${error.response ? ' — ' + error.response : ''}`;
+            console.error('[contacto] Debug:', debugInfo);
+            res.render('contacto', { title: "Contacto", errorMsg: "Error SMTP: " + debugInfo });
         }
     },
 
