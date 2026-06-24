@@ -281,7 +281,7 @@ storeCapacitacion: async (req, res) => {
         let finalSlug = slug ? slug.trim() : titulo.trim();
         finalSlug = finalSlug.toLowerCase()
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
-            .replace(/[^\w ]+/g, '') 
+            .replace(/[^\w -]+/g, '') 
             .replace(/ +/g, '-');
 
         if (!finalSlug) {
