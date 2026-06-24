@@ -84,6 +84,10 @@ const mainController = {
             auth: { user: "info@agoraargentina.ar", pass: process.env.EMAIL_PASS }
         });
         try {
+            // verify connection configuration before sending
+            await transporter.verify();
+            console.log('[contacto] SMTP connection verified successfully');
+
             await transporter.sendMail({
                 from: `"Web Ágora" <info@agoraargentina.ar>`,
                 to: "info@agoraargentina.ar",
@@ -99,7 +103,13 @@ const mainController = {
             });
             res.render('contacto', { title: "Contacto", successMsg: "Mensaje enviado con éxito! Estaremos en contacto pronto." });
         } catch (error) {
-            console.error("Error enviando mail:", error);
+            console.error('[contacto] Error al enviar mail:', {
+                message: error.message,
+                code: error.code,
+                command: error.command,
+                response: error.response,
+                responseCode: error.responseCode
+            });
             res.render('contacto', { title: "Contacto", errorMsg: "Hubo un error al enviar el mensaje. Intenta más tarde." });
         }
     },

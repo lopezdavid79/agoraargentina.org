@@ -15,7 +15,10 @@ describe('POST /contacto — processContacto', () => {
 
   beforeEach(() => {
     sendMailMock = jest.fn().mockResolvedValue({});
-    nodemailer.createTransport.mockReturnValue({ sendMail: sendMailMock });
+    nodemailer.createTransport.mockReturnValue({
+      sendMail: sendMailMock,
+      verify: jest.fn().mockResolvedValue(true)
+    });
   });
 
   afterEach(() => {
