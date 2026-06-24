@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const { validateEnv } = require('./config/validateEnv');
+const logger = require('./config/logger');
 const express = require('express');
 const path = require('path');
 const methodOverride = require('method-override');
@@ -23,7 +24,11 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(morgan('dev')); // Esto te dirá si la ruta es 200, 404 o 500
+// HTTP request logging to both console and file
+const fs = require('fs');
+const morganStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), { flags: 'a' });
+app.use(morgan('dev'));
+app.use(morgan('combined', { stream: morganStream }));
 // Parseo de datos (🔥 clave para formularios)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -95,6 +100,7 @@ app.use((req, res) => {
 // 9. ERROR MIDDLEWARE (4-arg handler)
 // =========================================================
 app.use((err, req, res, next) => {
+    logger.error(err.stack || err.message || err);
     const status = err.status || 500;
     const message = (process.env.NODE_ENV === 'production')
         ? 'Error interno del servidor'
@@ -111,7 +117,7 @@ if (require.main === module) {
     validateEnv();
 
     app.listen(PORT, '0.0.0.0', () => {
-        console.log(`[server] listening on port ${PORT} in ${process.env.NODE_ENV || "development"} mode`);
+        logger.info(`Server listening on port ${PORT} in ${process.env.NODE_ENV || "development"} mode`);
     });
 }
 

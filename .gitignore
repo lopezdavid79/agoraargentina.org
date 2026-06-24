@@ -5,3 +5,4 @@ test-output/
 *.log
 /.env
 agoraargentina.org.code-workspace
+logs/

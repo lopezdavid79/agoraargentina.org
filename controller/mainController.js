@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const sanitizeHtml = require('sanitize-html');
+const logger = require('../config/logger');
 const db = require('../config/firebase');
 
 const mainController = {
@@ -20,7 +21,7 @@ const mainController = {
 
             res.render('home', { title: "Inicio", noticias: homeNoticias });
         } catch (error) {
-            console.error("Error en Home:", error);
+            logger.error("Error en Home:", error);
             res.render('home', { title: "Inicio", noticias: [] });
         }
     },
@@ -39,7 +40,7 @@ const mainController = {
             });
             res.render('noticias', { title: "Archivo de Noticias", noticias: noticiasFirebase });
         } catch (error) {
-            console.error("Error en página noticias:", error);
+            logger.error("Error en página noticias:", error);
             res.status(500).send("Error al cargar las noticias");
         }
     },
@@ -60,7 +61,7 @@ const mainController = {
             };
             res.render('noticias/detail', { title: noticia.titulo, noticia });
         } catch (error) {
-            console.error("Error en detalle:", error);
+            logger.error("Error en detalle:", error);
             res.status(500).send("Error al cargar el detalle");
         }
     },
@@ -86,7 +87,7 @@ const mainController = {
         try {
             // verify connection configuration before sending
             await transporter.verify();
-            console.log('[contacto] SMTP connection verified successfully');
+            logger.info('SMTP connection verified successfully');
 
             await transporter.sendMail({
                 from: `"Web Ágora" <info@agoraargentina.ar>`,
@@ -103,7 +104,7 @@ const mainController = {
             });
             res.render('contacto', { title: "Contacto", successMsg: "Mensaje enviado con éxito! Estaremos en contacto pronto." });
         } catch (error) {
-            console.error('[contacto] Error al enviar mail:', {
+            logger.error('Error al enviar mail:', {
                 message: error.message,
                 code: error.code,
                 command: error.command,
@@ -120,7 +121,7 @@ const mainController = {
             const cursosFirebase = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             res.render('cursos', { title: "Capacitaciones Disponibles", cursos: cursosFirebase });
         } catch (error) {
-            console.error("Error en página cursos:", error);
+            logger.error("Error en página cursos:", error);
             res.status(500).send("Error al cargar los cursos");
         }
     },
@@ -133,7 +134,7 @@ const mainController = {
             const doc = snapshot.docs[0];
             res.render('cursos/detail', { title: doc.data().titulo, curso: { id: doc.id, ...doc.data() } });
         } catch (error) {
-            console.error("Error en detalle de curso:", error);
+            logger.error("Error en detalle de curso:", error);
             res.status(500).send("Error al cargar el detalle del curso");
         }
     },
