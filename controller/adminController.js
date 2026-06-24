@@ -1,4 +1,5 @@
 const db = require('../config/firebase');
+const logger = require('../config/logger');
 
 const adminController = {
     // Muestra todas las noticias en una tabla para el admin
@@ -111,7 +112,7 @@ update: async (req, res) => {
             // Redirigir al dashboard (asegúrate de que esta ruta sea la que muestra la tabla)
             res.redirect('/admin/dashboard'); 
         } catch (error) {
-            console.error("Error al eliminar noticia:", error);
+            logger.error("Error al eliminar noticia:", error);
             res.status(500).send("No se pudo eliminar la noticia. Inténtalo de nuevo.");
         }
     },
@@ -136,7 +137,12 @@ update: async (req, res) => {
     // Guardar curso en Firebase
     storeCurso: async (req, res) => {
     try {
-        console.log("DATOS RECIBIDOS DEL FORMULARIO:", req.body); // Verifica esto en tu terminal
+        if (process.env.NODE_ENV !== 'production') {
+            logger.info("DATOS RECIBIDOS DEL FORMULARIO (dev): %o", {
+                titulo: req.body.titulo,
+                modalidad: req.body.modalidad,
+            });
+        }
 
         const { 
             titulo, 
@@ -154,7 +160,7 @@ update: async (req, res) => {
 
         // VALIDACIÓN DE EMERGENCIA
         if (!slug || slug.trim() === "") {
-            console.error("ERROR: El slug está vacío. No se puede crear el documento.");
+            logger.error("ERROR: El slug está vacío. No se puede crear el documento.");
             return res.status(400).send("El campo Slug es obligatorio.");
         }
 
@@ -177,13 +183,13 @@ update: async (req, res) => {
             fechaCreacion: new Date()
         });
 
-        console.log("¡CURSO GUARDADO EXITOSAMENTE EN FIREBASE!");
+        logger.info("¡CURSO GUARDADO EXITOSAMENTE EN FIREBASE!");
         
         // REDIRECCIÓN CORRECTA AL DASHBOARD
         res.redirect('/admin/dashboard'); 
 
     } catch (error) {
-        console.error("ERROR DETALLADO DE FIREBASE:", error);
+        logger.error("ERROR DETALLADO DE FIREBASE:", error);
         res.status(500).send("Error interno del servidor al guardar en Firebase: " + error.message);
     }
 },
@@ -206,7 +212,7 @@ update: async (req, res) => {
 
             res.render('admin/cursos/edit', { title: "Editar Curso", curso: datosParaForm });
         } catch (error) {
-            console.error("Error al cargar curso:", error);
+            logger.error("Error al cargar curso:", error);
             res.status(500).send("Error al cargar el curso");
         }
     },
@@ -246,7 +252,7 @@ update: async (req, res) => {
 
             res.redirect('/admin/cursos');
         } catch (error) {
-            console.error("Error al actualizar curso:", error);
+            logger.error("Error al actualizar curso:", error);
             res.status(500).send("Error al actualizar el curso");
         }
     },
@@ -256,7 +262,7 @@ update: async (req, res) => {
             await db.collection('cursos').doc(req.params.id).delete();
             res.redirect('/admin/cursos');
         } catch (error) {
-            console.error("Error al eliminar curso:", error);
+            logger.error("Error al eliminar curso:", error);
             res.status(500).send("Error al eliminar");
         }
     },
@@ -268,12 +274,12 @@ update: async (req, res) => {
 
 storeCapacitacion: async (req, res) => {
     try {
-        console.log("--- Iniciando guardado de capacitación ---"); // Log de inicio
+        logger.info("--- Iniciando guardado de capacitación ---"); // Log de inicio
         const { titulo, descripcion, categoria, instructor, privado, link_vivo, slug, infoClase } = req.body;
         
         // 1. Validaciones de entrada con logs específicos
         if (!titulo || titulo.trim() === "") {
-            console.error("Error de validación: El título está vacío.");
+            logger.error("Error de validación: El título está vacío.");
             return res.status(400).send("El título es obligatorio para crear la capacitación.");
         }
 
@@ -285,11 +291,11 @@ storeCapacitacion: async (req, res) => {
             .replace(/ +/g, '-');
 
         if (!finalSlug) {
-            console.error("Error: El slug generado es inválido.");
+            logger.error("Error: El slug generado es inválido.");
             return res.status(400).send("No se pudo generar un identificador válido.");
         }
 
-        console.log(`Intentando guardar en Firebase con ID (slug): ${finalSlug}`);
+        logger.info(`Intentando guardar en Firebase con ID (slug): ${finalSlug}`);
 
         // 3. Intento de escritura en la base de datos
         await db.collection('capacitaciones').doc(finalSlug).set({
@@ -306,17 +312,17 @@ storeCapacitacion: async (req, res) => {
                 creadoPor: req.session.user.uid   
         });
 
-        console.log("¡Éxito! Capacitación guardada correctamente.");
+        logger.info("¡Éxito! Capacitación guardada correctamente.");
         res.redirect('/admin/dashboard');
 
     } catch (error) {
         // 4. Captura detallada del error para escuchar con NVDA
-        console.error("--- ERROR CRÍTICO EN STORECAPACITACION ---");
-        console.error("Mensaje del error:", error.message);
+        logger.error("--- ERROR CRÍTICO EN STORECAPACITACION ---");
+        logger.error("Mensaje del error:", error.message);
         
         // Verificamos si es un error de permisos o de conexión de Firebase
         if (error.code) {
-            console.error("Código de error de Firebase:", error.code);
+            logger.error("Código de error de Firebase:", error.code);
         }
 
         // Si el error ocurrió durante la comunicación con Firebase
@@ -341,7 +347,7 @@ storeCapacitacion: async (req, res) => {
     updateCapacitacion: async (req, res) => {
     try {
         const id = req.params.id; // El slug que sirve como ID del documento
-        console.log(`--- Iniciando actualización de capacitación: ${id} ---`); // Log para seguimiento 
+        logger.info(`--- Iniciando actualización de capacitación: ${id} ---`); // Log para seguimiento 
 
         // 1. Capturamos los datos del formulario
         const { 
@@ -357,7 +363,7 @@ storeCapacitacion: async (req, res) => {
 
         // 2. Validación preventiva
         if (!titulo || titulo.trim() === "") {
-            console.error("Error de validación: El título no puede estar vacío.");
+            logger.error("Error de validación: El título no puede estar vacío.");
             return res.status(400).send("El título es obligatorio para actualizar.");
         }
 
@@ -375,17 +381,17 @@ storeCapacitacion: async (req, res) => {
             fechaActualizacion: new Date()
         });
 
-        console.log(`¡Capacitación ${id} actualizada con éxito!`); // Confirmación en consola 
+        logger.info(`¡Capacitación ${id} actualizada con éxito!`); // Confirmación en consola 
         res.redirect('/admin/dashboard');
 
     } catch (error) {
         // 4. Captura detallada de errores para el desarrollador
-        console.error("--- ERROR CRÍTICO EN UPDATECAPACITACION ---");
-        console.error("Mensaje del error:", error.message);
+        logger.error("--- ERROR CRÍTICO EN UPDATECAPACITACION ---");
+        logger.error("Mensaje del error:", error.message);
 
         // Si el error es específicamente de Firebase (ej: el documento no existe)
         if (error.code === 5 || error.message.includes('NOT_FOUND')) {
-            console.error("Error: El documento que intentas editar no existe en Firebase.");
+            logger.error("Error: El documento que intentas editar no existe en Firebase.");
             return res.status(404).send("Error: La capacitación no existe.");
         }
 
@@ -445,11 +451,11 @@ storeCapacitacion: async (req, res) => {
 
     } catch (error) {
         // 1. Log detallado en la terminal de VS Code (esto es lo que tú verás)
-        console.error("--- ERROR AL AGREGAR MÓDULO ---");
-        console.error("Mensaje:", error.message);
-        console.error("Código de error:", error.code); // Útil para Firebase (ej: 'permission-denied')
-        console.error("Stack Trace:", error.stack);
-        console.error("-------------------------------");
+        logger.error("--- ERROR AL AGREGAR MÓDULO ---");
+        logger.error("Mensaje:", error.message);
+        logger.error("Código de error:", error.code); // Útil para Firebase (ej: 'permission-denied')
+        logger.error("Stack Trace:", error.stack);
+        logger.error("-------------------------------");
 
         // 2. Respuesta al navegador más informativa (temporalmente para debugear)
         res.status(500).render('error', { 
@@ -461,7 +467,7 @@ storeCapacitacion: async (req, res) => {
 
 // Muestra el formulario para editar un módulo con sus datos precargados
 editModulo: async (req, res) => {
-    console.log("!!! HE ENTRADO AL CONTROLADOR DE EDICION !!!");
+    logger.info("!!! HE ENTRADO AL CONTROLADOR DE EDICION !!!");
     try {
         // 1. Obtenemos los IDs de la capacitación y del módulo desde la URL
         const { idCap, idModulo } = req.params;
@@ -475,7 +481,7 @@ editModulo: async (req, res) => {
 
         // 3. Verificamos si el módulo existe
         if (!moduloDoc.exists) {
-            console.error("Módulo no encontrado en Firebase");
+            logger.error("Módulo no encontrado en Firebase");
             return res.status(404).send("El módulo que intentas editar no existe.");
         }
 
@@ -490,7 +496,7 @@ editModulo: async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error al abrir formulario de edición:", error);
+        logger.error("Error al abrir formulario de edición:", error);
         res.status(500).send("Error técnico al cargar el módulo");
     }
 },
@@ -521,8 +527,8 @@ updateModulo: async (req, res) => {
         res.redirect(`/admin/capacitaciones/${idCap}/modulos`);
 
     } catch (error) {
-        // Usamos console.error para que lo escuches en el CMD con NVDA
-        console.error("Error detallado:", error);
+        // Usamos logger.error para que lo escuches en el CMD con NVDA
+        logger.error("Error detallado:", error);
         res.status(500).send("Error al actualizar: " + error.message);
     }
 },
