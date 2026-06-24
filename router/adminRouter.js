@@ -47,6 +47,7 @@ router.get('/admin/cursos/nuevo', isAdmin, adminController.createCurso);
 router.post('/admin/cursos/nuevo', isAdmin, adminController.storeCurso);
 router.get('/admin/cursos/editar/:id', isAdmin, adminController.editCurso);
 router.put('/admin/cursos/editar/:id', isAdmin, adminController.updateCurso);
+router.delete('/admin/cursos/eliminar/:id', isAdmin, adminController.deleteCurso);
 
 // Capacitaciones
 router.get('/admin/capacitaciones/nuevo', isAdmin, adminController.createCapacitacion);

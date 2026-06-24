@@ -21,9 +21,14 @@ describe('Admin Controller', () => {
   let mockOrderBy;
   let mockAdd;
   let mockSet;
+  let mockUpdate;
+  let mockDelete;
   let mockDoc;
   let mockWhere;
   let mockLimit;
+  let mockSubDoc;
+  let mockDocCollection;
+  let mockModOrderBy;
 
   beforeEach(() => {
     // Build the Firestore query chain for all patterns used:
@@ -33,13 +38,27 @@ describe('Admin Controller', () => {
     //   .collection('noticias').add(data)
     //   .collection('cursos').doc(slug).set(data)
     //   .collection('capacitaciones').doc(slug).set(data)
+    //   → NEW:  .doc(id).update(data)
+    //   → NEW:  .doc(id).delete()
+    //   → NEW:  .doc(id).collection('modulos').add(data)
+    //   → NEW:  .doc(id).collection('modulos').doc(idMod).delete()
     mockGet = jest.fn();
     mockOrderBy = jest.fn(() => ({ get: mockGet }));
     mockAdd = jest.fn();
     mockSet = jest.fn();
+    mockUpdate = jest.fn();
+    mockDelete = jest.fn();
     mockLimit = jest.fn(() => ({ get: mockGet }));
     mockWhere = jest.fn(() => ({ limit: mockLimit }));
-    mockDoc = jest.fn(() => ({ set: mockSet, get: mockGet }));
+    mockModOrderBy = jest.fn(() => ({ get: mockGet }));
+    mockSubDoc = jest.fn(() => ({ delete: mockDelete, update: mockUpdate, get: mockGet }));
+    mockDocCollection = jest.fn(() => ({
+      add: mockAdd,
+      doc: mockSubDoc,
+      get: mockGet,
+      orderBy: mockModOrderBy
+    }));
+    mockDoc = jest.fn(() => ({ set: mockSet, get: mockGet, update: mockUpdate, delete: mockDelete, collection: mockDocCollection }));
 
     db.collection.mockReturnValue({
       orderBy: mockOrderBy,
@@ -278,6 +297,254 @@ describe('Admin Controller', () => {
       expect(res.status).toBe(400);
       expect(res.text).toContain('título es obligatorio');
       expect(mockSet).not.toHaveBeenCalled();
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // PUT /admin/noticias/editar/:id — update
+  // ──────────────────────────────────────────────
+  describe('PUT /admin/noticias/editar/:id', () => {
+    test('updates noticia via .update() and redirects to /admin/dashboard', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockResolvedValue();
+
+      const res = await agent
+        .put('/admin/noticias/editar/noticia123')
+        .send({
+          titulo: 'Noticia Actualizada',
+          copete: 'Copete actualizado',
+          contenido: 'Contenido actualizado',
+          imagenUrl: 'https://example.com/new.jpg',
+          alt: 'Nueva imagen',
+          slug: 'noticia-actualizada'
+        });
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe('/admin/dashboard');
+
+      expect(db.collection).toHaveBeenCalledWith('noticias');
+      expect(mockDoc).toHaveBeenCalledWith('noticia123');
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
+
+      const updateData = mockUpdate.mock.calls[0][0];
+      expect(updateData.titulo).toBe('Noticia Actualizada');
+      expect(updateData.fecha).toBeInstanceOf(Date);
+      expect(updateData.fechaActualizacion).toBeInstanceOf(Date);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // DELETE /admin/noticias/eliminar/:id — delete
+  // ──────────────────────────────────────────────
+  describe('DELETE /admin/noticias/eliminar/:id', () => {
+    test('deletes noticia via .delete() and redirects to /admin/dashboard', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockDelete.mockResolvedValue();
+
+      const res = await agent.delete('/admin/noticias/eliminar/noticia123');
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe('/admin/dashboard');
+      expect(db.collection).toHaveBeenCalledWith('noticias');
+      expect(mockDoc).toHaveBeenCalledWith('noticia123');
+      expect(mockDelete).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // PUT /admin/cursos/editar/:id — updateCurso
+  // ──────────────────────────────────────────────
+  describe('PUT /admin/cursos/editar/:id', () => {
+    test('updates curso and redirects to /admin/cursos', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockResolvedValue();
+
+      const res = await agent
+        .put('/admin/cursos/editar/curso-uno')
+        .send({
+          titulo: 'Curso Actualizado',
+          descripcionCorta: 'Descripción nueva',
+          modalidad: 'Presencial',
+          duracion: '12 semanas',
+          objetivoGeneral: 'Nuevo objetivo',
+          objetivos: 'Obj1\nObj2\nObj3',
+          temario: 'Tema1\nTema2',
+          imagen: 'https://example.com/img.jpg',
+          alt: 'Imagen curso',
+          urlInscrip: 'https://example.com/inscribir'
+        });
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe('/admin/cursos');
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
+
+      const updateData = mockUpdate.mock.calls[0][0];
+      expect(updateData.titulo).toBe('Curso Actualizado');
+      expect(updateData.descripcion).toBe('Descripción nueva');
+      expect(updateData.objetivos).toEqual(['Obj1', 'Obj2', 'Obj3']);
+      expect(updateData.temario).toEqual(['Tema1', 'Tema2']);
+      expect(updateData.fechaActualizacion).toBeInstanceOf(Date);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // DELETE /admin/cursos/eliminar/:id — deleteCurso
+  // ──────────────────────────────────────────────
+  describe('DELETE /admin/cursos/eliminar/:id', () => {
+    test('deletes curso and redirects to /admin/cursos', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockDelete.mockResolvedValue();
+
+      const res = await agent.delete('/admin/cursos/eliminar/curso-uno');
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe('/admin/cursos');
+      expect(db.collection).toHaveBeenCalledWith('cursos');
+      expect(mockDoc).toHaveBeenCalledWith('curso-uno');
+      expect(mockDelete).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // PUT /admin/capacitaciones/editar/:id — updateCapacitacion
+  // ──────────────────────────────────────────────
+  describe('PUT /admin/capacitaciones/editar/:id', () => {
+    test('updates capacitacion and redirects to dashboard', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockResolvedValue();
+
+      const res = await agent
+        .put('/admin/capacitaciones/editar/cap-uno')
+        .send({
+          titulo: 'Capacitación Actualizada',
+          descripcion: 'Nueva descripción',
+          categoria: 'Testing',
+          instructor: 'María',
+          privado: 'on',
+          link_vivo: 'https://zoom.us/j/new',
+          estado: 'publicado',
+          infoClase: 'Clase especial'
+        });
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe('/admin/dashboard');
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
+
+      const updateData = mockUpdate.mock.calls[0][0];
+      expect(updateData.titulo).toBe('Capacitación Actualizada');
+      expect(updateData.privado).toBe(true);
+      expect(updateData.estado).toBe('publicado');
+      expect(updateData.fechaActualizacion).toBeInstanceOf(Date);
+    });
+
+    test('returns 400 when titulo is empty', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      const res = await agent
+        .put('/admin/capacitaciones/editar/cap-uno')
+        .send({ titulo: '   ' });
+
+      expect(res.status).toBe(400);
+      expect(mockUpdate).not.toHaveBeenCalled();
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // DELETE /admin/capacitaciones/eliminar/:id — deleteCapacitacion
+  // ──────────────────────────────────────────────
+  describe('DELETE /admin/capacitaciones/eliminar/:id', () => {
+    test('deletes capacitacion and redirects to dashboard', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockDelete.mockResolvedValue();
+
+      const res = await agent.delete('/admin/capacitaciones/eliminar/cap-uno');
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toBe('/admin/dashboard');
+      expect(db.collection).toHaveBeenCalledWith('capacitaciones');
+      expect(mockDoc).toHaveBeenCalledWith('cap-uno');
+      expect(mockDelete).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // POST /admin/capacitaciones/:id/modulos/nuevo — storeModulo
+  // ──────────────────────────────────────────────
+  describe('POST /admin/capacitaciones/:id/modulos/nuevo', () => {
+    test('creates modulo in subcollection and redirects', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockAdd.mockResolvedValue({ id: 'mod-new' });
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/nuevo')
+        .send({
+          orden: '1',
+          tituloModulo: 'Módulo 1',
+          descripcion: 'Descripción del módulo',
+          claseGrabada: 'https://youtube.com/embed/abc',
+          linkMaterial: 'https://drive.google.com/file'
+        });
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toMatch(/\/admin\/capacitaciones\/cap-uno\/modulos/);
+      expect(db.collection).toHaveBeenCalledWith('capacitaciones');
+      expect(mockDoc).toHaveBeenCalledWith('cap-uno');
+      expect(mockDocCollection).toHaveBeenCalledWith('modulos');
+      expect(mockAdd).toHaveBeenCalledTimes(1);
+
+      const addData = mockAdd.mock.calls[0][0];
+      expect(addData.orden).toBe(1);
+      expect(addData.tituloModulo).toBe('Módulo 1');
+      expect(addData.fechaCreacion).toBeInstanceOf(Date);
+    });
+
+    test('returns 400 when tituloModulo or orden is missing', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/nuevo')
+        .send({ tituloModulo: 'Solo título' });
+
+      expect(res.status).toBe(400);
+      expect(mockAdd).not.toHaveBeenCalled();
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // DELETE /admin/capacitaciones/:idCap/modulos/eliminar/:idMod — deleteModulo
+  // ──────────────────────────────────────────────
+  describe('DELETE /admin/capacitaciones/:idCap/modulos/eliminar/:idMod', () => {
+    test('deletes modulo and redirects', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockDelete.mockResolvedValue();
+
+      const res = await agent.delete('/admin/capacitaciones/cap-uno/modulos/eliminar/mod123');
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toMatch(/\/admin\/capacitaciones\/cap-uno\/modulos/);
+      expect(db.collection).toHaveBeenCalledWith('capacitaciones');
+      expect(mockDoc).toHaveBeenCalledWith('cap-uno');
+      expect(mockDocCollection).toHaveBeenCalledWith('modulos');
+      expect(mockSubDoc).toHaveBeenCalledWith('mod123');
+      expect(mockDelete).toHaveBeenCalledTimes(1);
     });
   });
 });
