@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const sanitizeHtml = require('sanitize-html');
 const db = require('../config/firebase');
 
 const mainController = {
@@ -70,7 +71,12 @@ const mainController = {
     contacto: (req, res) => res.render('contacto', { title: "Programa Ágora | Contacto" }),
 
     processContacto: async (req, res) => {
-        const { nombre, email, telefono, asunto, mensaje } = req.body;
+        const sanitizeOptions = { allowedTags: [], allowedAttributes: {} };
+        const nombre  = sanitizeHtml(req.body.nombre  || '', sanitizeOptions);
+        const email   = sanitizeHtml(req.body.email   || '', sanitizeOptions);
+        const telefono = sanitizeHtml(req.body.telefono || '', sanitizeOptions);
+        const asunto  = sanitizeHtml(req.body.asunto  || '', sanitizeOptions);
+        const mensaje = sanitizeHtml(req.body.mensaje || '', sanitizeOptions);
         const transporter = nodemailer.createTransport({
             host: "mail.agoraargentina.ar",
             port: 465,
