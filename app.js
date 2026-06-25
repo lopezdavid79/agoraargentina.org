@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { validateEnv } = require('./config/validateEnv');
+        const { validateEnv } = require('./config/validateEnv');
 const logger = require('./config/logger');
 const express = require('express');
 const path = require('path');

@@ -250,7 +250,7 @@ update: async (req, res) => {
                 fechaActualizacion: new Date()
             });
 
-            res.redirect('/admin/cursos');
+            res.redirect('/admin/dashboard');
         } catch (error) {
             logger.error("Error al actualizar curso:", error);
             res.status(500).send("Error al actualizar el curso");

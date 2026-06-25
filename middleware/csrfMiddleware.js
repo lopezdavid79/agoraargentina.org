@@ -15,13 +15,15 @@ function csrfMiddleware(req, res, next) {
     req.session.csrfSecret = tokens.secretSync();
   }
 
-  // For safe methods: generate token and expose it
+  // Generate token for ALL requests so views re-rendered after POST have it
+  res.locals.csrfToken = tokens.create(req.session.csrfSecret);
+
+  // Safe methods: done
   if (SAFE_METHODS.includes(req.method)) {
-    res.locals.csrfToken = tokens.create(req.session.csrfSecret);
     return next();
   }
 
-  // For state-changing methods: validate token
+  // State-changing methods: validate token
   const token = req.body?._csrf || req.query?._csrf || req.headers['csrf-token'] || req.headers['xsrf-token'] || req.headers['x-csrf-token'];
 
   if (!token || !tokens.verify(req.session.csrfSecret, token)) {

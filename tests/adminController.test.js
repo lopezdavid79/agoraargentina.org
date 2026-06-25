@@ -405,7 +405,7 @@ describe('Admin Controller', () => {
         });
 
       expect(res.status).toBe(302);
-      expect(res.headers.location).toBe('/admin/cursos');
+      expect(res.headers.location).toBe('/admin/dashboard');
       expect(mockUpdate).toHaveBeenCalledTimes(1);
 
       const updateData = mockUpdate.mock.calls[0][0];
