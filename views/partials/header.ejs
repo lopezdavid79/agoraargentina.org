@@ -12,6 +12,19 @@
     <meta name="author" content="Ágora Argentina">
     <meta name="robots" content="index, follow">
 
+    <link rel="canonical" href="<%= typeof pageUrl !== 'undefined' ? pageUrl : 'https://agoraargentina.ar/' %>">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Programa Ágora Argentina",
+        "url": "https://agoraargentina.ar/",
+        "description": "Inclusión laboral para personas con discapacidad visual",
+        "areaServed": "Argentina"
+    }
+    </script>
+
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://agoraargentina.ar/">
     <meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'Programa Ágora' %>">

@@ -22,8 +22,8 @@ app.set('views', path.join(__dirname, 'views'));
 // 2. MIDDLEWARES GLOBALES (ORDEN IMPORTANTE)
 
 
-// Archivos estáticos
-app.use(express.static(path.join(__dirname, 'public')));
+// Archivos estáticos (cache 7 días en navegador)
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '7d' }));
 // HTTP request logging to both console and file
 const fs = require('fs');
 const morganStream = fs.createWriteStream(path.join(__dirname, 'logs', 'access.log'), { flags: 'a' });
@@ -65,6 +65,11 @@ app.use((req, res, next) => {
         res.locals.isLogged = true;
         res.locals.user = req.session.user;
     }
+
+    // URL completa para canonical y JSON-LD
+    const host = req.get('host') || 'agoraargentina.ar';
+    res.locals.pageUrl = `https://${host}${req.originalUrl}`;
+    res.locals.host = host;
 
     next();
 });
