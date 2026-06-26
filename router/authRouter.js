@@ -2,6 +2,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const authController = require('../controller/authController');
+const { isAdmin } = require('../middleware/authMiddleware');
 
 // Rate limiter para login: máx 5 intentos cada 15 minutos por IP
 const loginLimiter = rateLimit({
@@ -16,11 +17,6 @@ const loginLimiter = rateLimit({
     });
   }
 });
-
-function isAdmin(req, res, next) {
-    if (req.session && req.session.user) return next();
-    res.redirect('/login');
-}
 
 // Login
 router.get('/login', authController.showLogin);

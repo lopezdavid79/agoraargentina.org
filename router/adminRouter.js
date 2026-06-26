@@ -3,6 +3,7 @@ const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const adminController = require('../controller/adminController');
 const usuariosController = require('../controller/usuariosController');
+const { isAdmin, soloAdmin } = require('../middleware/authMiddleware');
 
 // Rate limiter para rutas admin: máx 30 POST/PUT/DELETE cada 15 minutos por IP
 const adminLimiter = rateLimit({
@@ -21,16 +22,6 @@ const adminLimiter = rateLimit({
 
 // Apply rate limiter to all admin routes (skips GET/HEAD/OPTIONS)
 router.use(adminLimiter);
-
-function isAdmin(req, res, next) {
-    if (req.session && req.session.user) return next();
-    res.redirect('/login');
-}
-
-function soloAdmin(req, res, next) {
-    if (req.session && req.session.user && req.session.user.rol === 'admin') return next();
-    res.status(403).send('Acceso denegado.');
-}
 
 // Dashboard
 router.get('/admin/dashboard', isAdmin, adminController.index);

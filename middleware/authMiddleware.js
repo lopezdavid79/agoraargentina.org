@@ -1,12 +1,19 @@
-const requireLogin = (req, res, next) => {
-    // Verifica si la sesión existe y si la propiedad isLoggedIn es verdadera
+function requireLogin(req, res, next) {
     if (req.session && req.session.user) {
-        // Si está logueado, permite el acceso a la siguiente función del controlador/ruta
-        next(); 
+        next();
     } else {
-        // Si no está logueado, redirige al login
         res.redirect('/login');
     }
-};
+}
 
-module.exports = requireLogin;
+function isAdmin(req, res, next) {
+    if (req.session && req.session.user) return next();
+    res.redirect('/login');
+}
+
+function soloAdmin(req, res, next) {
+    if (req.session && req.session.user && req.session.user.rol === 'admin') return next();
+    res.status(403).send('Acceso denegado.');
+}
+
+module.exports = { requireLogin, isAdmin, soloAdmin };

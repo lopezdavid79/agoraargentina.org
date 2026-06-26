@@ -1,11 +1,7 @@
 const express = require('express');
 const router  = express.Router();
 const informesController = require('../controller/informesController');
-
-function isAdmin(req, res, next) {
-    if (req.session && req.session.user) return next();
-    res.redirect('/login');
-}
+const { isAdmin } = require('../middleware/authMiddleware');
 
 // Listado
 router.get('/admin/informes', isAdmin, informesController.index);

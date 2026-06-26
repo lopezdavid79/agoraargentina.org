@@ -42,7 +42,7 @@ if (usuarioSesion.rol === 'instructor') {
             errores: req.query.errores || null
         });
     } catch (error) {
-        res.status(500).send('Error al cargar el panel');
+        res.status(500).render('error', { message: 'Error al cargar el panel', status: 500 });
     }
 },
 
@@ -66,7 +66,7 @@ if (usuarioSesion.rol === 'instructor') {
             });
             res.redirect('/admin/dashboard');
         } catch (error) {
-            res.send("Error al guardar la noticia");
+            res.status(500).render('error', { message: 'Error al guardar la noticia', status: 500 });
         }
     },
 // controller/adminController.js
@@ -76,11 +76,11 @@ edit: async (req, res) => {
     try {
         const doc = await db.collection('noticias').doc(req.params.id).get();
         if (!doc.exists) {
-            return res.status(404).send("Noticia no encontrada");
+            return res.status(404).render('error', { message: 'Noticia no encontrada', status: 404 });
         }
         res.redirect('/admin');
     } catch (error) {
-        res.status(500).send("Error al cargar la noticia");
+        res.status(500).render('error', { message: 'Error al cargar la noticia', status: 500 });
     }
 },
 
@@ -100,7 +100,7 @@ update: async (req, res) => {
         });
         res.redirect('/admin/dashboard');
     } catch (error) {
-        res.status(500).send("Error al actualizar la noticia");
+        res.status(500).render('error', { message: 'Error al actualizar la noticia', status: 500 });
     }
 },    
 // Borra la noticia de Firestore
@@ -113,7 +113,7 @@ update: async (req, res) => {
             res.redirect('/admin/dashboard'); 
         } catch (error) {
             logger.error("Error al eliminar noticia:", error);
-            res.status(500).send("No se pudo eliminar la noticia. Inténtalo de nuevo.");
+            res.status(500).render('error', { message: 'No se pudo eliminar la noticia. Inténtalo de nuevo.', status: 500 });
         }
     },
 // SECCIÓN CURSOS 
@@ -126,7 +126,7 @@ update: async (req, res) => {
             const cursos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             res.redirect('/admin');
         } catch (error) {
-            res.status(500).send("Error al cargar cursos");
+            res.status(500).render('error', { message: 'Error al cargar cursos', status: 500 });
         }
     },
     // Formulario de nuevo curso
@@ -190,7 +190,7 @@ update: async (req, res) => {
 
     } catch (error) {
         logger.error("ERROR DETALLADO DE FIREBASE:", error);
-        res.status(500).send("Error interno del servidor al guardar en Firebase: " + error.message);
+        res.status(500).render('error', { message: 'Error interno del servidor al guardar en Firebase', status: 500 });
     }
 },
     // Formulario de edición de curso
@@ -213,7 +213,7 @@ update: async (req, res) => {
             res.render('admin/cursos/edit', { title: "Editar Curso", curso: datosParaForm });
         } catch (error) {
             logger.error("Error al cargar curso:", error);
-            res.status(500).send("Error al cargar el curso");
+            res.status(500).render('error', { message: 'Error al cargar el curso', status: 500 });
         }
     },
 
@@ -253,7 +253,7 @@ update: async (req, res) => {
             res.redirect('/admin/dashboard');
         } catch (error) {
             logger.error("Error al actualizar curso:", error);
-            res.status(500).send("Error al actualizar el curso");
+            res.status(500).render('error', { message: 'Error al actualizar el curso', status: 500 });
         }
     },
 
@@ -263,7 +263,7 @@ update: async (req, res) => {
             res.redirect('/admin/cursos');
         } catch (error) {
             logger.error("Error al eliminar curso:", error);
-            res.status(500).send("Error al eliminar");
+            res.status(500).render('error', { message: 'Error al eliminar el curso', status: 500 });
         }
     },
     // SECCIÓN CAPACITACIONES (ÁGORA)
@@ -327,10 +327,10 @@ storeCapacitacion: async (req, res) => {
 
         // Si el error ocurrió durante la comunicación con Firebase
         if (error.stack && error.stack.includes('google-cloud')) {
-            return res.status(503).send("Error de conexión con la base de datos. Reintentá en unos segundos.");
+            return res.status(503).render('error', { message: 'Error de conexión con la base de datos. Reintentá en unos segundos.', status: 503 });
         }
 
-        res.status(500).send(`Error interno al crear la capacitación: ${error.message}`);
+        res.status(500).render('error', { message: 'Error interno al crear la capacitación', status: 500 });
     }
 },
 
@@ -340,7 +340,7 @@ storeCapacitacion: async (req, res) => {
             if (!doc.exists) return res.status(404).send("No encontrada");
             res.redirect('/admin');
         } catch (error) {
-            res.status(500).send("Error al cargar");
+            res.status(500).render('error', { message: 'Error al cargar', status: 500 });
         }
     },
 
@@ -396,7 +396,7 @@ storeCapacitacion: async (req, res) => {
         }
 
         // Error general de servidor
-        res.status(500).send(`Error técnico al actualizar: ${error.message}`);
+        res.status(500).render('error', { message: 'Error técnico al actualizar la capacitación', status: 500 });
     }
 },
     deleteCapacitacion: async (req, res) => {
@@ -404,7 +404,7 @@ storeCapacitacion: async (req, res) => {
             await db.collection('capacitaciones').doc(req.params.id).delete();
             res.redirect('/admin/dashboard');
         } catch (error) {
-            res.status(500).send("Error al eliminar");
+            res.status(500).render('error', { message: 'Error al eliminar la capacitación', status: 500 });
         }
     },
 
@@ -424,7 +424,7 @@ storeCapacitacion: async (req, res) => {
                 modulos 
             });
         } catch (error) {
-            res.status(500).send("Error al cargar módulos");
+            res.status(500).render('error', { message: 'Error al cargar módulos', status: 500 });
         }
     },
 
@@ -497,7 +497,7 @@ editModulo: async (req, res) => {
 
     } catch (error) {
         logger.error("Error al abrir formulario de edición:", error);
-        res.status(500).send("Error técnico al cargar el módulo");
+        res.status(500).render('error', { message: 'Error técnico al cargar el módulo', status: 500 });
     }
 },
 updateModulo: async (req, res) => {
@@ -529,7 +529,7 @@ updateModulo: async (req, res) => {
     } catch (error) {
         // Usamos logger.error para que lo escuches en el CMD con NVDA
         logger.error("Error detallado:", error);
-        res.status(500).send("Error al actualizar: " + error.message);
+        res.status(500).render('error', { message: 'Error al actualizar el módulo', status: 500 });
     }
 },
 
@@ -539,7 +539,7 @@ deleteModulo: async (req, res) => {
             await db.collection('capacitaciones').doc(idCap).collection('modulos').doc(idMod).delete();
             res.redirect(`/admin/capacitaciones/${idCap}/modulos`);
         } catch (error) {
-            res.status(500).send("Error al eliminar módulo");
+            res.status(500).render('error', { message: 'Error al eliminar módulo', status: 500 });
         }
     }
 };

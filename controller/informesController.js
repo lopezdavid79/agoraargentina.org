@@ -23,7 +23,7 @@ const informesController = {
             });
         } catch (error) {
             console.error('[informes.index] Error:', error.message);
-            res.status(500).send('Error al cargar los informes: ' + error.message);
+            res.status(500).render('error', { message: 'Error al cargar los informes', status: 500 });
         }
     },
 

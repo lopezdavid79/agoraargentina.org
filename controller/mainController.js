@@ -41,7 +41,7 @@ const mainController = {
             res.render('noticias', { title: "Archivo de Noticias", noticias: noticiasFirebase });
         } catch (error) {
             logger.error("Error en página noticias:", error);
-            res.status(500).send("Error al cargar las noticias");
+            res.status(500).render('error', { message: 'Error al cargar las noticias', status: 500 });
         }
     },
 
@@ -49,7 +49,7 @@ const mainController = {
         try {
             const snapshot = await db.collection('noticias')
                 .where('slug', '==', req.params.slug).limit(1).get();
-            if (snapshot.empty) return res.status(404).send('Noticia no encontrada');
+            if (snapshot.empty) return res.status(404).render('error', { message: 'Noticia no encontrada', status: 404 });
 
             const doc = snapshot.docs[0];
             const data = doc.data();
@@ -62,7 +62,7 @@ const mainController = {
             res.render('noticias/detail', { title: noticia.titulo, noticia });
         } catch (error) {
             logger.error("Error en detalle:", error);
-            res.status(500).send("Error al cargar el detalle");
+            res.status(500).render('error', { message: 'Error al cargar el detalle', status: 500 });
         }
     },
 
@@ -122,7 +122,7 @@ const mainController = {
             res.render('cursos', { title: "Capacitaciones Disponibles", cursos: cursosFirebase });
         } catch (error) {
             logger.error("Error en página cursos:", error);
-            res.status(500).send("Error al cargar los cursos");
+            res.status(500).render('error', { message: 'Error al cargar los cursos', status: 500 });
         }
     },
 
@@ -130,12 +130,12 @@ const mainController = {
         try {
             const snapshot = await db.collection('cursos')
                 .where('slug', '==', req.params.slug).limit(1).get();
-            if (snapshot.empty) return res.status(404).send('Curso no encontrado');
+            if (snapshot.empty) return res.status(404).render('error', { message: 'Curso no encontrado', status: 404 });
             const doc = snapshot.docs[0];
             res.render('cursos/detail', { title: doc.data().titulo, curso: { id: doc.id, ...doc.data() } });
         } catch (error) {
             logger.error("Error en detalle de curso:", error);
-            res.status(500).send("Error al cargar el detalle del curso");
+            res.status(500).render('error', { message: 'Error al cargar el detalle del curso', status: 500 });
         }
     },
 
@@ -147,7 +147,7 @@ const mainController = {
             const capacitaciones = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             res.render('capacitaciones/index', { title: "Capacitaciones Virtuales 2026", capacitaciones });
         } catch (error) {
-            res.status(500).send("Error al cargar capacitaciones");
+            res.status(500).render('error', { message: 'Error al cargar capacitaciones', status: 500 });
         }
     },
 
@@ -180,7 +180,7 @@ const mainController = {
 
             res.render('capacitaciones/detail', { title: capacitacion.titulo, capacitaciones: capacitacion, modulos });
         } catch (error) {
-            res.status(500).send("Error al cargar el detalle");
+            res.status(500).render('error', { message: 'Error al cargar el detalle', status: 500 });
         }
     }
 };
