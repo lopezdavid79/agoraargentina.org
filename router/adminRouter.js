@@ -57,15 +57,7 @@ router.post('/admin/usuarios/nuevo', soloAdmin, usuariosController.store);
 router.put('/admin/usuarios/editar/:id', soloAdmin, usuariosController.update);
 router.delete('/admin/usuarios/eliminar/:id', soloAdmin, usuariosController.delete);
 
-// Perfil del usuario en sesión
-router.get('/admin/perfil', isAdmin, (req, res) => {
-    res.render('admin/perfil', {
-        title: 'Mi Perfil',
-        user: req.session.user,
-        exito:   req.query.exito   || null,
-        errores: req.query.errores || null
-    });
-});
+// Perfil del usuario en sesión (GET lo maneja authRouter)
 router.put('/admin/perfil',  isAdmin, usuariosController.updatePerfil);
 router.post('/admin/perfil', isAdmin, usuariosController.updatePerfil); // fallback method-override
 
