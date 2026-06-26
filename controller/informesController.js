@@ -55,7 +55,7 @@ const informesController = {
 
         } catch (error) {
             console.error('[informes.store] Error:', error.message);
-            res.status(500).send('Error al guardar el informe: ' + error.message);
+            res.status(500).render('error', { message: 'Error al guardar el informe', status: 500 });
         }
     },
 
@@ -69,7 +69,7 @@ const informesController = {
 
             if (!doc.exists) {
                 console.warn(`[informes.edit] Informe no encontrado: ${id}`);
-                return res.status(404).send('Informe no encontrado.');
+                return res.status(404).render('error', { message: 'Informe no encontrado.', status: 404 });
             }
 
             const informe = doc.data();
@@ -88,7 +88,7 @@ const informesController = {
             });
         } catch (error) {
             console.error('[informes.edit] Error:', error.message);
-            res.status(500).send('Error al cargar el informe: ' + error.message);
+            res.status(500).render('error', { message: 'Error al cargar el informe', status: 500 });
         }
     },
 
@@ -104,7 +104,7 @@ const informesController = {
             const doc = await db.collection('informes').doc(id).get();
             if (!doc.exists) {
                 console.warn(`[informes.update] Informe no encontrado: ${id}`);
-                return res.status(404).send('Informe no encontrado.');
+                return res.status(404).render('error', { message: 'Informe no encontrado.', status: 404 });
             }
 
             const datos = _extraerDatos(req.body);
@@ -119,7 +119,7 @@ const informesController = {
 
         } catch (error) {
             console.error('[informes.update] Error:', error.message);
-            res.status(500).send('Error al actualizar el informe: ' + error.message);
+            res.status(500).render('error', { message: 'Error al actualizar el informe', status: 500 });
         }
     },
 
@@ -136,7 +136,7 @@ const informesController = {
 
         } catch (error) {
             console.error('[informes.delete] Error:', error.message);
-            res.status(500).send('Error al eliminar el informe: ' + error.message);
+            res.status(500).render('error', { message: 'Error al eliminar el informe', status: 500 });
         }
     },
 
@@ -147,7 +147,7 @@ const informesController = {
             console.log(`[informes.generarPDF] Generando PDF para ID: ${id}`);
 
             const doc = await db.collection('informes').doc(id).get();
-            if (!doc.exists) return res.status(404).send('Informe no encontrado.');
+            if (!doc.exists) return res.status(404).render('error', { message: 'Informe no encontrado.', status: 404 });
 
             // Convertir Timestamps de Firestore a string
             const raw = doc.data();
@@ -193,7 +193,7 @@ const informesController = {
 
         } catch (error) {
             console.error('[informes.generarPDF] Error general:', error.message);
-            res.status(500).send('Error al procesar la solicitud: ' + error.message);
+            res.status(500).render('error', { message: 'Error al procesar la solicitud', status: 500 });
         }
     }
 };
