@@ -81,3 +81,7 @@ a:focus, button:focus, input:focus, .card:focus-within {
 .rounded-4 {
     border-radius: 1rem !important;
 }
+
+/* Admin dashboard */
+body.dashboard { background-color: #f8f9fa; }
+.dashboard .d-flex button { min-width: 220px; }

@@ -36,6 +36,7 @@ if (usuarioSesion.rol === 'instructor') {
 
         res.render('admin/dashboard', {
             title: 'Panel de Control',
+            bodyClass: 'dashboard',
             noticias, cursos, capacitaciones, usuarios, informes,
             user: usuarioSesion,
             exito: req.query.exito || null,
