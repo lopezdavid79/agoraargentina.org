@@ -55,7 +55,13 @@ if (usuarioSesion.rol === 'instructor') {
     // Procesa el guardado en Firestore
     store: async (req, res) => {
         try {
-            const { titulo, copete, contenido, imagenUrl, alt,slug } = req.body;
+            const { titulo, copete, contenido, alt, slug } = req.body;
+            const imagenUrl = req.file
+                ? `/images/noticias/${req.file.filename}`
+                : req.body.imagenUrl;
+            if (!imagenUrl) {
+                return res.status(400).send('La imagen es requerida');
+            }
             await db.collection('noticias').add({
                 titulo,
                 copete,
@@ -88,7 +94,10 @@ edit: async (req, res) => {
 // 2. Procesar la actualización (PUT)
 update: async (req, res) => {
     try {
-        const { titulo, copete, contenido, imagenUrl, alt,slug } = req.body;
+        const { titulo, copete, contenido, alt, slug } = req.body;
+        const imagenUrl = req.file
+            ? `/images/noticias/${req.file.filename}`
+            : req.body.imagenUrl;
         await db.collection('noticias').doc(req.params.id).update({
             titulo,
             copete,
@@ -154,15 +163,21 @@ update: async (req, res) => {
             objetivoGeneral, 
             objetivos, 
             temario, 
-            imagen, 
             alt, 
             urlInscrip 
         } = req.body;
 
-        // VALIDACIÓN DE EMERGENCIA
+        // VALIDACIÓN DE EMERGENCIA (slug check first for backward compat)
         if (!slug || slug.trim() === "") {
             logger.error("ERROR: El slug está vacío. No se puede crear el documento.");
             return res.status(400).send("El campo Slug es obligatorio.");
+        }
+
+        const imagen = req.file
+            ? `/images/cursos/${req.file.filename}`
+            : req.body.imagen;
+        if (!imagen) {
+            return res.status(400).send('La imagen es requerida');
         }
 
         const objetivosArray = objetivos ? objetivos.split('\n').map(i => i.trim()).filter(i => i !== "") : [];
@@ -229,10 +244,12 @@ update: async (req, res) => {
                 objetivoGeneral, 
                 objetivos, 
                 temario, 
-                imagen, 
                 alt, 
                 urlInscrip 
             } = req.body;
+            const imagen = req.file
+                ? `/images/cursos/${req.file.filename}`
+                : req.body.imagen;
             
             const objetivosArray = objetivos ? objetivos.split('\n').map(i => i.trim()).filter(i => i !== "") : [];
             const temarioArray = temario ? temario.split('\n').map(i => i.trim()).filter(i => i !== "") : [];

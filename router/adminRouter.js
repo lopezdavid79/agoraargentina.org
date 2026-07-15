@@ -4,6 +4,30 @@ const router = express.Router();
 const adminController = require('../controller/adminController');
 const usuariosController = require('../controller/usuariosController');
 const { isAdmin, soloAdmin } = require('../middleware/authMiddleware');
+const upload = require('../middleware/upload');
+const { MulterError } = require('multer');
+
+/**
+ * Middleware wrapper that handles multer errors with proper HTTP status codes.
+ * Multer errors from fileFilter or limits are caught here before reaching the controller.
+ */
+function uploadHandler(fieldName) {
+  return (req, res, next) => {
+    upload.single(fieldName)(req, res, (err) => {
+      if (err) {
+        if (err instanceof MulterError) {
+          if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).send('Archivo muy grande. Máximo 5MB.');
+          }
+          return res.status(400).send(err.message);
+        }
+        // Non-multer errors (e.g., from fileFilter)
+        return res.status(400).send(err.message || 'Error al subir archivo');
+      }
+      next();
+    });
+  };
+}
 
 // Rate limiter para rutas admin: máx 30 POST/PUT/DELETE cada 15 minutos por IP
 const adminLimiter = rateLimit({
@@ -28,16 +52,16 @@ router.get('/admin/dashboard', isAdmin, adminController.index);
 
 // Noticias
 router.get('/admin/noticias/nuevo', isAdmin, adminController.create);
-router.post('/admin/noticias/nuevo', isAdmin, adminController.store);
+router.post('/admin/noticias/nuevo', isAdmin, uploadHandler('imagenUrl'), adminController.store);
 router.get('/admin/noticias/editar/:id', isAdmin, adminController.edit);
-router.put('/admin/noticias/editar/:id', isAdmin, adminController.update);
+router.put('/admin/noticias/editar/:id', isAdmin, uploadHandler('imagenUrl'), adminController.update);
 router.delete('/admin/noticias/eliminar/:id', isAdmin, adminController.delete);
 
 // Cursos
 router.get('/admin/cursos/nuevo', isAdmin, adminController.createCurso);
-router.post('/admin/cursos/nuevo', isAdmin, adminController.storeCurso);
+router.post('/admin/cursos/nuevo', isAdmin, uploadHandler('imagen'), adminController.storeCurso);
 router.get('/admin/cursos/editar/:id', isAdmin, adminController.editCurso);
-router.put('/admin/cursos/editar/:id', isAdmin, adminController.updateCurso);
+router.put('/admin/cursos/editar/:id', isAdmin, uploadHandler('imagen'), adminController.updateCurso);
 router.delete('/admin/cursos/eliminar/:id', isAdmin, adminController.deleteCurso);
 
 // Capacitaciones
