@@ -364,13 +364,15 @@
     <%- include('./modal_contenedor', { 
         idModal: 'modalNuevaNoticia', tituloModal: 'Crear Nueva Noticia', 
         actionForm: '/admin/noticias/nuevo',
-        rutaFields: './noticias/form_fields', datosInyectados: {} 
+        rutaFields: './noticias/form_fields', datosInyectados: {},
+        multipart: true
     }) %>
 
     <%- include('./modal_contenedor', { 
         idModal: 'modalNuevoCurso', tituloModal: 'Crear Nuevo Curso', 
         actionForm: '/admin/cursos/nuevo',
-        rutaFields: './cursos/form_fields', datosInyectados: {} 
+        rutaFields: './cursos/form_fields', datosInyectados: {},
+        multipart: true
     }) %>
 
     <% if (user.rol === 'admin') { %>

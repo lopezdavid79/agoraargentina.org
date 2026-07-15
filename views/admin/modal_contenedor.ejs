@@ -5,7 +5,7 @@
                 <h5 class="modal-title" id="<%= idModal %>Label"><%= tituloModal %></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <form action="<%= actionForm %>" method="POST">
+            <form action="<%= actionForm %><%= typeof multipart !== 'undefined' && multipart ? '?_csrf=' + csrfToken : '' %>" method="POST" <%= typeof multipart !== 'undefined' && multipart ? 'enctype="multipart/form-data"' : '' %>>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <div class="modal-body text-start">
                                         <%- include(rutaFields, { datos: datosInyectados }) %>
