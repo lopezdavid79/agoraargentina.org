@@ -30,10 +30,10 @@
 
 <div class="row align-items-center mb-3 p-3 bg-light rounded border">
     <div class="col-md-8">
-        <label for="imagenUrl" class="form-label fw-bold">URL de la Imagen</label>
-        <input type="url" class="form-control mb-2" id="imagenUrl" name="imagenUrl" 
-               value="<%= d.imagenUrl || '' %>" 
-               placeholder="https://link-de-tu-imagen.com/foto.jpg" required>
+        <label for="imagenUrl" class="form-label fw-bold">Imagen de la Noticia</label>
+        <input type="file" class="form-control mb-2" id="imagenUrl" name="imagenUrl"
+               accept="image/jpeg,image/png">
+        <input type="hidden" name="imagenUrl" value="<%= d.imagenUrl || '' %>">
         
         <label for="alt" class="form-label fw-bold text-success">Texto Alternativo (Accesibilidad)</label>
         <input type="text" class="form-control" id="alt" name="alt" 
@@ -107,9 +107,9 @@
     }
 
     if (imgIn && preview) {
-        imgIn.addEventListener('input', function () {
-            if (imgIn.value.trim() !== '') {
-                preview.src = imgIn.value;
+        imgIn.addEventListener('change', function () {
+            if (imgIn.files && imgIn.files[0]) {
+                preview.src = URL.createObjectURL(imgIn.files[0]);
                 preview.classList.remove('d-none');
                 if (preText) preText.classList.add('d-none');
             } else {

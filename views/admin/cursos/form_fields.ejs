@@ -93,12 +93,12 @@ const d = typeof datos !== 'undefined' ? datos : {};
 <div class="row align-items-center bg-light p-3 rounded-3 border mb-3">
 
     <div class="col-md-8">
-        <label for="imagen" class="form-label fw-bold">Ruta de la Imagen</label>
-        <input type="text" class="form-control mb-2" id="imagen" name="imagen"
-               value="<%= d.imagen || '' %>" placeholder="Ej: /curso-nvda.webp"
-               aria-describedby="imagen-ayuda"
-               aria-required="true" required>
-        <div id="imagen-ayuda" class="form-text mb-2">Ingresá la ruta relativa o URL de la imagen.</div>
+        <label for="imagen" class="form-label fw-bold">Imagen del Curso</label>
+        <input type="file" class="form-control mb-2" id="imagen" name="imagen"
+               accept="image/jpeg,image/png"
+               aria-describedby="imagen-ayuda">
+        <input type="hidden" name="imagen" value="<%= d.imagen || '' %>">
+        <div id="imagen-ayuda" class="form-text mb-2">Seleccioná una imagen JPEG o PNG.</div>
 
         <label for="alt" class="form-label fw-bold">Texto Alternativo (Accesibilidad)</label>
         <textarea class="form-control" id="alt" name="alt" rows="2"
@@ -163,12 +163,11 @@ const d = typeof datos !== 'undefined' ? datos : {};
         slugEl.value = generarSlug(tituloEl.value);
     }
 
-    // Previsualización de imagen
+    // Previsualización de imagen (file input)
     if (imagenEl && previewEl) {
-        imagenEl.addEventListener('input', function () {
-            var url = imagenEl.value.trim();
-            if (url) {
-                previewEl.src = url;
+        imagenEl.addEventListener('change', function () {
+            if (imagenEl.files && imagenEl.files[0]) {
+                previewEl.src = URL.createObjectURL(imagenEl.files[0]);
                 previewEl.classList.remove('d-none');
                 if (preTextEl) preTextEl.classList.add('d-none');
             } else {
@@ -193,10 +192,18 @@ document.addEventListener('DOMContentLoaded', function () {
             var slugInput = formulario.querySelector('#slug');
             if (slugInput) slugInput.value = '';
 
+            // Restore preview from hidden input value on edit mode
+            var hiddenInput = formulario.querySelector('input[type="hidden"][name="imagen"]');
             var previewImg  = formulario.querySelector('#img-preview');
             var previewText = formulario.querySelector('#preview-text');
-            if (previewImg)  { previewImg.src = ''; previewImg.classList.add('d-none'); }
-            if (previewText) { previewText.classList.remove('d-none'); }
+            if (previewImg && hiddenInput && hiddenInput.value) {
+                previewImg.src = hiddenInput.value;
+                previewImg.classList.remove('d-none');
+                if (previewText) previewText.classList.add('d-none');
+            } else {
+                if (previewImg)  { previewImg.src = ''; previewImg.classList.add('d-none'); }
+                if (previewText) { previewText.classList.remove('d-none'); }
+            }
         });
     });
 });
