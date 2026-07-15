@@ -7,7 +7,7 @@
                 </div>
     
                 <div class="card-body p-4">
-                    <form action="/admin/cursos/editar/<%= curso.id %>?_method=PUT" method="POST">
+                    <form action="/admin/cursos/editar/<%= curso.id %>?_method=PUT&_csrf=<%= csrfToken %>" method="POST" enctype="multipart/form-data">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         
                         <div class="row">
@@ -62,14 +62,15 @@
                         <div class="row align-items-center mb-4">
                             <div class="col-md-8">
                                 <label for="imagen" class="form-label fw-bold">Imagen del Curso</label>
-                                <input type="file" class="form-control mb-2" id="imagen" name="imagen" accept="image/jpeg,image/png">
-                                <input type="hidden" name="imagen" value="<%= curso.imagen %>">
+                                <input type="file" class="form-control mb-1" id="imagen" name="imagen" accept="image/jpeg,image/png" aria-describedby="imagen-ayuda">
+                                <div id="imagen-ayuda" class="form-text mb-2">JPEG o PNG. Máximo 5MB. Dejá vacío para mantener la imagen actual.</div>
+                                <input type="hidden" name="imagen" value="<%= curso.imagen %>" aria-hidden="true">
                                 
                                 <label for="alt" class="form-label fw-bold text-primary">Texto Alternativo (Accesibilidad)</label>
                                 <input type="text" class="form-control" id="alt" name="alt" value="<%= curso.alt || '' %>" required>
                             </div>
                             <div class="col-md-4 text-center">
-                                <div id="preview-container" class="mt-2 border rounded d-flex align-items-center justify-content-center bg-light" style="height: 120px; overflow: hidden;">
+                                <div id="preview-container" class="mt-2 border rounded d-flex align-items-center justify-content-center bg-light" style="height: 120px; overflow: hidden;" aria-hidden="true">
                                     <img id="img-preview" src="<%= curso.imagen %>" alt="<%= curso.alt %>" class="img-fluid">
                                 </div>
                             </div>

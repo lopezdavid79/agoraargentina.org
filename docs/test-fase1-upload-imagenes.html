@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Fase 1 — Upload de Imágenes</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #222; }
+    h1 { border-bottom: 2px solid #0a6; padding-bottom: .5rem; }
+    h2 { color: #0a6; margin-top: 2rem; }
+    h3 { margin-top: 1.5rem; }
+    code { background: #f4f4f4; padding: .15rem .4rem; border-radius: 4px; font-size: .9em; }
+    pre { background: #1e1e2e; color: #cdd6f4; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; padding: 0; color: inherit; }
+    .step { background: #f0fdf4; border-left: 4px solid #0a6; padding: .8rem 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+    .step-error { background: #fef2f2; border-left-color: #d32; }
+    .badge { display: inline-block; font-size: .75rem; padding: .15rem .6rem; border-radius: 20px; font-weight: 600; }
+    .badge-auto { background: #dbeafe; color: #1e40af; }
+    .badge-manual { background: #fef3c7; color: #92400e; }
+    .badge-check { background: #d1fae5; color: #065f46; }
+    ul { padding-left: 1.2rem; }
+    li { margin: .4rem 0; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 2rem 0; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Test Fase 1 — Upload de Imágenes</h1>
+  <p><strong>Cambio:</strong> organizar-imagenes · <strong>Fase 1:</strong> Upload Infrastructure</p>
+
+  <hr>
+
+  <h2>1. Tests automatizados</h2>
+
+  <div class="step">
+    <span class="badge badge-auto">Automático</span>
+    <p style="margin:.5rem 0 0"><strong>Lo primero que siempre corre.</strong></p>
+  </div>
+
+  <pre><code>npm test</code></pre>
+
+  <p>Tenés que ver algo como:</p>
+  <pre><code>Test Suites: 9 passed, 9 total
+Tests:       68 passed (49 existentes + 19 nuevos)</code></pre>
+
+  <p>Si falla algo, revisá los tests en <code>tests/upload.test.js</code> y <code>tests/upload.integration.test.js</code>.</p>
+
+  <hr>
+
+  <h2>2. Upload manual desde el admin</h2>
+
+  <div class="step">
+    <span class="badge badge-manual">Manual</span>
+    <p style="margin:.5rem 0 0"><strong>Probá el flujo completo en el navegador.</strong></p>
+  </div>
+
+  <h3>2.1. Levantar el servidor</h3>
+  <pre><code>npm run dev</code></pre>
+  <p>El servidor arranca en <code>http://localhost:3000</code>.</p>
+
+  <h3>2.2. Iniciar sesión como admin</h3>
+  <ul>
+    <li>Andá a <code>http://localhost:3000</code></li>
+    <li>Iniciá sesión con un usuario admin</li>
+    <li>Te debería llevar al dashboard (<code>/admin/dashboard</code>)</li>
+  </ul>
+
+  <h3>2.3. Crear una noticia con imagen</h3>
+  <ol>
+    <li><strong>Buscá</strong> el botón "Nueva Noticia" en el dashboard</li>
+    <li><strong>Completá</strong> titulo, copete, contenido</li>
+    <li><strong>Imagen:</strong> ahora aparece un <code>&lt;input type="file"&gt;</code> en vez del campo de URL</li>
+    <li><strong>Seleccioná</strong> un archivo JPEG o PNG menor a 5MB</li>
+    <li><strong>Verificá</strong> que se muestre un preview de la imagen antes de enviar</li>
+    <li><strong>Envíá</strong> el formulario</li>
+    <li style="margin-top:.5rem"><strong>✅ Resultado esperado:</strong> redirige al dashboard sin errores. La noticia aparece en la tabla.</li>
+  </ol>
+
+  <h3>2.4. Verificar en Firestore (opcional)</h3>
+  <p>Si tenés acceso a Firebase Console, revisá la colección <code>noticias</code>. El documento nuevo debería tener:</p>
+  <pre><code>imagenUrl: "/images/noticias/{timestamp}-{nombre-del-archivo}"</code></pre>
+
+  <h3>2.5. Verificar el archivo en disco</h3>
+  <pre><code>ls public/images/noticias/</code></pre>
+  <p>Debería aparecer el archivo subido con el nombre formateado: <code>{timestamp}-{slug}.png</code>.</p>
+
+  <h3>2.6. Probar editar una noticia existente</h3>
+  <ol>
+    <li>Hacé clic en "Editar" en una noticia existente</li>
+    <li>Ahora el campo de imagen es un <code>&lt;input type="file"&gt;</code></li>
+    <li>Si <strong>no seleccionás</strong> un archivo nuevo y guardás, la imagen existente se conserva</li>
+    <li>Si <strong>seleccionás</strong> un archivo nuevo, se reemplaza</li>
+  </ol>
+
+  <h3>2.7. Crear / editar un curso</h3>
+  <p>Mismo procedimiento que con noticias, pero los archivos se guardan en <code>public/images/cursos/</code> y el campo Firestore es <code>imagen</code> (no <code>imagenUrl</code>).</p>
+
+  <hr>
+
+  <h2>3. Probar casos de error</h2>
+
+  <div class="step step-error">
+    <span class="badge badge-manual">Manual</span>
+    <p style="margin:.5rem 0 0"><strong>Validaciones de seguridad.</strong></p>
+  </div>
+
+  <h3>3.1. Archivo demasiado grande</h3>
+  <ul>
+    <li>Seleccioná un archivo de <strong>más de 5MB</strong></li>
+    <li><strong>✅ Resultado esperado:</strong> error 413. El servidor responde con un mensaje de error (flash).</li>
+  </ul>
+
+  <h3>3.2. Tipo de archivo no permitido</h3>
+  <ul>
+    <li>Seleccioná un archivo <strong>PDF, GIF, WebP o SVG</strong></li>
+    <li><strong>✅ Resultado esperado:</strong> error 400 con mensaje "Tipo de archivo no permitido".</li>
+  </ul>
+
+  <h3>3.3. Crear noticia/curso sin imagen</h3>
+  <ul>
+    <li>Completá el formulario de nueva noticia <strong>sin seleccionar archivo</strong></li>
+    <li><strong>✅ Resultado esperado:</strong> error 400 "Imagen requerida".</li>
+  </ul>
+
+  <hr>
+
+  <h2>4. Tests de integración automatizados</h2>
+
+  <div class="step">
+    <span class="badge badge-auto">Automático</span>
+    <p style="margin:.5rem 0 0"><strong>Ya los corriste en el paso 1, pero acá están los casos individuales:</strong></p>
+  </div>
+
+  <table style="width:100%; border-collapse: collapse; margin:1rem 0;">
+    <tr style="background:#f4f4f4;"><th style="text-align:left; padding:.5rem;">Caso</th><th style="text-align:left; padding:.5rem;">Esperado</th></tr>
+    <tr><td style="padding:.4rem;">POST noticia con JPEG válido</td><td>✅ redirect + imagenUrl en Firestore</td></tr>
+    <tr><td style="padding:.4rem;">POST noticia con PNG válido</td><td>✅ redirect + imagenUrl en Firestore</td></tr>
+    <tr><td style="padding:.4rem;">POST curso con JPEG válido</td><td>✅ redirect + imagen en Firestore</td></tr>
+    <tr><td style="padding:.4rem;">POST curso con PNG válido</td><td>✅ redirect + imagen en Firestore</td></tr>
+    <tr><td style="padding:.4rem;">POST noticia sin archivo</td><td>⚠️ 400 Bad Request</td></tr>
+    <tr><td style="padding:.4rem;">POST curso sin archivo</td><td>⚠️ 400 Bad Request</td></tr>
+    <tr><td style="padding:.4rem;">POST con archivo >5MB</td><td>⚠️ 413 Payload Too Large</td></tr>
+    <tr><td style="padding:.4rem;">POST con PDF</td><td>⚠️ 400 MIME no permitido</td></tr>
+  </table>
+
+  <hr>
+
+  <h2>5. Checklist rápido</h2>
+
+  <ul style="list-style: none; padding: 0;">
+    <li style="padding:.3rem 0;">⬜ <code>npm test</code> pasa (68 tests, 9 suites)</li>
+    <li style="padding:.3rem 0;">⬜ Formulario de noticia muestra file input con preview</li>
+    <li style="padding:.3rem 0;">⬜ Formulario de curso muestra file input con preview</li>
+    <li style="padding:.3rem 0;">⬜ Upload exitoso guarda archivo en <code>public/images/noticias/</code> o <code>cursos/</code></li>
+    <li style="padding:.3rem 0;">⬜ Upload exitoso guarda ruta en Firestore</li>
+    <li style="padding:.3rem 0;">⬜ Edición sin seleccionar archivo conserva imagen existente</li>
+    <li style="padding:.3rem 0;">⬜ Archivo >5MB → error 413</li>
+    <li style="padding:.3rem 0;">⬜ Archivo no JPEG/PNG → error 400</li>
+    <li style="padding:.3rem 0;">⬜ Creación sin imagen → error 400</li>
+  </ul>
+
+  <hr>
+
+  <p style="color:#666; font-size:.9rem;">Documento generado para el change <strong>organizar-imagenes</strong> · Fase 1 completada.</p>
+</body>
+</html>

@@ -1,14 +1,15 @@
 <%
 const d = typeof datos !== 'undefined' ? datos : {};
+const idP = typeof idPrefijo !== 'undefined' && idPrefijo ? '-' + idPrefijo : '';
 %>
 
 <div class="row">
 
     <!-- Título del Curso -->
     <div class="col-md-7 mb-3">
-        <label for="titulo" class="form-label fw-bold text-primary">Título del Curso</label>
+        <label for="titulo<%= idP %>" class="form-label fw-bold text-primary">Título del Curso</label>
         <input type="text" class="form-control form-control-lg border-primary-subtle"
-               id="titulo" name="titulo"
+               id="titulo<%= idP %>" name="titulo"
                value="<%= d.titulo || '' %>"
                placeholder="Ej: Word Accesible con NVDA"
                aria-required="true" required autofocus>
@@ -16,13 +17,12 @@ const d = typeof datos !== 'undefined' ? datos : {};
 
     <!-- Slug -->
     <div class="col-md-5 mb-3">
-        <label for="slug" class="form-label fw-bold text-muted">Slug (URL amigable)</label>
+        <label for="slug<%= idP %>" class="form-label fw-bold text-muted">Slug (URL amigable)</label>
         <input type="text" class="form-control form-control-lg"
-               id="slug" name="slug"
-               value="<%= d.slug || '' %>"
-               aria-describedby="slug-ayuda"
+               id="slug<%= idP %>" name="slug"
+               aria-describedby="slug-ayuda<%= idP %>"
                aria-required="true" required>
-        <div id="slug-ayuda" class="form-text">Se genera automáticamente desde el título. Puede editarlo.</div>
+        <div id="slug-ayuda<%= idP %>" class="form-text">Se genera automáticamente desde el título. Puede editarlo.</div>
     </div>
 
 </div><!-- /row -->
@@ -31,8 +31,8 @@ const d = typeof datos !== 'undefined' ? datos : {};
 
     <!-- Modalidad -->
     <div class="col-md-6 mb-3">
-        <label for="modalidad" class="form-label fw-bold">Modalidad</label>
-        <select class="form-select" id="modalidad" name="modalidad" aria-required="true" required>
+        <label for="modalidad<%= idP %>" class="form-label fw-bold">Modalidad</label>
+        <select class="form-select" id="modalidad<%= idP %>" name="modalidad" aria-required="true" required>
             <option value="" disabled <%= !d.modalidad ? 'selected' : '' %>>Seleccionar...</option>
             <option value="Online - Sincrónico"  <%= d.modalidad === 'Online - Sincrónico'  ? 'selected' : '' %>>Online - Sincrónico</option>
             <option value="Online - Asincrónico" <%= d.modalidad === 'Online - Asincrónico' ? 'selected' : '' %>>Online - Asincrónico</option>
@@ -43,48 +43,48 @@ const d = typeof datos !== 'undefined' ? datos : {};
 
     <!-- Duración -->
     <div class="col-md-3 mb-3">
-        <label for="duracion" class="form-label fw-bold">Duración</label>
-        <input type="text" class="form-control" id="duracion" name="duracion"
+        <label for="duracion<%= idP %>" class="form-label fw-bold">Duración</label>
+        <input type="text" class="form-control" id="duracion<%= idP %>" name="duracion"
                value="<%= d.duracion || '' %>" placeholder="Ej: 20 horas"
                aria-required="true" required>
     </div>
 
     <!-- URL Inscripción -->
     <div class="col-12 mb-3">
-        <label for="urlInscrip" class="form-label fw-bold text-danger">URL de Formulario de Inscripción</label>
-        <input type="url" class="form-control" id="urlInscrip" name="urlInscrip"
+        <label for="urlInscrip<%= idP %>" class="form-label fw-bold text-danger">URL de Formulario de Inscripción</label>
+        <input type="url" class="form-control" id="urlInscrip<%= idP %>" name="urlInscrip"
                value="<%= d.urlInscrip || '' %>"
                aria-required="true" required>
     </div>
 
     <!-- Objetivo General -->
     <div class="col-12 mb-3">
-        <label for="objetivoGeneral" class="form-label fw-bold">Objetivo General</label>
-        <textarea class="form-control" id="objetivoGeneral" name="objetivoGeneral"
+        <label for="objetivoGeneral<%= idP %>" class="form-label fw-bold">Objetivo General</label>
+        <textarea class="form-control" id="objetivoGeneral<%= idP %>" name="objetivoGeneral"
                   rows="2" aria-required="true" required><%= d.objetivoGeneral || '' %></textarea>
     </div>
 
     <!-- Descripción Corta -->
     <div class="col-12 mb-3">
-        <label for="descripcionCorta" class="form-label fw-bold">Descripción Corta (Resumen)</label>
-        <textarea class="form-control" id="descripcionCorta" name="descripcionCorta"
+        <label for="descripcionCorta<%= idP %>" class="form-label fw-bold">Descripción Corta (Resumen)</label>
+        <textarea class="form-control" id="descripcionCorta<%= idP %>" name="descripcionCorta"
                   rows="2" aria-required="true" required><%= d.descripcion || '' %></textarea>
     </div>
 
     <!-- Objetivos Específicos -->
     <div class="col-md-6 mb-3">
-        <label for="objetivos" class="form-label fw-bold">Objetivos Específicos</label>
-        <div id="objetivos-ayuda" class="form-text mb-1">Escribí uno por línea.</div>
-        <textarea class="form-control" id="objetivos" name="objetivos"
-                  rows="6" aria-describedby="objetivos-ayuda"><%= d.objetivosText || '' %></textarea>
+        <label for="objetivos<%= idP %>" class="form-label fw-bold">Objetivos Específicos</label>
+        <div id="objetivos-ayuda<%= idP %>" class="form-text mb-1">Escribí uno por línea.</div>
+        <textarea class="form-control" id="objetivos<%= idP %>" name="objetivos"
+                  rows="6" aria-describedby="objetivos-ayuda<%= idP %>"><%= d.objetivosText || '' %></textarea>
     </div>
 
     <!-- Temario -->
     <div class="col-md-6 mb-3">
-        <label for="temario" class="form-label fw-bold">Temario</label>
-        <div id="temario-ayuda" class="form-text mb-1">Escribí uno por línea.</div>
-        <textarea class="form-control" id="temario" name="temario"
-                  rows="6" aria-describedby="temario-ayuda"><%= d.temarioText || '' %></textarea>
+        <label for="temario<%= idP %>" class="form-label fw-bold">Temario</label>
+        <div id="temario-ayuda<%= idP %>" class="form-text mb-1">Escribí uno por línea.</div>
+        <textarea class="form-control" id="temario<%= idP %>" name="temario"
+                  rows="6" aria-describedby="temario-ayuda<%= idP %>"><%= d.temarioText || '' %></textarea>
     </div>
 
 </div><!-- /row -->
@@ -93,29 +93,29 @@ const d = typeof datos !== 'undefined' ? datos : {};
 <div class="row align-items-center bg-light p-3 rounded-3 border mb-3">
 
     <div class="col-md-8">
-        <label for="imagen" class="form-label fw-bold">Imagen del Curso</label>
-        <input type="file" class="form-control mb-2" id="imagen" name="imagen"
+        <label for="imagen<%= idP %>" class="form-label fw-bold">Imagen del Curso</label>
+        <input type="file" class="form-control mb-2" id="imagen<%= idP %>" name="imagen"
                accept="image/jpeg,image/png"
-               aria-describedby="imagen-ayuda">
+               aria-describedby="imagen-ayuda<%= idP %>">
         <input type="hidden" name="imagen" value="<%= d.imagen || '' %>">
-        <div id="imagen-ayuda" class="form-text mb-2">Seleccioná una imagen JPEG o PNG.</div>
+        <div id="imagen-ayuda<%= idP %>" class="form-text mb-2">JPEG o PNG. Máximo 5MB.</div>
 
-        <label for="alt" class="form-label fw-bold">Texto Alternativo (Accesibilidad)</label>
-        <textarea class="form-control" id="alt" name="alt" rows="2"
+        <label for="alt<%= idP %>" class="form-label fw-bold">Texto Alternativo (Accesibilidad)</label>
+        <textarea class="form-control" id="alt<%= idP %>" name="alt" rows="2"
                   placeholder="Describe la imagen para personas con discapacidad visual..."
                   aria-required="true" required><%= d.alt || '' %></textarea>
     </div>
 
     <div class="col-md-4 text-center">
-        <div id="preview-container"
+        <div id="preview-container<%= idP %>"
              class="border rounded bg-white d-flex align-items-center justify-content-center"
              style="height: 120px; overflow: hidden;"
              aria-hidden="true">
-            <img id="img-preview"
+            <img id="img-preview<%= idP %>"
                  src="<%= d.imagen || '' %>"
                  class="img-fluid <%= d.imagen ? '' : 'd-none' %>"
                  alt="">
-            <p id="preview-text" class="text-muted small <%= d.imagen ? 'd-none' : '' %>">Sin vista previa</p>
+            <p id="preview-text<%= idP %>" class="text-muted small <%= d.imagen ? 'd-none' : '' %>">Sin vista previa</p>
         </div>
     </div>
 
@@ -123,11 +123,15 @@ const d = typeof datos !== 'undefined' ? datos : {};
 
 <script>
 (function iniciarForm() {
-    var tituloEl  = document.getElementById('titulo');
-    var slugEl    = document.getElementById('slug');
-    var imagenEl  = document.getElementById('imagen');
-    var previewEl = document.getElementById('img-preview');
-    var preTextEl = document.getElementById('preview-text');
+    var scripts = document.querySelectorAll('script');
+    var thisScript = scripts[scripts.length - 1];
+    var container = thisScript.closest('.modal, form') || document;
+
+    var tituloEl  = container.querySelector('[name="titulo"]');
+    var slugEl    = container.querySelector('[name="slug"]');
+    var imagenEl  = container.querySelector('[name="imagen"]');
+    var previewEl = container.querySelector('#img-preview<%= idP %>');
+    var preTextEl = container.querySelector('#preview-text<%= idP %>');
 
     // Reintenta si el DOM no está listo aún (partial cargado post DOMContentLoaded)
     if (!tituloEl || !slugEl) {
@@ -189,13 +193,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             formulario.reset();
 
-            var slugInput = formulario.querySelector('#slug');
+            var slugInput = formulario.querySelector('#slug<%= idP %>');
             if (slugInput) slugInput.value = '';
 
             // Restore preview from hidden input value on edit mode
             var hiddenInput = formulario.querySelector('input[type="hidden"][name="imagen"]');
-            var previewImg  = formulario.querySelector('#img-preview');
-            var previewText = formulario.querySelector('#preview-text');
+            var previewImg  = formulario.querySelector('#img-preview<%= idP %>');
+            var previewText = formulario.querySelector('#preview-text<%= idP %>');
             if (previewImg && hiddenInput && hiddenInput.value) {
                 previewImg.src = hiddenInput.value;
                 previewImg.classList.remove('d-none');

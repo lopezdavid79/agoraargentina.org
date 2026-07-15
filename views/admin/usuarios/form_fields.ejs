@@ -1,31 +1,31 @@
-<% const d = typeof datos !== 'undefined' ? datos : {}; %>
+<% const d = typeof datos !== 'undefined' ? datos : {}; const idP = typeof idPrefijo !== 'undefined' && idPrefijo ? '-' + idPrefijo : ''; %>
 <div class="mb-3">
-    <label for="name" class="form-label fw-bold">Nombre y Apellido</label>
-    <input type="text" class="form-control" id="name" name="name"
+    <label for="name<%= idP %>" class="form-label fw-bold">Nombre y Apellido</label>
+    <input type="text" class="form-control" id="name<%= idP %>" name="name"
            value="<%= d.name|| '' %>" required autofocus>
 </div>
 
 <div class="mb-3">
-    <label for="mail" class="form-label fw-bold">Mail</label>
-    <input type="text" class="form-control" id="mail" name="mail"
+    <label for="mail<%= idP %>" class="form-label fw-bold">Mail</label>
+    <input type="text" class="form-control" id="mail<%= idP %>" name="mail"
            value="<%= d.mail|| '' %>" required >
 </div>
 
 <div class="mb-3">
-    <label for="tel" class="form-label fw-bold">Telefono</label>
-    <input type="text" class="form-control" id="tel" name="tel"
+    <label for="tel<%= idP %>" class="form-label fw-bold">Telefono</label>
+    <input type="text" class="form-control" id="tel<%= idP %>" name="tel"
            value="<%= d.tel || '' %>" required >
 </div>
 
 <div class="mb-3">
-    <label for="username" class="form-label fw-bold">Nombre de usuario</label>
-    <input type="text" class="form-control" id="username" name="username"
+    <label for="username<%= idP %>" class="form-label fw-bold">Nombre de usuario</label>
+    <input type="text" class="form-control" id="username<%= idP %>" name="username"
            value="<%= d.username || '' %>" required autofocus>
 </div>
 
 <div class="mb-3">
-    <label for="password" class="form-label fw-bold">Contraseña</label>
-    <input type="password" class="form-control" id="password" name="password"
+    <label for="password<%= idP %>" class="form-label fw-bold">Contraseña</label>
+    <input type="password" class="form-control" id="password<%= idP %>" name="password"
            placeholder="Mínimo 6 caracteres" <%= d.username ? '' : 'required' %>>
     <% if (d.username) { %>
         <div class="form-text">Dejá en blanco para no cambiar la contraseña.</div>
@@ -33,8 +33,8 @@
 </div>
 
 <div class="mb-3">
-    <label for="rol" class="form-label fw-bold">Rol</label>
-    <select class="form-select" id="rol" name="rol" required>
+    <label for="rol<%= idP %>" class="form-label fw-bold">Rol</label>
+    <select class="form-select" id="rol<%= idP %>" name="rol" required>
         <option value="admin"      <%= (d.rol === 'admin')      ? 'selected' : '' %>>Administrador</option>
         <option value="instructor" <%= (d.rol === 'instructor') ? 'selected' : '' %>>Instructor</option>
     </select>
