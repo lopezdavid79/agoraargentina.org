@@ -1,6 +1,8 @@
 <%
 const d = typeof datos !== 'undefined' ? datos : {};
 const idP = typeof idPrefijo !== 'undefined' && idPrefijo ? '-' + idPrefijo : '';
+const objetivosVal = d.objetivosText || (d.objetivos && Array.isArray(d.objetivos) ? d.objetivos.join('\n') : '');
+const temarioVal = d.temarioText || (d.temario && Array.isArray(d.temario) ? d.temario.join('\n') : '');
 %>
 
 <div class="row">
@@ -76,7 +78,7 @@ const idP = typeof idPrefijo !== 'undefined' && idPrefijo ? '-' + idPrefijo : ''
         <label for="objetivos<%= idP %>" class="form-label fw-bold">Objetivos Específicos</label>
         <div id="objetivos-ayuda<%= idP %>" class="form-text mb-1">Escribí uno por línea.</div>
         <textarea class="form-control" id="objetivos<%= idP %>" name="objetivos"
-                  rows="6" aria-describedby="objetivos-ayuda<%= idP %>"><%= d.objetivosText || '' %></textarea>
+                  rows="6" aria-describedby="objetivos-ayuda<%= idP %>"><%= objetivosVal %></textarea>
     </div>
 
     <!-- Temario -->
@@ -84,7 +86,7 @@ const idP = typeof idPrefijo !== 'undefined' && idPrefijo ? '-' + idPrefijo : ''
         <label for="temario<%= idP %>" class="form-label fw-bold">Temario</label>
         <div id="temario-ayuda<%= idP %>" class="form-text mb-1">Escribí uno por línea.</div>
         <textarea class="form-control" id="temario<%= idP %>" name="temario"
-                  rows="6" aria-describedby="temario-ayuda<%= idP %>"><%= d.temarioText || '' %></textarea>
+                  rows="6" aria-describedby="temario-ayuda<%= idP %>"><%= temarioVal %></textarea>
     </div>
 
 </div><!-- /row -->
