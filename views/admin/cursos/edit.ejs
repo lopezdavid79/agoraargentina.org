@@ -62,8 +62,8 @@
                         <div class="row align-items-center mb-4">
                             <div class="col-md-8">
                                 <label for="imagen" class="form-label fw-bold">Imagen del Curso</label>
-                                <input type="file" class="form-control mb-1" id="imagen" name="imagen" accept="image/jpeg,image/png" aria-describedby="imagen-ayuda">
-                                <div id="imagen-ayuda" class="form-text mb-2">JPEG o PNG. Máximo 5MB. Dejá vacío para mantener la imagen actual.</div>
+                                <input type="file" class="form-control mb-1" id="imagen" name="imagen" accept="image/jpeg,image/png,image/webp" aria-describedby="imagen-ayuda">
+                                <div id="imagen-ayuda" class="form-text mb-2">JPEG, PNG o WebP. Máximo 5MB. Dejá vacío para mantener la imagen actual.</div>
                                 <input type="hidden" name="imagen" value="<%= curso.imagen %>" aria-hidden="true">
                                 
                                 <label for="alt" class="form-label fw-bold text-primary">Texto Alternativo (Accesibilidad)</label>

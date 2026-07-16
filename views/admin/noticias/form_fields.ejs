@@ -33,9 +33,9 @@
     <div class="col-md-8">
         <label for="imagenUrl<%= idP %>" class="form-label fw-bold">Imagen de la Noticia</label>
         <input type="file" class="form-control mb-1" id="imagenUrl<%= idP %>" name="imagenUrl"
-               accept="image/jpeg,image/png"
+               accept="image/jpeg,image/png,image/webp"
                aria-describedby="imagenUrl-ayuda<%= idP %>">
-        <div id="imagenUrl-ayuda<%= idP %>" class="form-text mb-2">JPEG o PNG. Máximo 5MB.</div>
+        <div id="imagenUrl-ayuda<%= idP %>" class="form-text mb-2">JPEG, PNG o WebP. Máximo 5MB.</div>
         <input type="hidden" name="imagenUrl" value="<%= d.imagenUrl || '' %>" aria-hidden="true">
         
         <label for="alt<%= idP %>" class="form-label fw-bold text-success">Texto Alternativo (Accesibilidad)</label>

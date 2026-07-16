@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const MEGABYTE = 1024 * 1024;
-const ALLOWED_MIMES = ['image/jpeg', 'image/png'];
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 5 * MEGABYTE;
 
 /**

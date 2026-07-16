@@ -95,10 +95,10 @@ const idP = typeof idPrefijo !== 'undefined' && idPrefijo ? '-' + idPrefijo : ''
     <div class="col-md-8">
         <label for="imagen<%= idP %>" class="form-label fw-bold">Imagen del Curso</label>
         <input type="file" class="form-control mb-2" id="imagen<%= idP %>" name="imagen"
-               accept="image/jpeg,image/png"
+               accept="image/jpeg,image/png,image/webp"
                aria-describedby="imagen-ayuda<%= idP %>">
         <input type="hidden" name="imagen" value="<%= d.imagen || '' %>">
-        <div id="imagen-ayuda<%= idP %>" class="form-text mb-2">JPEG o PNG. Máximo 5MB.</div>
+        <div id="imagen-ayuda<%= idP %>" class="form-text mb-2">JPEG, PNG o WebP. Máximo 5MB.</div>
 
         <label for="alt<%= idP %>" class="form-label fw-bold">Texto Alternativo (Accesibilidad)</label>
         <textarea class="form-control" id="alt<%= idP %>" name="alt" rows="2"

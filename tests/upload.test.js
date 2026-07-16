@@ -22,6 +22,12 @@ describe('Upload Middleware', () => {
       expect(cb).toHaveBeenCalledWith(null, true);
     });
 
+    test('accepts image/webp', () => {
+      const cb = jest.fn();
+      upload.fileFilter({}, { mimetype: 'image/webp' }, cb);
+      expect(cb).toHaveBeenCalledWith(null, true);
+    });
+
     test('rejects application/pdf', () => {
       const cb = jest.fn();
       upload.fileFilter({}, { mimetype: 'application/pdf' }, cb);
