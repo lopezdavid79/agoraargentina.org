@@ -318,7 +318,8 @@ describe('Admin Controller', () => {
           contenido: 'Contenido actualizado',
           imagenUrl: 'https://example.com/new.jpg',
           alt: 'Nueva imagen',
-          slug: 'noticia-actualizada'
+          slug: 'noticia-actualizada',
+          actualizarFecha: 'on'
         });
 
       expect(res.status).toBe(302);

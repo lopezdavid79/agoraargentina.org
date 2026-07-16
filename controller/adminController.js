@@ -92,27 +92,31 @@ edit: async (req, res) => {
 },
 
 // 2. Procesar la actualización (PUT)
-update: async (req, res) => {
-    try {
-        const { titulo, copete, contenido, alt, slug } = req.body;
-        const imagenUrl = req.file
-            ? `/images/noticias/${req.file.filename}`
-            : req.body.imagenUrl;
-        await db.collection('noticias').doc(req.params.id).update({
-            titulo,
-            copete,
-            contenido,
-            imagenUrl,
-            alt,
-            slug,
-            fecha: new Date(), 
-            fechaActualizacion: new Date() // Opcional: para saber cuándo se editó
-        });
-        res.redirect('/admin/dashboard');
-    } catch (error) {
-        res.status(500).render('error', { message: 'Error al actualizar la noticia', status: 500 });
-    }
-},    
+    update: async (req, res) => {
+        try {
+            const { titulo, copete, contenido, alt, slug, actualizarFecha } = req.body;
+            const imagenUrl = req.file
+                ? `/images/noticias/${req.file.filename}`
+                : req.body.imagenUrl;
+            const data = {
+                titulo,
+                copete,
+                contenido,
+                imagenUrl,
+                alt,
+                slug,
+                fechaActualizacion: new Date()
+            };
+            // Solo actualizar la fecha de publicación si el usuario lo pide
+            if (actualizarFecha === 'on' || actualizarFecha === 'true') {
+                data.fecha = new Date();
+            }
+            await db.collection('noticias').doc(req.params.id).update(data);
+            res.redirect('/admin/dashboard');
+        } catch (error) {
+            res.status(500).render('error', { message: 'Error al actualizar la noticia', status: 500 });
+        }
+    },    
 // Borra la noticia de Firestore
     delete: async (req, res) => {
         try {
