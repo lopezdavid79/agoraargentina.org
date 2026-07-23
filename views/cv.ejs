@@ -16,6 +16,7 @@
     <% } %>
 
     <form action="/cv/generar" method="POST" id="form-cv">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
         <!-- DATOS PERSONALES -->
         <div class="card mb-4">
