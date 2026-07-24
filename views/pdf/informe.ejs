@@ -20,6 +20,9 @@
       size: A4;
       margin: 56pt;
     }
+    @page participants {
+      margin: 56pt;
+    }
 
     /* ─── Headings ─────────────────────────────────────── */
     h1 {
@@ -105,12 +108,22 @@
     /* ─── Signature area ───────────────────────────────── */
     .signature {
       margin-top: 20pt;
+      page-break-inside: avoid;
     }
     .signature-line {
       width: 130pt;
       border-top: 1px solid #000;
       margin-bottom: 4pt;
     }
+
+    /* ─── Page breaks ──────────────────────────────────── */
+    h2 { page-break-after: avoid; }
+    h2.section-break { page-break-before: always; }
+    table { page-break-inside: auto; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+    thead { display: table-header-group; }
+    tfoot { display: table-footer-group; }
+    .page-break { page-break-before: always; }
 
     /* ─── Utility ──────────────────────────────────────── */
     .text-muted { color: #666; font-style: italic; }
@@ -146,7 +159,8 @@
   </dl>
 
   <!-- ═══════════════ 3. Desarrollo ═══════════════ -->
-  <h2>3. Desarrollo</h2>
+  <div class="page-break"></div>
+  <h2 class="section-break">3. Desarrollo</h2>
 
   <h3>Objetivo general</h3>
   <p><%= locals.obj_general || '—' %></p>
@@ -211,7 +225,8 @@
   <p>Puntualidad y asistencia • Participación • Seguimiento de instrucciones • Comprensión de contenidos • Resolución de ejercicios. Escala: 1-10</p>
 
   <!-- ═══════════════ 5. Participantes ═══════════════ -->
-  <h2>5. Información de los Participantes</h2>
+  <div class="page-break"></div>
+  <h2 class="section-break">5. Información de los Participantes</h2>
   <% var participantes = locals.participantes || []; %>
   <% if (participantes.length) { %>
     <table>
