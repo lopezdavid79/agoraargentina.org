@@ -1,8 +1,5 @@
 const db     = require('../config/firebase');
-const path   = require('path');
-const fs     = require('fs');
-const os     = require('os');
-const { execFile, exec } = require('child_process');
+const { generarPdfAccesible } = require('../scripts/pdfGenerator');
 
 const informesController = {
 
@@ -140,7 +137,7 @@ const informesController = {
         }
     },
 
-    // ── Generar y descargar PDF ────────────────────────────────────────
+    // ── Generar y descargar PDF (accesible, tagged) ────────────────────
     generarPDF: async (req, res) => {
         try {
             const { id } = req.params;
@@ -159,36 +156,31 @@ const informesController = {
             }));
             datos.id = id;
 
-            // Use Node implementation to generate PDF instead of Python script
-            const { generarPdf } = require(path.join(__dirname, '..', 'scripts', 'generar_informe'));
-            const tmpPdf = path.join(os.tmpdir(), `informe_${id}.pdf`);
-
-            try {
-                await generarPdf(datos, tmpPdf);
-            } catch (e) {
-                console.error('[informes.generarPDF] Error generando PDF (Node):', e && e.message ? e.message : e);
-                return res.status(500).send('<h3>Error al generar el PDF en el servidor</h3><pre>' + (e && e.stack ? e.stack : String(e)) + '</pre>');
-            }
-
-            if (!fs.existsSync(tmpPdf)) {
-                console.error('[informes.generarPDF] PDF no generado en:', tmpPdf);
-                return res.status(500).send('No se pudo generar el PDF.');
-            }
-
-            const nombreArchivo = `informe_${(datos.nombre || 'formacion')
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/[^a-z0-9-]/g, '')}.pdf`;
-
-            console.log(`[informes.generarPDF] Enviando: ${nombreArchivo}`);
-
-            res.download(tmpPdf, nombreArchivo, (downloadErr) => {
-                if (downloadErr) {
-                    console.error('[informes.generarPDF] Error al enviar:', downloadErr.message);
+            // Render template EJS a HTML string
+            res.render('pdf/informe', { locals: datos }, async (renderErr, html) => {
+                if (renderErr) {
+                    console.error('[informes.generarPDF] Error al renderizar template:', renderErr.message);
+                    return res.status(500).render('error', { message: 'Error al generar el PDF', status: 500 });
                 }
-                try { fs.unlinkSync(tmpPdf); } catch (_) {}
+
+                try {
+                    const buffer = await generarPdfAccesible(html, { format: 'A4' });
+
+                    const nombreArchivo = `informe_${(datos.nombre || 'formacion')
+                        .toLowerCase()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/[^a-z0-9-]/g, '')}.pdf`;
+
+                    console.log(`[informes.generarPDF] Enviando: ${nombreArchivo}`);
+                    res.setHeader('Content-Type', 'application/pdf');
+                    res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+                    res.send(buffer);
+                } catch (e) {
+                    console.error('[informes.generarPDF] Error generando PDF con Puppeteer:', e && e.message ? e.message : e);
+                    res.status(500).render('error', { message: 'Error al generar el PDF', status: 500 });
+                }
             });
 
         } catch (error) {
@@ -198,7 +190,7 @@ const informesController = {
     }
 };
 
-// Note: Python script was replaced by a Node implementation (scripts/generar_informe.js)
+// Note: PDF generation uses Puppeteer via scripts/pdfGenerator.js (tagged PDF)
 
 // ── Helper: extrae y normaliza los datos del req.body ─────────────────
 function _extraerDatos(body) {

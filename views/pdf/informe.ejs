@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <title>Informe de Formación - <%= locals.nombre || 'Sin título' %></title>
+  <meta name="author" content="Ágora Argentina">
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 9pt;
+      line-height: 1.5;
+      color: #000;
+      padding: 0;
+    }
+
+    /* ─── @page rules ──────────────────────────────────── */
+    @page {
+      size: A4;
+      margin: 56pt;
+    }
+
+    /* ─── Headings ─────────────────────────────────────── */
+    h1 {
+      font-size: 16pt;
+      text-align: center;
+      margin-bottom: 6pt;
+    }
+    h2 {
+      font-size: 11pt;
+      color: #1a4b8c;
+      margin-top: 14pt;
+      margin-bottom: 4pt;
+      border-bottom: 1px solid #1a4b8c;
+      padding-bottom: 2pt;
+    }
+    h3 {
+      font-size: 10pt;
+      color: #333;
+      margin-top: 8pt;
+      margin-bottom: 2pt;
+    }
+    h4, h5, h6 { font-size: 9pt; margin-top: 6pt; margin-bottom: 2pt; }
+
+    /* ─── Horizontal rule ──────────────────────────────── */
+    hr {
+      border: none;
+      border-top: 1px solid #000;
+      margin: 6pt 0;
+    }
+
+    /* ─── Key-Value list ───────────────────────────────── */
+    dl {
+      display: table;
+      width: 100%;
+      margin: 4pt 0;
+    }
+    dt {
+      display: table-cell;
+      width: 130pt;
+      font-weight: bold;
+      color: #1a4b8c;
+      font-size: 9pt;
+      padding: 2pt 8pt 2pt 0;
+      vertical-align: top;
+    }
+    dd {
+      display: table-cell;
+      font-size: 9pt;
+      padding: 2pt 0;
+    }
+
+    /* ─── Tables (participants grid) ───────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 6pt 0;
+      font-size: 7pt;
+    }
+    caption {
+      font-weight: bold;
+      text-align: left;
+      font-size: 9pt;
+      margin-bottom: 3pt;
+      caption-side: top;
+    }
+    th {
+      background-color: #1a4b8c;
+      color: #fff;
+      font-weight: bold;
+      padding: 3pt 2pt;
+      text-align: center;
+    }
+    td {
+      padding: 2pt;
+      text-align: center;
+      border-bottom: 1px solid #ccc;
+    }
+
+    /* ─── Lists ────────────────────────────────────────── */
+    ul { margin: 2pt 0 2pt 16pt; }
+    li { font-size: 9pt; }
+
+    /* ─── Signature area ───────────────────────────────── */
+    .signature {
+      margin-top: 20pt;
+    }
+    .signature-line {
+      width: 130pt;
+      border-top: 1px solid #000;
+      margin-bottom: 4pt;
+    }
+
+    /* ─── Utility ──────────────────────────────────────── */
+    .text-muted { color: #666; font-style: italic; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ TITLE ═══════════════ -->
+  <h1>INFORME DE FORMACIÓN</h1>
+  <hr>
+
+  <!-- ═══════════════ 1. Resumen ═══════════════ -->
+  <h2>1. Resumen de la capacitación</h2>
+  <dl>
+    <dt>Nombre de la capacitación</dt><dd><%= locals.nombre || '—' %></dd>
+    <dt>Duración</dt><dd><%= locals.duracion || '—' %></dd>
+    <dt>Modalidad</dt><dd><%= locals.modalidad || '—' %></dd>
+    <dt>Fecha de inicio</dt><dd><%= locals.fecha_inicio || '—' %></dd>
+    <dt>Fecha de finalización</dt><dd><%= locals.fecha_fin || '—' %></dd>
+    <dt>Participantes que inician</dt><dd><%= locals.part_inicia || '—' %></dd>
+    <dt>Participantes que aprueban</dt><dd><%= locals.part_aprueba || '—' %></dd>
+    <dt>N.º de mujeres</dt><dd><%= locals.mujeres || '—' %></dd>
+    <dt>N.º de hombres</dt><dd><%= locals.hombres || '—' %></dd>
+  </dl>
+
+  <!-- ═══════════════ 2. Instructor ═══════════════ -->
+  <h2>2. Datos del Instructor/a</h2>
+  <dl>
+    <dt>Nombres y apellidos</dt><dd><%= locals.inst_nombre || '—' %></dd>
+    <dt>D.I.</dt><dd><%= locals.inst_dni || '—' %></dd>
+    <dt>Teléfono</dt><dd><%= locals.inst_tel || '—' %></dd>
+    <dt>Mail</dt><dd><%= locals.inst_mail || '—' %></dd>
+  </dl>
+
+  <!-- ═══════════════ 3. Desarrollo ═══════════════ -->
+  <h2>3. Desarrollo</h2>
+
+  <h3>Objetivo general</h3>
+  <p><%= locals.obj_general || '—' %></p>
+
+  <h3>Objetivos específicos</h3>
+  <% if (locals.obj_especificos) { %>
+    <ul>
+    <% String(locals.obj_especificos).split('\n').forEach(function(line) { %>
+      <% if (line && line.trim()) { %><li><%= line.trim() %></li><% } %>
+    <% }); %>
+    </ul>
+  <% } else { %>
+    <p class="text-muted">Sin contenido registrado.</p>
+  <% } %>
+
+  <h3>Temario</h3>
+  <% if (locals.temario) { %>
+    <ul>
+    <% String(locals.temario).split('\n').forEach(function(line) { %>
+      <% if (line && line.trim()) { %><li><%= line.trim() %></li><% } %>
+    <% }); %>
+    </ul>
+  <% } else { %>
+    <p class="text-muted">Sin contenido registrado.</p>
+  <% } %>
+
+  <h3>Metodología utilizada</h3>
+  <p><%= locals.metodologia || '—' %></p>
+
+  <h3>Dosificación por clase</h3>
+  <% var clases = locals.clases || []; %>
+  <% if (clases.length) { %>
+    <table>
+      <caption>Dosificación de contenidos por clase</caption>
+      <thead>
+        <tr>
+          <th scope="col">Clase</th>
+          <th scope="col">Contenido desarrollado</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% clases.forEach(function(c, i) { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= String(c || '') %></td>
+        </tr>
+      <% }); %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p class="text-muted">Sin contenido registrado.</p>
+  <% } %>
+
+  <!-- ═══════════════ 4. Evaluación ═══════════════ -->
+  <h2>4. Evaluación</h2>
+  <dl>
+    <dt>Evaluación Teórica</dt><dd><%= locals.eval_teorica || '—' %></dd>
+    <dt>Evaluación Práctica</dt><dd><%= locals.eval_practica || '—' %></dd>
+  </dl>
+
+  <h3>Criterios de evaluación:</h3>
+  <p>Puntualidad y asistencia • Participación • Seguimiento de instrucciones • Comprensión de contenidos • Resolución de ejercicios. Escala: 1-10</p>
+
+  <!-- ═══════════════ 5. Participantes ═══════════════ -->
+  <h2>5. Información de los Participantes</h2>
+  <% var participantes = locals.participantes || []; %>
+  <% if (participantes.length) { %>
+    <table>
+      <caption>Evaluación individual de participantes</caption>
+      <thead>
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Puntual</th>
+          <th scope="col">Asist. %</th>
+          <th scope="col">Participó</th>
+          <th scope="col">Instr.</th>
+          <th scope="col">Interés</th>
+          <th scope="col">Ejerc.</th>
+          <th scope="col">Trabajos %</th>
+          <th scope="col">Objetivos</th>
+          <th scope="col">Calif.</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% participantes.forEach(function(p) { %>
+        <tr>
+          <td><%= p.nombre || '' %></td>
+          <td><%= p.puntual || '' %></td>
+          <td><%= p.asistencia || '' %></td>
+          <td><%= p.participo || '' %></td>
+          <td><%= p.instrucciones || '' %></td>
+          <td><%= p.interes || '' %></td>
+          <td><%= p.ejercicios || '' %></td>
+          <td><%= p.trabajos || '' %></td>
+          <td><%= p.objetivos || '' %></td>
+          <td><%= p.calificacion || '' %></td>
+        </tr>
+      <% }); %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p class="text-muted">Sin participantes registrados.</p>
+  <% } %>
+
+  <!-- ═══════════════ 6. Observaciones ═══════════════ -->
+  <h2>6. Observaciones</h2>
+  <p><%= locals.observaciones || '—' %></p>
+
+  <!-- ═══════════════ 7. Recomendaciones ═══════════════ -->
+  <h2>7. Recomendaciones</h2>
+  <p><%= locals.recomendaciones || '—' %></p>
+
+  <!-- ═══════════════ Signature ═══════════════ -->
+  <div class="signature">
+    <p>Ciudad de <%= locals.ciudad || '' %>, <%= locals.fecha_firma || '' %></p>
+    <div class="signature-line"></div>
+    <p><%= locals.inst_nombre || '' %></p>
+    <p>D.I.: <%= locals.inst_dni || '' %></p>
+  </div>
+
+</body>
+</html>
