@@ -1,7 +1,7 @@
 # Apply Progress: mejorar-accesibilidad-informes-pdf
 
 **Mode**: Strict TDD
-**Status**: All 8 tasks complete
+**Status**: All 8 tasks complete + post-verify fixes applied
 
 ## TDD Cycle Evidence
 
@@ -14,24 +14,26 @@
 | 2.3 | `tests/informePDF.integration.test.js` + `controller/informesController.js` | ✅ Integration tests written first | ✅ Controller returns PDF with correct headers | ➖ None needed | PASS |
 | 2.4 | `scripts/generar_informe.js` — delete | ➖ Structural | ✅ File removed, no imports remain | ➖ None needed | PASS |
 | 3.1 | `tests/generar_informe.test.js` — tagged assertions | ✅ Tests written first | ✅ All tagged PDF assertions pass | ➖ None needed | PASS |
-| 3.2 | Full test suite | ✅ RED commit proved tests exist | ✅ 80/80 tests pass | ➖ None needed | PASS |
+| 3.2 | Full test suite | ✅ RED commit proved tests exist | ✅ 81/81 tests pass | ➖ None needed | PASS |
 
 ## Coverage Summary
 
 | Layer | Files | Suite | Status |
 |-------|-------|-------|--------|
 | Unit | `pdfGenerator.test.js`, `generar_informe.test.js` | 8 tests | ✅ All pass |
-| Integration | `informePDF.integration.test.js` | 3 tests | ✅ All pass |
+| Integration | `informePDF.integration.test.js` | 4 tests | ✅ All pass |
 | Controller | via supertest + Firestore mock | — | ✅ 3 scenarios covered |
 
 ## TDD Commit Timeline
 
 1. `de78e5e` — RED: tests written first (pdfGenerator, generar_informe, integration)
 2. `cf9be7a` — GREEN: implementation makes tests pass
-3. _(next)_ — REFACTOR: tasks.md + apply-progress documentation
+3. `af8a892` — REFACTOR: tasks.md + apply-progress documentation
+4. `1b5a0ff` — Post-verify fixes: renderErr callback test, clean mock assertions
 
 ## Notes
 
-- Integration tests cover the 2 previously untested spec scenarios: Firestore unavailable and invalid template syntax (both return 500)
+- Integration tests cover all 3 spec error scenarios: Firestore unavailable, pdfGenerator failure, and template render failure (renderErr callback)
+- Mock-buffer assertions removed — tagged:true contract verified via `page.pdf()` parameter; HTML semantic structure verified via template assertions
 - Happy path verified: 200 + Content-Type: application/pdf + Content-Disposition header
 - CV pipeline untouched (out of scope for this change)
