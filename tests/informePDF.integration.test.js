@@ -56,6 +56,10 @@ describe('GET /admin/informes/:id/pdf — integración', () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test('devuelve 200 con Content-Type application/pdf cuando el informe existe', async () => {
     const agent = request.agent(app);
     const mockGet = await loginAsAdmin(agent);
@@ -134,51 +138,69 @@ describe('GET /admin/informes/:id/pdf — integración', () => {
     }
   });
 
-  test('devuelve 500 cuando el template falla', async () => {
+  test('devuelve 500 cuando pdfGenerator falla (Puppeteer error)', async () => {
     const agent = request.agent(app);
-    const mockGet = await loginAsAdmin(agent);
+    await loginAsAdmin(agent);
 
-    // Firestore returns valid data, but we mock pdfGenerator to reject
     const reportSnapshot = {
       exists: true,
       data: () => ({
-        nombre: 'Test',
-        duracion: '10h',
-        modalidad: 'Virtual',
-        fecha_inicio: '01/01/2026',
-        fecha_fin: '10/01/2026',
-        part_inicia: '5',
-        part_aprueba: '5',
-        mujeres: '3',
-        hombres: '2',
-        inst_nombre: 'Test Instructor',
-        inst_dni: '00.000.000',
-        inst_tel: '+54 111',
-        inst_mail: 'test@test.com',
-        obj_general: 'Testing.',
-        obj_especificos: 'Test 1',
-        temario: 'Tema 1\nTema 2',
-        metodologia: 'Virtual',
-        clases: ['Clase 1'],
-        eval_teorica: '90%',
-        eval_practica: '90%',
-        observaciones: '',
-        recomendaciones: '',
-        ciudad: 'Bs As',
-        fecha_firma: 'Enero 2026',
-        participantes: [],
+        nombre: 'Test', duracion: '10h', modalidad: 'Virtual',
+        fecha_inicio: '01/01/2026', fecha_fin: '10/01/2026',
+        part_inicia: '5', part_aprueba: '5', mujeres: '3', hombres: '2',
+        inst_nombre: 'Test Instructor', inst_dni: '00.000.000',
+        inst_tel: '+54 111', inst_mail: 'test@test.com',
+        obj_general: 'Testing.', obj_especificos: 'Test 1',
+        temario: 'Tema 1\nTema 2', metodologia: 'Virtual',
+        clases: ['Clase 1'], eval_teorica: '90%', eval_practica: '90%',
+        observaciones: '', recomendaciones: '', ciudad: 'Bs As',
+        fecha_firma: 'Enero 2026', participantes: [],
       }),
     };
 
     const docGet = jest.fn().mockResolvedValue(reportSnapshot);
-    db.collection.mockReturnValue({
-      doc: jest.fn(() => ({ get: docGet })),
-    });
+    db.collection.mockReturnValue({ doc: jest.fn(() => ({ get: docGet })) });
 
-    // Template renders OK but Puppeteer fails → triggers pdfGenerator catch
     generarPdfAccesible.mockRejectedValue(new Error('Chrome crashed'));
 
-    const res = await agent.get('/admin/informes/id-template-fail/pdf');
+    const res = await agent.get('/admin/informes/id-pdfgen-fail/pdf');
+
+    expect(res.status).toBe(500);
+  });
+
+  test('devuelve 500 cuando el template EJS falla (renderErr callback)', async () => {
+    const agent = request.agent(app);
+    await loginAsAdmin(agent);
+
+    const reportSnapshot = {
+      exists: true,
+      data: () => ({
+        nombre: 'Test', duracion: '10h', modalidad: 'Virtual',
+        fecha_inicio: '01/01/2026', fecha_fin: '10/01/2026',
+        part_inicia: '5', part_aprueba: '5', mujeres: '3', hombres: '2',
+        inst_nombre: 'Test Instructor', inst_dni: '00.000.000',
+        inst_tel: '+54 111', inst_mail: 'test@test.com',
+        obj_general: 'Testing.', obj_especificos: 'Test 1',
+        temario: 'Tema 1\nTema 2', metodologia: 'Virtual',
+        clases: ['Clase 1'], eval_teorica: '90%', eval_practica: '90%',
+        observaciones: '', recomendaciones: '', ciudad: 'Bs As',
+        fecha_firma: 'Enero 2026', participantes: [],
+      }),
+    };
+
+    const docGet = jest.fn().mockResolvedValue(reportSnapshot);
+    db.collection.mockReturnValue({ doc: jest.fn(() => ({ get: docGet })) });
+
+    // Mock app.render to fail for pdf/informe — triggers renderErr callback
+    const origRender = app.render.bind(app);
+    jest.spyOn(app, 'render').mockImplementation((view, options, callback) => {
+      if (view === 'pdf/informe') {
+        return callback(new Error('Template render error'));
+      }
+      return origRender(view, options, callback);
+    });
+
+    const res = await agent.get('/admin/informes/id-render-fail/pdf');
 
     expect(res.status).toBe(500);
   });

@@ -53,25 +53,21 @@ describe('generarPdfAccesible — integración con template EJS', () => {
     puppeteer = { launch: jest.fn().mockResolvedValue(mockBrowser) };
   });
 
-  test('el pipeline template + pdfGenerator produce buffer con StructTreeRoot y Lang es-AR', async () => {
+  test('el pipeline template + pdfGenerator llama page.pdf con tagged:true', async () => {
     const html = await ejs.renderFile(
       path.join(__dirname, '..', 'views', 'pdf', 'informe.ejs'),
       { locals: sampleData },
       {}
     );
 
-    const buffer = await generarPdfAccesible(html, { format: 'A4' }, puppeteer);
+    await generarPdfAccesible(html, { format: 'A4' }, puppeteer);
 
-    // Verify page.pdf was called with tagged: true
+    // Verify page.pdf was called with tagged: true — this is the real contract
+    // with Chrome. The HTML template assertions below prove the semantic
+    // structure that Chrome will translate into the PDF tree.
     expect(mockPage.pdf).toHaveBeenCalledWith(
       expect.objectContaining({ tagged: true, format: 'A4' })
     );
-
-    // Verify the PDF buffer contains accessibility markers
-    const content = buffer.toString('utf8');
-    expect(content).toContain('/StructTreeRoot');
-    expect(content).toContain('/Lang(es-AR)');
-    expect(content).toMatch(/^%PDF/);
   });
 
   test('el HTML renderizado contiene estructura semántica accesible', async () => {
@@ -115,11 +111,9 @@ describe('generarPdfAccesible — integración con template EJS', () => {
     expect(html).toContain('<h1>INFORME DE FORMACIÓN</h1>');
     expect(html).toContain('—'); // fallback markers for empty data
 
-    // Should still produce a valid PDF shape
-    mockPage.pdf.mockResolvedValue(Buffer.from('%PDF-1.7\n/StructTreeRoot\n/Lang(es-AR)\n%%EOF'));
-    const buffer = await generarPdfAccesible(html, {}, puppeteer);
+    // Should still call page.pdf with tagged:true
+    await generarPdfAccesible(html, {}, puppeteer);
 
-    expect(buffer.toString('utf8')).toContain('/StructTreeRoot');
     expect(mockPage.pdf).toHaveBeenCalledWith(
       expect.objectContaining({ tagged: true })
     );
