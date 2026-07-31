@@ -42,6 +42,33 @@ describe('404 handler', () => {
   });
 });
 
+describe('GET /', () => {
+  test('renders the interview CTA paragraph and calendar link', async () => {
+    const res = await request(app).get('/');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain(
+      'Si te interesa conocernos y que te conozcamos mejor, agenda tu entrevista. Es el espacio para que nos cuentes sobre vos y tus proyectos.'
+    );
+    expect(res.text).toContain('https://calendar.app.google/mXSH4cQgvakNUyXd8');
+    expect(res.text).toContain('target="_blank" rel="noopener"');
+    expect(res.text).toContain('Agendar mi entrevista');
+  });
+
+  test('renders the interview CTA when noticias are unavailable', async () => {
+    // The mocked firebase fails, so mainController.home falls back to noticias: []
+    // The CTA is static markup and MUST still render alongside the empty-state message.
+    const res = await request(app).get('/');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('No hay noticias disponibles en este momento.');
+    expect(res.text).toContain(
+      'Si te interesa conocernos y que te conozcamos mejor, agenda tu entrevista. Es el espacio para que nos cuentes sobre vos y tus proyectos.'
+    );
+    expect(res.text).toContain('Agendar mi entrevista');
+  });
+});
+
 describe('error middleware', () => {
   test('calls next(err) triggers error middleware with correct status', () => {
     // Direct unit test of the error middleware behavior
