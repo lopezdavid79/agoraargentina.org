@@ -10,6 +10,8 @@
  * Las imágenes de testing (timestamp-*.jpg) se ignoran.
  */
 
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+
 const fs = require('fs');
 const path = require('path');
 
