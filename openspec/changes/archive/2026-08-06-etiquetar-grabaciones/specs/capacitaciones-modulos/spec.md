@@ -1,13 +1,11 @@
-# Capacitaciones Módulos Specification
+# Delta for capacitaciones-modulos
 
-## Purpose
-Define the behavior of capacitaciones module management, including multiple recordings per module, legacy fallback, and candidate visibility.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Data Model — Multiple Recordings
 
 A modulo MAY contain `grabaciones: [{url, label}]`. The `claseGrabada` string field MUST be retained as a legacy fallback. `grabaciones` wins when non-empty; otherwise `claseGrabada` is used. Each element MUST contain a `url` string; `label` MAY be empty.
+(Previously: `grabaciones: string[]` with a future-evolution compatibility note.)
 
 | Field | Type | Fallback |
 |---|---|---|
@@ -37,6 +35,7 @@ A modulo MAY contain `grabaciones: [{url, label}]`. The `claseGrabada` string fi
 ### Requirement: Admin Forms — Repeatable Recording Inputs
 
 The create and edit forms MUST provide per-recording rows containing a label input and a URL input. The forms MUST use a hidden JSON input (`grabaciones_json`) synchronized via JavaScript, per the `participantes` precedent. The server MUST parse the hidden JSON into `grabaciones: [{url, label}]`. Admins MAY add and remove individual rows before submission. On edit, existing values MUST pre-fill. When editing a legacy-only or string-array module, the form MUST seed each recording with its URL and a default label "Clase Grabada N" where N is the 1-based position in the recordings list.
+(Previously: single URL input per row, no labels, no default-label seeding.)
 
 #### Scenario: Remove middle recording
 
@@ -61,6 +60,7 @@ The create and edit forms MUST provide per-recording rows containing a label inp
 ### Requirement: Validation — Recording Objects
 
 `storeModulo` and `updateModulo` MUST normalize each submitted element to `{url, label}`. The `url` MUST be trimmed; elements with an empty `url` after trimming MUST be discarded. The `label` MAY be any free text, MAY be empty, and MUST be trimmed when present; the system MUST NOT enforce a maximum label length. The resulting array MUST be capped at 10 elements. The system MUST NOT enforce URL format validation. The parser MUST accept both object arrays and legacy string arrays in the hidden JSON, normalizing strings to `{url: trimmedString, label: ""}`.
+(Previously: validated plain strings only, no object shape, no labels.)
 
 #### Scenario: Blank and valid mixed
 
@@ -77,6 +77,7 @@ The create and edit forms MUST provide per-recording rows containing a label inp
 ### Requirement: Candidate Render
 
 The candidate detail view MUST render every recording in `grabaciones` as a distinct link. The link text MUST be the trimmed `label` when non-empty; otherwise it MUST fall back to `"Clase Grabada N"` where N is the 1-based position in the rendered recordings list. The link `href` MUST be the `url` value. If `grabaciones` is empty or absent, the view MUST fall back to rendering `claseGrabada` as a single link with label "Clase Grabada 1". Existing modules that store plain strings in `grabaciones` or only store `claseGrabada` MUST continue to work without modification.
+(Previously: every link rendered the static text "Clase Grabada".)
 
 #### Scenario: Three recordings with mixed labels
 
@@ -96,20 +97,10 @@ The candidate detail view MUST render every recording in `grabaciones` as a dist
 - WHEN an admin removes the middle recording and a candidate views the detail
 - THEN the rendered link texts MUST be "Clase Grabada 1" and "Clase Grabada 2"
 
-### Requirement: Active by Default
-
-`storeModulo` MUST set `activo: true` on every newly created module. This requirement closes a pre-existing gap where new modules were invisible to candidates until manually edited.
-
-#### Scenario: New module visible to candidates
-
-- GIVEN an admin creates a new module
-- WHEN `storeModulo` saves the document
-- THEN the document MUST include `activo: true`
-- AND the module MUST appear in candidate views
-
 ### Requirement: Test Coverage
 
 The implementation MUST follow strict TDD. New and updated tests MUST cover `storeModulo` and `updateModulo` save behavior with labeled objects, `editModulo` render with pre-filled recordings including default labels, and `detailCapacitaciones` render for modules with labeled objects, empty-label fallback, legacy string arrays, and no recordings. All existing `storeModulo` and `deleteModulo` tests MUST remain green. Tests that assert string-only `grabaciones` shapes MUST be rewritten to assert object shapes, going RED first.
+(Previously: covered string arrays without labels.)
 
 #### Scenario: String-shape tests go RED first
 
@@ -120,5 +111,11 @@ The implementation MUST follow strict TDD. New and updated tests MUST cover `sto
 
 ## Out of Scope
 
+The following items remain out of scope for this change:
+
 - Data migration or backfill of existing `claseGrabada` values
 - Cypress E2E tests
+
+The following item was previously out of scope and is now **IN scope**:
+
+- Per-recording labels or titles
