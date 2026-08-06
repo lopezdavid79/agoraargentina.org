@@ -2,12 +2,22 @@ const db = require('../config/firebase');
 const logger = require('../config/logger');
 
 // Parsea el hidden-JSON grabaciones_json de los formularios de módulo.
-// Limpia espacios, descarta vacíos y limita a 10 URLs (consistente con
-// linkMaterial/claseGrabada: sin validación de formato URL).
+// Normaliza cada elemento a { url, label }: los strings legacy pasan a
+// { url: s, label: "" } y los objetos se preservan con url/label recortados.
+// Descarta elementos sin url (tras recortar), limita a 10 y ante JSON inválido
+// devuelve [] (consistente con linkMaterial/claseGrabada: sin validación de formato URL).
 function parseGrabaciones(body) {
     try {
         const raw = JSON.parse(body.grabaciones_json || '[]');
-        return raw.map(s => String(s).trim()).filter(s => s.length > 0).slice(0, 10);
+        return raw.map(r => {
+            if (typeof r === 'string') {
+                return { url: r.trim(), label: '' };
+            }
+            return {
+                url: String((r && r.url) || '').trim(),
+                label: String((r && r.label) || '').trim()
+            };
+        }).filter(g => g.url.length > 0).slice(0, 10);
     } catch { return []; }
 }
 
@@ -582,4 +592,7 @@ deleteModulo: async (req, res) => {
 };
 
 module.exports = adminController;
+
+// Expuesto para tests unitarios de normalización (parseGrabaciones es puro).
+module.exports.parseGrabaciones = parseGrabaciones;
     

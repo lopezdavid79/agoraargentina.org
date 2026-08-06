@@ -626,7 +626,7 @@ describe('Admin Controller', () => {
       expect(res.status).toBe(500);
     });
 
-    test('creates modulo with multiple grabaciones and activo true (spec: "Create module with multiple recordings")', async () => {
+    test('creates modulo with multiple labeled grabaciones and activo true (spec: "Create with custom labels")', async () => {
       const agent = request.agent(app);
       await loginAsAdmin(agent);
 
@@ -639,40 +639,53 @@ describe('Admin Controller', () => {
           tituloModulo: 'Módulo con grabaciones',
           descripcion: 'Descripción del módulo',
           linkMaterial: 'https://drive.google.com/file',
-          grabaciones_json: JSON.stringify(['https://youtube.com/a', 'https://youtube.com/b'])
+          grabaciones_json: JSON.stringify([
+            { url: 'https://youtube.com/a', label: 'Intro' },
+            { url: 'https://youtube.com/b', label: 'Práctica' }
+          ])
         });
 
       expect(res.status).toBe(302);
       expect(res.headers.location).toMatch(/\/admin\/capacitaciones\/cap-uno\/modulos/);
 
       const addData = mockAdd.mock.calls[0][0];
-      expect(addData.grabaciones).toEqual(['https://youtube.com/a', 'https://youtube.com/b']);
+      expect(addData.grabaciones).toEqual([
+        { url: 'https://youtube.com/a', label: 'Intro' },
+        { url: 'https://youtube.com/b', label: 'Práctica' }
+      ]);
+      expect(addData.claseGrabada).toBe('');
       expect(addData.activo).toBe(true);
     });
 
-    test('strips blank/whitespace URLs and caps grabaciones at 10 (spec: "Submit with blank and valid URLs")', async () => {
+    test('normalizes mixed string/object elements, drops empty-url entries, caps at 10 (spec: "Blank and valid mixed")', async () => {
       const agent = request.agent(app);
       await loginAsAdmin(agent);
 
       mockAdd.mockResolvedValue({ id: 'mod-new' });
 
-      const doceUrls = Array.from({ length: 12 }, (_, i) => `https://youtube.com/v${i}`);
+      const doceObjs = Array.from({ length: 12 }, (_, i) => ({ url: `https://youtube.com/v${i}`, label: `L${i}` }));
 
       const res = await agent
         .post('/admin/capacitaciones/cap-uno/modulos/nuevo')
         .send({
           orden: '2',
           tituloModulo: 'Módulo con limpieza',
-          grabaciones_json: JSON.stringify(['  ', 'https://youtube.com/valid', '', 'https://youtube.com/trimmed  ', ...doceUrls])
+          grabaciones_json: JSON.stringify([
+            { url: '  ', label: 'X' },
+            { url: 'https://youtube.com/valid', label: '' },
+            { url: '', label: 'Y' },
+            { url: 'https://youtube.com/trimmed  ', label: 'Z' },
+            ...doceObjs
+          ])
         });
 
       expect(res.status).toBe(302);
 
       const addData = mockAdd.mock.calls[0][0];
       expect(addData.grabaciones).toEqual([
-        'https://youtube.com/valid',
-        'https://youtube.com/trimmed',
-        ...doceUrls.slice(0, 8)
+        { url: 'https://youtube.com/valid', label: '' },
+        { url: 'https://youtube.com/trimmed', label: 'Z' },
+        ...doceObjs.slice(0, 8)
       ]);
       expect(addData.grabaciones).toHaveLength(10);
     });
@@ -716,7 +729,7 @@ describe('Admin Controller', () => {
   // (router registra POST, coincide con el action del form editModulo.ejs)
   // ──────────────────────────────────────────────
   describe('POST /admin/capacitaciones/:idCap/modulos/editar/:idModulo', () => {
-    test('saves grabaciones array via .update() and redirects', async () => {
+    test('saves labeled grabaciones objects via .update() and redirects', async () => {
       const agent = request.agent(app);
       await loginAsAdmin(agent);
 
@@ -730,7 +743,10 @@ describe('Admin Controller', () => {
           descripcion: 'Descripción actualizada',
           linkMaterial: 'https://drive.google.com/file',
           activo: 'on',
-          grabaciones_json: JSON.stringify(['https://youtube.com/a', 'https://youtube.com/c'])
+          grabaciones_json: JSON.stringify([
+            { url: 'https://youtube.com/a', label: 'A' },
+            { url: 'https://youtube.com/c', label: 'C' }
+          ])
         });
 
       expect(res.status).toBe(302);
@@ -743,11 +759,14 @@ describe('Admin Controller', () => {
       expect(mockUpdate).toHaveBeenCalledTimes(1);
 
       const updateData = mockUpdate.mock.calls[0][0];
-      expect(updateData.grabaciones).toEqual(['https://youtube.com/a', 'https://youtube.com/c']);
+      expect(updateData.grabaciones).toEqual([
+        { url: 'https://youtube.com/a', label: 'A' },
+        { url: 'https://youtube.com/c', label: 'C' }
+      ]);
       expect(updateData.activo).toBe(true);
     });
 
-    test('persists exactly the remaining order after removing the middle recording 3 → 2 (spec: "Edit module removing middle recording")', async () => {
+    test('persists exactly the remaining order after removing the middle recording 3 → 2 (spec: "Remove middle recording")', async () => {
       const agent = request.agent(app);
       await loginAsAdmin(agent);
 
@@ -759,15 +778,50 @@ describe('Admin Controller', () => {
           orden: '1',
           tituloModulo: 'Módulo',
           activo: '',
-          grabaciones_json: JSON.stringify(['https://youtube.com/a', 'https://youtube.com/c'])
+          grabaciones_json: JSON.stringify([
+            { url: 'https://youtube.com/a', label: 'A' },
+            { url: 'https://youtube.com/c', label: 'C' }
+          ])
         });
 
       expect(res.status).toBe(302);
 
       const updateData = mockUpdate.mock.calls[0][0];
-      expect(updateData.grabaciones).toEqual(['https://youtube.com/a', 'https://youtube.com/c']);
-      expect(updateData.grabaciones).not.toContain('https://youtube.com/b');
+      expect(updateData.grabaciones).toEqual([
+        { url: 'https://youtube.com/a', label: 'A' },
+        { url: 'https://youtube.com/c', label: 'C' }
+      ]);
+      expect(updateData.grabaciones.map(g => g.url)).not.toContain('https://youtube.com/b');
       expect(updateData.activo).toBe(false);
+    });
+
+    test('updateModulo normalizes labeled objects, dropping blank urls and trimming label (spec: "Validation — Recording Objects")', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockResolvedValue();
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/editar/mod123')
+        .send({
+          orden: '1',
+          tituloModulo: 'Módulo',
+          activo: '',
+          grabaciones_json: JSON.stringify([
+            { url: '  ', label: 'X' },
+            { url: 'https://youtube.com/a', label: 'Intro' },
+            { url: '', label: 'Y' },
+            { url: 'https://youtube.com/b  ', label: '  Práctica  ' }
+          ])
+        });
+
+      expect(res.status).toBe(302);
+
+      const updateData = mockUpdate.mock.calls[0][0];
+      expect(updateData.grabaciones).toEqual([
+        { url: 'https://youtube.com/a', label: 'Intro' },
+        { url: 'https://youtube.com/b', label: 'Práctica' }
+      ]);
     });
 
     test('returns 500 when Firebase update fails', async () => {

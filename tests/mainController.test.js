@@ -156,7 +156,7 @@ describe('GET /capacitaciones/:slug — detailCapacitaciones', () => {
     }]
   };
 
-  test('renders one "Clase Grabada" link per grabacion (3 links), legacy claseGrabada not used (spec: "Module with three recordings")', async () => {
+  test('renders each labeled grabacion with its label as link text, legacy claseGrabada not used (spec: "Create with custom labels")', async () => {
     mockGet
       .mockResolvedValueOnce(capSnapshot)
       .mockResolvedValueOnce({
@@ -167,7 +167,11 @@ describe('GET /capacitaciones/:slug — detailCapacitaciones', () => {
             tituloModulo: 'Módulo con tres grabaciones',
             descripcion: 'Desc',
             activo: true,
-            grabaciones: ['https://youtube.com/a', 'https://youtube.com/b', 'https://youtube.com/c'],
+            grabaciones: [
+              { url: 'https://youtube.com/a', label: 'Intro' },
+              { url: 'https://youtube.com/b', label: 'Práctica' },
+              { url: 'https://youtube.com/c', label: 'Cierre' }
+            ],
             claseGrabada: 'https://youtube.com/legacy'
           })
         }]
@@ -177,14 +181,16 @@ describe('GET /capacitaciones/:slug — detailCapacitaciones', () => {
 
     expect(res.status).toBe(200);
     expect(res.text).toContain('Módulo con tres grabaciones');
+    expect(res.text).toContain('Intro');
+    expect(res.text).toContain('Práctica');
+    expect(res.text).toContain('Cierre');
     expect(res.text).toContain('https://youtube.com/a');
     expect(res.text).toContain('https://youtube.com/b');
     expect(res.text).toContain('https://youtube.com/c');
-    expect(res.text.match(/Clase Grabada/g)).toHaveLength(3);
     expect(res.text).not.toContain('https://youtube.com/legacy');
   });
 
-  test('renders single "Clase Grabada" link from legacy claseGrabada when grabaciones absent (spec: "Legacy module")', async () => {
+  test('renders single link "Clase Grabada 1" from legacy claseGrabada when grabaciones absent (spec: "Legacy module fallback")', async () => {
     mockGet
       .mockResolvedValueOnce(capSnapshot)
       .mockResolvedValueOnce({
@@ -204,6 +210,7 @@ describe('GET /capacitaciones/:slug — detailCapacitaciones', () => {
 
     expect(res.status).toBe(200);
     expect(res.text).toContain('Módulo legacy');
+    expect(res.text).toContain('Clase Grabada 1');
     expect(res.text.match(/Clase Grabada/g)).toHaveLength(1);
     expect(res.text).toContain('https://youtube.com/legacy-x');
   });
@@ -229,5 +236,89 @@ describe('GET /capacitaciones/:slug — detailCapacitaciones', () => {
     expect(res.text).toContain('Módulo sin grabaciones');
     expect(res.text.match(/Clase Grabada/g)).toBeNull();
     expect(res.text).not.toContain('Video del encuentro virtual');
+  });
+
+  test('renders "Intro", fallback "Clase Grabada 2", and "Avanzado" for mixed labels (spec: "Three recordings with mixed labels")', async () => {
+    mockGet
+      .mockResolvedValueOnce(capSnapshot)
+      .mockResolvedValueOnce({
+        docs: [{
+          id: 'mod-mix',
+          data: () => ({
+            orden: 1,
+            tituloModulo: 'Módulo mixto',
+            descripcion: '',
+            activo: true,
+            grabaciones: [
+              { url: 'https://a.com', label: 'Intro' },
+              { url: 'https://b.com', label: '' },
+              { url: 'https://c.com', label: 'Avanzado' }
+            ]
+          })
+        }]
+      });
+
+    const res = await request(app).get('/capacitaciones/cap-uno');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Intro');
+    expect(res.text).toContain('Avanzado');
+    expect(res.text).toContain('Clase Grabada 2');
+    expect(res.text).not.toContain('Clase Grabada 3');
+  });
+
+  test('renders "Clase Grabada 1" and "Clase Grabada 2" for legacy string arrays (spec: "Plain string array renders fallback labels")', async () => {
+    mockGet
+      .mockResolvedValueOnce(capSnapshot)
+      .mockResolvedValueOnce({
+        docs: [{
+          id: 'mod-str',
+          data: () => ({
+            orden: 1,
+            tituloModulo: 'Módulo strings',
+            descripcion: '',
+            activo: true,
+            grabaciones: ['https://a.com', 'https://b.com']
+          })
+        }]
+      });
+
+    const res = await request(app).get('/capacitaciones/cap-uno');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Clase Grabada 1');
+    expect(res.text).toContain('Clase Grabada 2');
+    expect(res.text.match(/Clase Grabada/g)).toHaveLength(2);
+    expect(res.text).toContain('https://a.com');
+    expect(res.text).toContain('https://b.com');
+  });
+
+  test('renumbers fallback labels after removing the middle recording (spec: "Remove middle recording renumbers fallback labels")', async () => {
+    mockGet
+      .mockResolvedValueOnce(capSnapshot)
+      .mockResolvedValueOnce({
+        docs: [{
+          id: 'mod-reorder',
+          data: () => ({
+            orden: 1,
+            tituloModulo: 'Módulo reordenado',
+            descripcion: '',
+            activo: true,
+            // Estado POST-remoción: el admin borró la grabación del medio.
+            grabaciones: [
+              { url: 'https://a.com', label: '' },
+              { url: 'https://c.com', label: '' }
+            ]
+          })
+        }]
+      });
+
+    const res = await request(app).get('/capacitaciones/cap-uno');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Clase Grabada 1');
+    expect(res.text).toContain('Clase Grabada 2');
+    expect(res.text).not.toContain('Clase Grabada 3');
+    expect(res.text.match(/Clase Grabada/g)).toHaveLength(2);
   });
 });
