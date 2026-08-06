@@ -625,6 +625,57 @@ describe('Admin Controller', () => {
 
       expect(res.status).toBe(500);
     });
+
+    test('creates modulo with multiple grabaciones and activo true (spec: "Create module with multiple recordings")', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockAdd.mockResolvedValue({ id: 'mod-new' });
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/nuevo')
+        .send({
+          orden: '1',
+          tituloModulo: 'Módulo con grabaciones',
+          descripcion: 'Descripción del módulo',
+          linkMaterial: 'https://drive.google.com/file',
+          grabaciones_json: JSON.stringify(['https://youtube.com/a', 'https://youtube.com/b'])
+        });
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toMatch(/\/admin\/capacitaciones\/cap-uno\/modulos/);
+
+      const addData = mockAdd.mock.calls[0][0];
+      expect(addData.grabaciones).toEqual(['https://youtube.com/a', 'https://youtube.com/b']);
+      expect(addData.activo).toBe(true);
+    });
+
+    test('strips blank/whitespace URLs and caps grabaciones at 10 (spec: "Submit with blank and valid URLs")', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockAdd.mockResolvedValue({ id: 'mod-new' });
+
+      const doceUrls = Array.from({ length: 12 }, (_, i) => `https://youtube.com/v${i}`);
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/nuevo')
+        .send({
+          orden: '2',
+          tituloModulo: 'Módulo con limpieza',
+          grabaciones_json: JSON.stringify(['  ', 'https://youtube.com/valid', '', 'https://youtube.com/trimmed  ', ...doceUrls])
+        });
+
+      expect(res.status).toBe(302);
+
+      const addData = mockAdd.mock.calls[0][0];
+      expect(addData.grabaciones).toEqual([
+        'https://youtube.com/valid',
+        'https://youtube.com/trimmed',
+        ...doceUrls.slice(0, 8)
+      ]);
+      expect(addData.grabaciones).toHaveLength(10);
+    });
   });
 
   // ──────────────────────────────────────────────
@@ -657,6 +708,122 @@ describe('Admin Controller', () => {
       const res = await agent.delete('/admin/capacitaciones/cap-uno/modulos/eliminar/mod123');
 
       expect(res.status).toBe(500);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // POST /admin/capacitaciones/:idCap/modulos/editar/:idModulo — updateModulo
+  // (router registra POST, coincide con el action del form editModulo.ejs)
+  // ──────────────────────────────────────────────
+  describe('POST /admin/capacitaciones/:idCap/modulos/editar/:idModulo', () => {
+    test('saves grabaciones array via .update() and redirects', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockResolvedValue();
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/editar/mod123')
+        .send({
+          orden: '2',
+          tituloModulo: 'Módulo editado',
+          descripcion: 'Descripción actualizada',
+          linkMaterial: 'https://drive.google.com/file',
+          activo: 'on',
+          grabaciones_json: JSON.stringify(['https://youtube.com/a', 'https://youtube.com/c'])
+        });
+
+      expect(res.status).toBe(302);
+      expect(res.headers.location).toMatch(/\/admin\/capacitaciones\/cap-uno\/modulos/);
+
+      expect(db.collection).toHaveBeenCalledWith('capacitaciones');
+      expect(mockDoc).toHaveBeenCalledWith('cap-uno');
+      expect(mockDocCollection).toHaveBeenCalledWith('modulos');
+      expect(mockSubDoc).toHaveBeenCalledWith('mod123');
+      expect(mockUpdate).toHaveBeenCalledTimes(1);
+
+      const updateData = mockUpdate.mock.calls[0][0];
+      expect(updateData.grabaciones).toEqual(['https://youtube.com/a', 'https://youtube.com/c']);
+      expect(updateData.activo).toBe(true);
+    });
+
+    test('persists exactly the remaining order after removing the middle recording 3 → 2 (spec: "Edit module removing middle recording")', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockResolvedValue();
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/editar/mod123')
+        .send({
+          orden: '1',
+          tituloModulo: 'Módulo',
+          activo: '',
+          grabaciones_json: JSON.stringify(['https://youtube.com/a', 'https://youtube.com/c'])
+        });
+
+      expect(res.status).toBe(302);
+
+      const updateData = mockUpdate.mock.calls[0][0];
+      expect(updateData.grabaciones).toEqual(['https://youtube.com/a', 'https://youtube.com/c']);
+      expect(updateData.grabaciones).not.toContain('https://youtube.com/b');
+      expect(updateData.activo).toBe(false);
+    });
+
+    test('returns 500 when Firebase update fails', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockUpdate.mockRejectedValue(new Error('Firebase error'));
+
+      const res = await agent
+        .post('/admin/capacitaciones/cap-uno/modulos/editar/mod123')
+        .send({ orden: '1', tituloModulo: 'Módulo' });
+
+      expect(res.status).toBe(500);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // GET /admin/capacitaciones/:idCap/modulos/editar/:idModulo — editModulo
+  // ──────────────────────────────────────────────
+  describe('GET /admin/capacitaciones/:idCap/modulos/editar/:idModulo', () => {
+    test('renders editModulo with pre-filled grabaciones JSON', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      const moduloDoc = {
+        exists: true,
+        id: 'mod123',
+        data: () => ({
+          orden: 1,
+          tituloModulo: 'Módulo 1',
+          descripcion: 'Descripción',
+          claseGrabada: 'https://youtube.com/legacy',
+          linkMaterial: 'https://drive.google.com/file',
+          grabaciones: ['https://youtube.com/a', 'https://youtube.com/b', 'https://youtube.com/c']
+        })
+      };
+
+      mockGet.mockResolvedValue(moduloDoc);
+
+      const res = await agent.get('/admin/capacitaciones/cap-uno/modulos/editar/mod123');
+
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('Editar Módulo');
+      expect(res.text).toContain('grabaciones_json');
+      expect(res.text).toContain('["https://youtube.com/a","https://youtube.com/b","https://youtube.com/c"]');
+    });
+
+    test('returns 404 when modulo does not exist', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockGet.mockResolvedValue({ exists: false });
+
+      const res = await agent.get('/admin/capacitaciones/cap-uno/modulos/editar/no-existe');
+
+      expect(res.status).toBe(404);
     });
   });
 });

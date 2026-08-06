@@ -1,6 +1,16 @@
 const db = require('../config/firebase');
 const logger = require('../config/logger');
 
+// Parsea el hidden-JSON grabaciones_json de los formularios de módulo.
+// Limpia espacios, descarta vacíos y limita a 10 URLs (consistente con
+// linkMaterial/claseGrabada: sin validación de formato URL).
+function parseGrabaciones(body) {
+    try {
+        const raw = JSON.parse(body.grabaciones_json || '[]');
+        return raw.map(s => String(s).trim()).filter(s => s.length > 0).slice(0, 10);
+    } catch { return []; }
+}
+
 const adminController = {
     // Muestra todas las noticias en una tabla para el admin
     index: async (req, res) => {
@@ -466,7 +476,11 @@ storeCapacitacion: async (req, res) => {
             descripcion: descripcion || "",
             claseGrabada: claseGrabada || "",
             linkMaterial: linkMaterial || "",
-            fechaCreacion: new Date()
+            grabaciones: parseGrabaciones(req.body),
+            fechaCreacion: new Date(),
+            // BEGIN activo-gap-fix (revert by removing this line)
+            activo: true
+            // END activo-gap-fix
         });
 
         res.redirect(`/admin/capacitaciones/${idCap}/modulos`);
@@ -541,6 +555,7 @@ updateModulo: async (req, res) => {
                 descripcion: descripcion || "",
                 claseGrabada: claseGrabada || "",
                 linkMaterial: linkMaterial || "",
+                grabaciones: parseGrabaciones(req.body),
                 activo: activo === "on" ? true : false, 
                 fechaActualizacion: new Date()
             });

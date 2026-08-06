@@ -50,11 +50,15 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="claseGrabada" class="form-label fw-bold text-primary">
-                                <i class="fas fa-play-circle me-1"></i> Link a Grabación (YouTube)
+                            <label class="form-label fw-bold text-primary">
+                                <i class="fas fa-play-circle me-1"></i> Grabaciones (YouTube)
                             </label>
-                            <input type="url" class="form-control border-primary-subtle" id="claseGrabada" 
-                                   name="claseGrabada" placeholder="https://youtube.com/...">
+                            <div id="grabaciones-container"></div>
+                            <input type="hidden" name="grabaciones_json" id="grabaciones_json" value="">
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="btn-add-grabacion"
+                                    aria-label="Agregar grabación">
+                                <i class="fas fa-plus me-1"></i>Agregar Grabación
+                            </button>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 py-2 shadow-sm fw-bold">
@@ -128,4 +132,57 @@
         </div>
     </div>
 </div>
+
+<script>
+(function() {
+    var grabData = <%- JSON.stringify((typeof modulo !== 'undefined' && modulo.grabaciones) ? modulo.grabaciones : []) %>;
+    var container = document.getElementById('grabaciones-container');
+    var hiddenInput = document.getElementById('grabaciones_json');
+    var form = hiddenInput ? hiddenInput.closest('form') : null;
+
+    function render() {
+        if (!container) return;
+        container.innerHTML = '';
+        grabData.forEach(function(url, idx) {
+            var div = document.createElement('div');
+            div.className = 'input-group input-group-sm mb-2';
+            div.innerHTML =
+                '<input type="url" class="form-control border-primary-subtle" ' +
+                'value="' + (url || '').replace(/"/g, '&quot;') + '" ' +
+                'data-idx="' + idx + '" placeholder="https://youtube.com/..." ' +
+                'aria-label="Grabación ' + (idx + 1) + '">' +
+                '<button type="button" class="btn btn-outline-danger" data-idx="' + idx + '" ' +
+                'aria-label="Eliminar grabación ' + (idx + 1) + '">&times;</button>';
+            container.appendChild(div);
+        });
+        syncJSON();
+        bindEvents();
+    }
+
+    function bindEvents() {
+        container.querySelectorAll('input').forEach(function(inp) {
+            inp.addEventListener('input', function() {
+                grabData[parseInt(this.dataset.idx)] = this.value;
+                syncJSON();
+            });
+        });
+        container.querySelectorAll('button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                grabData.splice(parseInt(this.dataset.idx), 1);
+                render();
+            });
+        });
+    }
+
+    function syncJSON() { hiddenInput.value = JSON.stringify(grabData); }
+
+    document.getElementById('btn-add-grabacion').addEventListener('click', function() {
+        grabData.push('');
+        render();
+    });
+
+    if (form) form.addEventListener('submit', syncJSON);
+    render();
+})();
+</script>
 

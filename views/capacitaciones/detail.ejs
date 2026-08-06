@@ -67,15 +67,16 @@
                                             </a>
                                         <% } %>
 
-                                        <% if (modulo.claseGrabada) { %>
-                                            <a href="<%= modulo.claseGrabada %>" class="list-group-item list-group-item-action border-0 d-flex align-items-center py-3" target="_blank">
+                                        <% const recordings = (modulo.grabaciones && modulo.grabaciones.length) ? modulo.grabaciones : (modulo.claseGrabada ? [modulo.claseGrabada] : []); %>
+                                        <% recordings.forEach(function(url) { %>
+                                            <a href="<%= url %>" class="list-group-item list-group-item-action border-0 d-flex align-items-center py-3" target="_blank">
                                                 <div class="me-3 text-danger"><i class="fas fa-play-circle fa-lg"></i></div>
                                                 <div>
                                                     <span class="d-block fw-bold text-dark">Clase Grabada</span>
                                                     <small class="text-muted">Video del encuentro virtual</small>
                                                 </div>
                                             </a>
-                                        <% } %>
+                                        <% }); %>
 
                                         
                                     </div>

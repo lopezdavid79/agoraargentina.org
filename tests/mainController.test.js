@@ -9,6 +9,7 @@ jest.mock('nodemailer');
 const request = require('supertest');
 const app = require('../app');
 const nodemailer = require('nodemailer');
+const db = require('../config/firebase');
 
 describe('POST /contacto — processContacto', () => {
   let sendMailMock;
@@ -112,5 +113,121 @@ describe('POST /contacto — processContacto', () => {
 
     expect(res.status).toBe(200); // renderiza la misma vista con error
     expect(res.text).toContain('Hubo un error al enviar el mensaje');
+  });
+});
+
+describe('GET /capacitaciones/:slug — detailCapacitaciones', () => {
+  let mockGet;
+  let mockWhere;
+  let mockLimit;
+  let mockOrderBy;
+  let mockDoc;
+  let mockDocCollection;
+
+  beforeEach(() => {
+    // Firestore query chain for detailCapacitaciones:
+    //   .collection('capacitaciones').where('slug','==',slug).limit(1).get()
+    //   .collection('capacitaciones').doc(id).collection('modulos').orderBy('orden','asc').get()
+    mockGet = jest.fn();
+    mockWhere = jest.fn(() => ({ limit: mockLimit }));
+    mockLimit = jest.fn(() => ({ get: mockGet }));
+    mockOrderBy = jest.fn(() => ({ get: mockGet }));
+    mockDoc = jest.fn(() => ({ get: mockGet, collection: mockDocCollection }));
+    mockDocCollection = jest.fn(() => ({ orderBy: mockOrderBy }));
+
+    db.collection.mockReturnValue({
+      where: mockWhere,
+      doc: mockDoc
+    });
+  });
+
+  const capSnapshot = {
+    empty: false,
+    docs: [{
+      id: 'cap-uno',
+      data: () => ({
+        titulo: 'Capacitación Uno',
+        instructor: 'Profesor',
+        categoria: 'Tecnología',
+        estado: 'Activo',
+        infoClase: 'Orientación',
+        link_vivo: ''
+      })
+    }]
+  };
+
+  test('renders one "Clase Grabada" link per grabacion (3 links), legacy claseGrabada not used (spec: "Module with three recordings")', async () => {
+    mockGet
+      .mockResolvedValueOnce(capSnapshot)
+      .mockResolvedValueOnce({
+        docs: [{
+          id: 'mod1',
+          data: () => ({
+            orden: 1,
+            tituloModulo: 'Módulo con tres grabaciones',
+            descripcion: 'Desc',
+            activo: true,
+            grabaciones: ['https://youtube.com/a', 'https://youtube.com/b', 'https://youtube.com/c'],
+            claseGrabada: 'https://youtube.com/legacy'
+          })
+        }]
+      });
+
+    const res = await request(app).get('/capacitaciones/cap-uno');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Módulo con tres grabaciones');
+    expect(res.text).toContain('https://youtube.com/a');
+    expect(res.text).toContain('https://youtube.com/b');
+    expect(res.text).toContain('https://youtube.com/c');
+    expect(res.text.match(/Clase Grabada/g)).toHaveLength(3);
+    expect(res.text).not.toContain('https://youtube.com/legacy');
+  });
+
+  test('renders single "Clase Grabada" link from legacy claseGrabada when grabaciones absent (spec: "Legacy module")', async () => {
+    mockGet
+      .mockResolvedValueOnce(capSnapshot)
+      .mockResolvedValueOnce({
+        docs: [{
+          id: 'mod2',
+          data: () => ({
+            orden: 1,
+            tituloModulo: 'Módulo legacy',
+            descripcion: '',
+            activo: true,
+            claseGrabada: 'https://youtube.com/legacy-x'
+          })
+        }]
+      });
+
+    const res = await request(app).get('/capacitaciones/cap-uno');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Módulo legacy');
+    expect(res.text.match(/Clase Grabada/g)).toHaveLength(1);
+    expect(res.text).toContain('https://youtube.com/legacy-x');
+  });
+
+  test('renders zero "Clase Grabada" links when module has no recordings', async () => {
+    mockGet
+      .mockResolvedValueOnce(capSnapshot)
+      .mockResolvedValueOnce({
+        docs: [{
+          id: 'mod3',
+          data: () => ({
+            orden: 1,
+            tituloModulo: 'Módulo sin grabaciones',
+            descripcion: '',
+            activo: true
+          })
+        }]
+      });
+
+    const res = await request(app).get('/capacitaciones/cap-uno');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Módulo sin grabaciones');
+    expect(res.text.match(/Clase Grabada/g)).toBeNull();
+    expect(res.text).not.toContain('Video del encuentro virtual');
   });
 });
