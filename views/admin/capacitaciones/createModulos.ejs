@@ -135,7 +135,7 @@
 
 <script>
 (function() {
-    var grabData = <%- JSON.stringify((typeof modulo !== 'undefined' && modulo.grabaciones) ? modulo.grabaciones : []) %>;
+    var grabData = [];
     var container = document.getElementById('grabaciones-container');
     var hiddenInput = document.getElementById('grabaciones_json');
     var form = hiddenInput ? hiddenInput.closest('form') : null;
@@ -143,14 +143,18 @@
     function render() {
         if (!container) return;
         container.innerHTML = '';
-        grabData.forEach(function(url, idx) {
+        grabData.forEach(function(g, idx) {
             var div = document.createElement('div');
             div.className = 'input-group input-group-sm mb-2';
             div.innerHTML =
+                '<input type="text" class="form-control border-primary-subtle" ' +
+                'value="' + (g.label || '').replace(/"/g, '&quot;') + '" ' +
+                'data-idx="' + idx + '" data-campo="label" placeholder="Etiqueta (opcional)" ' +
+                'aria-label="Etiqueta grabación ' + (idx + 1) + '">' +
                 '<input type="url" class="form-control border-primary-subtle" ' +
-                'value="' + (url || '').replace(/"/g, '&quot;') + '" ' +
-                'data-idx="' + idx + '" placeholder="https://youtube.com/..." ' +
-                'aria-label="Grabación ' + (idx + 1) + '">' +
+                'value="' + (g.url || '').replace(/"/g, '&quot;') + '" ' +
+                'data-idx="' + idx + '" data-campo="url" placeholder="https://youtube.com/..." ' +
+                'aria-label="URL grabación ' + (idx + 1) + '">' +
                 '<button type="button" class="btn btn-outline-danger" data-idx="' + idx + '" ' +
                 'aria-label="Eliminar grabación ' + (idx + 1) + '">&times;</button>';
             container.appendChild(div);
@@ -162,7 +166,9 @@
     function bindEvents() {
         container.querySelectorAll('input').forEach(function(inp) {
             inp.addEventListener('input', function() {
-                grabData[parseInt(this.dataset.idx)] = this.value;
+                var i = parseInt(this.dataset.idx);
+                var c = this.dataset.campo;
+                grabData[i][c] = this.value;
                 syncJSON();
             });
         });
@@ -177,7 +183,7 @@
     function syncJSON() { hiddenInput.value = JSON.stringify(grabData); }
 
     document.getElementById('btn-add-grabacion').addEventListener('click', function() {
-        grabData.push('');
+        grabData.push({ url: '', label: '' });
         render();
     });
 

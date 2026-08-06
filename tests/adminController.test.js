@@ -15,6 +15,7 @@ const request = require('supertest');
 const app = require('../app');
 const db = require('../config/firebase');
 const bcrypt = require('bcryptjs');
+const adminController = require('../controller/adminController');
 
 describe('Admin Controller', () => {
   let mockGet;
@@ -842,7 +843,7 @@ describe('Admin Controller', () => {
   // GET /admin/capacitaciones/:idCap/modulos/editar/:idModulo — editModulo
   // ──────────────────────────────────────────────
   describe('GET /admin/capacitaciones/:idCap/modulos/editar/:idModulo', () => {
-    test('renders editModulo with pre-filled grabaciones JSON', async () => {
+    test('renders editModulo with pre-filled labeled grabaciones JSON', async () => {
       const agent = request.agent(app);
       await loginAsAdmin(agent);
 
@@ -855,7 +856,11 @@ describe('Admin Controller', () => {
           descripcion: 'Descripción',
           claseGrabada: 'https://youtube.com/legacy',
           linkMaterial: 'https://drive.google.com/file',
-          grabaciones: ['https://youtube.com/a', 'https://youtube.com/b', 'https://youtube.com/c']
+          grabaciones: [
+            { url: 'https://youtube.com/a', label: 'Intro' },
+            { url: 'https://youtube.com/b', label: '' },
+            { url: 'https://youtube.com/c', label: 'Práctica' }
+          ]
         })
       };
 
@@ -866,7 +871,59 @@ describe('Admin Controller', () => {
       expect(res.status).toBe(200);
       expect(res.text).toContain('Editar Módulo');
       expect(res.text).toContain('grabaciones_json');
-      expect(res.text).toContain('["https://youtube.com/a","https://youtube.com/b","https://youtube.com/c"]');
+      expect(res.text).toContain('data-campo="label"');
+      expect(res.text).toContain('data-campo="url"');
+      expect(res.text).toContain('[{"url":"https://youtube.com/a","label":"Intro"},{"url":"https://youtube.com/b","label":""},{"url":"https://youtube.com/c","label":"Práctica"}]');
+    });
+
+    test('edit legacy-only module seeds one row with URL and default label "Clase Grabada 1" (spec: "Edit legacy seeds default label")', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      const moduloDoc = {
+        exists: true,
+        id: 'mod-legacy',
+        data: () => ({
+          orden: 1,
+          tituloModulo: 'Módulo legacy',
+          descripcion: '',
+          claseGrabada: 'https://legacy.com/x'
+        })
+      };
+
+      mockGet.mockResolvedValue(moduloDoc);
+
+      const res = await agent.get('/admin/capacitaciones/cap-uno/modulos/editar/mod-legacy');
+
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('Editar Módulo');
+      expect(res.text).toContain('"url":"https://legacy.com/x","label":"Clase Grabada 1"');
+      expect(res.text).toContain('Clase Grabada 1');
+    });
+
+    test('edit string-array module seeds default labels "Clase Grabada 1"/"Clase Grabada 2" (spec: "Edit string-array seeds defaults")', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      const moduloDoc = {
+        exists: true,
+        id: 'mod-str',
+        data: () => ({
+          orden: 1,
+          tituloModulo: 'Módulo strings',
+          descripcion: '',
+          grabaciones: ['https://a.com', 'https://b.com']
+        })
+      };
+
+      mockGet.mockResolvedValue(moduloDoc);
+
+      const res = await agent.get('/admin/capacitaciones/cap-uno/modulos/editar/mod-str');
+
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('Editar Módulo');
+      expect(res.text).toContain('"url":"https://a.com","label":"Clase Grabada 1"');
+      expect(res.text).toContain('"url":"https://b.com","label":"Clase Grabada 2"');
     });
 
     test('returns 404 when modulo does not exist', async () => {
@@ -878,6 +935,95 @@ describe('Admin Controller', () => {
       const res = await agent.get('/admin/capacitaciones/cap-uno/modulos/editar/no-existe');
 
       expect(res.status).toBe(404);
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // GET /admin/capacitaciones/:id/modulos — createModulos
+  // ──────────────────────────────────────────────
+  describe('GET /admin/capacitaciones/:id/modulos', () => {
+    test('renders createModulos with two-input recording rows (data-campo label + URL)', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      const capDoc = { data: () => ({ titulo: 'Capacitación Uno' }) };
+      const modulosSnapshot = { docs: [] };
+
+      mockGet
+        .mockResolvedValueOnce(capDoc)
+        .mockResolvedValueOnce(modulosSnapshot);
+
+      const res = await agent.get('/admin/capacitaciones/cap-uno/modulos');
+
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('Gestionar Módulos');
+      expect(res.text).toContain('grabaciones_json');
+      expect(res.text).toContain('data-campo="label"');
+      expect(res.text).toContain('data-campo="url"');
+      expect(res.text).toContain('Etiqueta (opcional)');
+    });
+  });
+
+  // ──────────────────────────────────────────────
+  // parseGrabaciones — pure unit tests
+  // ──────────────────────────────────────────────
+  describe('parseGrabaciones', () => {
+    test('normalizes mixed blank/valid objects, trimming url and label (spec: "Blank and valid mixed")', () => {
+      const result = adminController.parseGrabaciones({
+        grabaciones_json: JSON.stringify([
+          { url: '  ', label: 'X' },
+          { url: 'https://a.com', label: '' },
+          { url: '', label: 'Y' },
+          { url: 'https://b.com  ', label: 'Z' }
+        ])
+      });
+
+      expect(result).toEqual([
+        { url: 'https://a.com', label: '' },
+        { url: 'https://b.com', label: 'Z' }
+      ]);
+    });
+
+    test('converts legacy string arrays to { url, label } objects (spec: "Legacy string array parses")', () => {
+      const result = adminController.parseGrabaciones({
+        grabaciones_json: '["https://a.com","https://b.com"]'
+      });
+
+      expect(result).toEqual([
+        { url: 'https://a.com', label: '' },
+        { url: 'https://b.com', label: '' }
+      ]);
+    });
+
+    test('handles mixed string and object elements in one array', () => {
+      const result = adminController.parseGrabaciones({
+        grabaciones_json: JSON.stringify([
+          'https://a.com',
+          { url: 'https://b.com', label: 'B' },
+          { url: 'https://c.com', label: '' }
+        ])
+      });
+
+      expect(result).toEqual([
+        { url: 'https://a.com', label: '' },
+        { url: 'https://b.com', label: 'B' },
+        { url: 'https://c.com', label: '' }
+      ]);
+    });
+
+    test('caps the resulting array at 10 elements', () => {
+      const doceUrls = Array.from({ length: 12 }, (_, i) => `https://youtube.com/v${i}`);
+
+      const result = adminController.parseGrabaciones({ grabaciones_json: JSON.stringify(doceUrls) });
+
+      expect(result).toHaveLength(10);
+      expect(result[0]).toEqual({ url: 'https://youtube.com/v0', label: '' });
+      expect(result[9]).toEqual({ url: 'https://youtube.com/v9', label: '' });
+    });
+
+    test('returns [] for malformed JSON and for missing field', () => {
+      expect(adminController.parseGrabaciones({ grabaciones_json: '{not-json' })).toEqual([]);
+      expect(adminController.parseGrabaciones({})).toEqual([]);
     });
   });
 });
