@@ -265,7 +265,7 @@
     // ── Clases preexistentes desde edición ──
     var clasesIniciales = [];
     <% if (d.clasesText) { %>
-        clasesIniciales = <%- JSON.stringify((d.clasesText || '').split('\n').map(l => l.replace(/^\d+\|/, ''))) %>;
+        clasesIniciales = <%- jsonScript((d.clasesText || '').split('\n').map(l => l.replace(/^\d+\|/, ''))) %>;
     <% } %>
 
     var numClases = clasesIniciales.length || 10;
@@ -298,8 +298,8 @@
     // ── Participantes ──
     var partData = [];
 
-    <% if (d.participantesJSON) { %>
-        try { partData = <%- d.participantesJSON %>; } catch(e) {}
+    <% if (d.participantes && d.participantes.length) { %>
+        try { partData = <%- jsonScript(d.participantes) %>; } catch(e) {}
     <% } %>
 
     var campos = ['puntual','asistencia','participo','instrucciones',

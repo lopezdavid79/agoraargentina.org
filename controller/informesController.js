@@ -80,7 +80,7 @@ const informesController = {
                     clasesText: (informe.clases || [])
                         .map((c, i) => `${i + 1}|${c}`)
                         .join('\n'),
-                    participantesJSON: JSON.stringify(informe.participantes || [])
+                    participantes: informe.participantes || []
                 }
             });
         } catch (error) {

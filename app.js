@@ -18,6 +18,10 @@ const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Helpers EJS globales (jsonScript: JSON seguro para <script> inline — OWASP 3.1)
+const { jsonScript } = require('./config/ejsHelpers');
+app.locals.jsonScript = jsonScript;
+
 
 // 2. MIDDLEWARES GLOBALES (ORDEN IMPORTANTE)
 

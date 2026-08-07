@@ -91,7 +91,7 @@
 }); %>
 <script>
 (function() {
-    var grabData = <%- JSON.stringify(initialGrabaciones) %>;
+    var grabData = <%- jsonScript(initialGrabaciones) %>;
     var container = document.getElementById('grabaciones-container');
     var hiddenInput = document.getElementById('grabaciones_json');
     var form = hiddenInput ? hiddenInput.closest('form') : null;

@@ -936,6 +936,35 @@ describe('Admin Controller', () => {
 
       expect(res.status).toBe(404);
     });
+
+    test('escapes </script> breakout in grabaciones labels (spec: "editModulo breakout prevented")', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      const breakout = '</script><script>alert(1)</script>';
+      const moduloDoc = {
+        exists: true,
+        id: 'mod-breakout',
+        data: () => ({
+          orden: 1,
+          tituloModulo: 'Módulo breakout',
+          descripcion: '',
+          grabaciones: [
+            { url: 'https://youtube.com/a', label: breakout }
+          ]
+        })
+      };
+
+      mockGet.mockResolvedValue(moduloDoc);
+
+      const res = await agent.get('/admin/capacitaciones/cap-uno/modulos/editar/mod-breakout');
+
+      expect(res.status).toBe(200);
+      // Payload sequence must NOT survive in the rendered inline script
+      expect(res.text).not.toContain('</script><script>alert(1)</script>');
+      // Escaped sequence MUST be present (template's own </script> tags are legit)
+      expect(res.text).toContain('\\u003c/script\\u003e');
+    });
   });
 
   // ──────────────────────────────────────────────
