@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capacitaciones — Referencia Firebase | Ágora Argentina</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #222; }
+    nav.top { margin-bottom: 1.5rem; border-bottom: 1px solid #ddd; padding-bottom: .5rem; }
+    nav.top a { color: #0a6; text-decoration: none; margin-right: 1.2rem; padding: .2rem .4rem; font-size: .95rem; }
+    nav.top a:hover { text-decoration: underline; }
+    nav.top a.active { font-weight: 700; border-bottom: 3px solid #0a6; }
+    h1 { border-bottom: 2px solid #0a6; padding-bottom: .5rem; }
+    h2 { color: #0a6; margin-top: 2rem; }
+    h3 { margin-top: 1.5rem; }
+    code { background: #f4f4f4; padding: .15rem .4rem; border-radius: 4px; font-size: .9em; }
+    pre { background: #1e1e2e; color: #cdd6f4; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; padding: 0; color: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid #ddd; padding: .5rem .6rem; text-align: left; vertical-align: top; }
+    th { background: #f4f4f4; }
+    .step { background: #f0fdf4; border-left: 4px solid #0a6; padding: .8rem 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+    .badge { display: inline-block; font-size: .75rem; padding: .15rem .6rem; border-radius: 20px; font-weight: 600; }
+    .badge-public { background: #dbeafe; color: #1e40af; }
+    .badge-admin { background: #fef3c7; color: #92400e; }
+    .badge-check { background: #d1fae5; color: #065f46; }
+    .src { color: #666; font-size: .85rem; }
+    ul, ol { padding-left: 1.2rem; }
+    li { margin: .4rem 0; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 2rem 0; }
+    footer { color: #666; font-size: .9rem; border-top: 1px solid #ddd; margin-top: 2rem; padding-top: .8rem; }
+  </style>
+</head>
+<body>
+  <nav class="top" aria-label="Documentación de Capacitaciones">
+    <a href="index.html">Visión General</a>
+    <a href="implementacion.html">Implementación</a>
+    <a href="firestore.html" class="active">Firebase</a>
+  </nav>
+
+  <h1>Capacitaciones — Referencia Firebase</h1>
+  <p>Esquema de datos del módulo en Cloud Firestore: jerarquía de colecciones, tablas campo/tipo/requerido/default/notas para ambas colecciones, documentos de ejemplo y notas de comportamiento. Cada campo indica su sitio de escritura en el código.</p>
+
+  <nav aria-label="Tabla de contenidos">
+    <strong>Contenidos</strong>
+    <ul>
+      <li><a href="#jerarquia">1. Jerarquía de Colecciones</a></li>
+      <li><a href="#schema-capacitaciones">2. Schema: <code>capacitaciones/{slug}</code></a></li>
+      <li><a href="#schema-modulos">3. Schema: <code>capacitaciones/{slug}/modulos/{autoId}</code></a></li>
+      <li><a href="#ejemplo-capacitacion">4. Documento Ejemplo: Capacitación</a></li>
+      <li><a href="#ejemplo-modulo">5. Documento Ejemplo: Módulo</a></li>
+      <li><a href="#notas">6. Notas de Comportamiento</a></li>
+    </ul>
+  </nav>
+
+  <hr>
+
+  <h2 id="jerarquia">1. Jerarquía de Colecciones</h2>
+  <pre><code>Firestore
+└── capacitaciones/{slug}                        ← documento de capacitación (ID = slug)
+    └── modulos/{autoId}                         ← subcolección de módulos (ID autogenerado)</code></pre>
+  <ul>
+    <li>La capacitación se escribe con <code>db.collection('capacitaciones').doc(finalSlug).set({...})</code> — el ID del documento es el slug normalizado (<code>controller/adminController.js:343</code>).</li>
+    <li>El módulo se agrega con <code>db.collection('capacitaciones').doc(idCap).collection('modulos').add({...})</code> — ID autogenerado por Firestore (<code>controller/adminController.js:483</code>).</li>
+    <li>La subcolección se lee ordenada por <code>orden</code> ascendente (<code>controller/mainController.js:173-175</code>) y en el gestor admin (<code>controller/adminController.js:460</code>).</li>
+  </ul>
+  <p class="src">Fuentes: <code>controller/adminController.js:343</code> · <code>controller/adminController.js:483</code> · <code>controller/mainController.js:173-175</code></p>
+
+  <hr>
+
+  <h2 id="schema-capacitaciones">2. Schema: <code>capacitaciones/{slug}</code></h2>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Default</th><th>Notas</th></tr>
+    <tr><td><code>titulo</code></td><td><code>string</code></td><td>Sí (store)</td><td>—</td><td>Se guarda con <code>.trim()</code>. Validado no vacío en alta y edición.</td></tr>
+    <tr><td><code>slug</code></td><td><code>string</code></td><td>Sí (generado)</td><td>—</td><td>Normalizado desde <code>slug</code>/título; sirve como ID del documento. No se reescribe en update.</td></tr>
+    <tr><td><code>descripcion</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>Texto libre.</td></tr>
+    <tr><td><code>categoria</code></td><td><code>string</code></td><td>No</td><td><code>"General"</code></td><td>Select con 3 opciones: "Herramientas para el trabajo", "Accesibilidad digital", "Alfabetización Digital".</td></tr>
+    <tr><td><code>instructor</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>Texto libre.</td></tr>
+    <tr><td><code>privado</code></td><td><code>boolean</code></td><td>No</td><td><code>false</code></td><td>Normalizado con <code>(privado === 'on' || privado === 'true')</code>; el formulario envía <code>"true"</code>/<code>"false"</code>.</td></tr>
+    <tr><td><code>link_vivo</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>Enlace a la clase en vivo. Sin validación de formato.</td></tr>
+    <tr><td><code>infoClase</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>Texto de orientación/horarios.</td></tr>
+    <tr><td><code>fecha</code></td><td><code>Timestamp</code></td><td>Sí (store)</td><td><code>new Date()</code></td><td>Se asigna solo en la creación.</td></tr>
+    <tr><td><code>estado</code></td><td><code>string</code></td><td>No</td><td><code>"borrador"</code></td><td>Valores: <code>"borrador"</code> (default de alta), <code>"Activo"</code>, <code>"Terminado"</code>. El catálogo público filtra <code>estado == "Activo"</code>.</td></tr>
+    <tr><td><code>creadoPor</code></td><td><code>string</code></td><td>Sí (store)</td><td>—</td><td><code>req.session.user.uid</code>. Se asigna solo en la creación.</td></tr>
+    <tr><td><code>fechaActualizacion</code></td><td><code>Timestamp</code></td><td>No (update)</td><td>—</td><td><code>new Date()</code> en cada edición. Ausente en la creación.</td></tr>
+  </table>
+  <table>
+    <tr><th>Campo</th><th>Sitio de escritura</th></tr>
+    <tr><td>Alta (11 campos)</td><td><code>controller/adminController.js:343-355</code> — <code>titulo</code> (<code>:344</code>), <code>slug</code> (<code>:345</code>), <code>descripcion</code> (<code>:346</code>), <code>categoria</code> (<code>:347</code>), <code>instructor</code> (<code>:348</code>), <code>privado</code> (<code>:349</code>), <code>link_vivo</code> (<code>:350</code>), <code>infoClase</code> (<code>:351</code>), <code>fecha</code> (<code>:352</code>), <code>estado</code> (<code>:353</code>), <code>creadoPor</code> (<code>:354</code>)</td></tr>
+    <tr><td>Edición (8 + <code>fechaActualizacion</code>)</td><td><code>controller/adminController.js:413-423</code> — <code>titulo</code> (<code>:414</code>), <code>descripcion</code> (<code>:415</code>), <code>categoria</code> (<code>:416</code>), <code>instructor</code> (<code>:417</code>), <code>privado</code> (<code>:419</code>), <code>link_vivo</code> (<code>:420</code>), <code>estado</code> (<code>:421</code>), <code>infoClase</code> (<code>:422</code>), <code>fechaActualizacion</code> (<code>:423</code>)</td></tr>
+  </table>
+  <p class="src">Fuentes: <code>controller/adminController.js:343-355</code> (store) · <code>controller/adminController.js:413-423</code> (update) · <code>views/admin/capacitaciones/form_fields.ejs:45-77</code> (opciones del formulario)</p>
+
+  <hr>
+
+  <h2 id="schema-modulos">3. Schema: <code>capacitaciones/{slug}/modulos/{autoId}</code></h2>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Requerido</th><th>Default</th><th>Notas</th></tr>
+    <tr><td><code>orden</code></td><td><code>number</code></td><td>Sí (store)</td><td>—</td><td><code>parseInt(orden)</code>. Controla el orden de visualización.</td></tr>
+    <tr><td><code>tituloModulo</code></td><td><code>string</code></td><td>Sí (store)</td><td>—</td><td>Validado no vacío junto con <code>orden</code>.</td></tr>
+    <tr><td><code>descripcion</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>Texto de tema/temario.</td></tr>
+    <tr><td><code>linkMaterial</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>URL a material Drive/PDF. Sin validación de formato.</td></tr>
+    <tr><td><code>claseGrabada</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>URL legacy de grabación única. Fallback cuando <code>grabaciones</code> está vacío.</td></tr>
+    <tr><td><code>grabaciones</code></td><td><code>array&lt;{url, label}&gt;</code></td><td>No</td><td><code>[]</code></td><td>Grabaciones principales. Normalizado por <code>parseGrabaciones</code>; tope de 10 elementos.</td></tr>
+    <tr><td><code>activo</code></td><td><code>boolean</code></td><td>No (store)</td><td><code>true</code></td><td>En alta queda <code>true</code> fijo; en edición lo define el switch del formulario.</td></tr>
+    <tr><td><code>fechaCreacion</code></td><td><code>Timestamp</code></td><td>Sí (store)</td><td><code>new Date()</code></td><td>Se asigna solo en la creación.</td></tr>
+    <tr><td><code>fechaActualizacion</code></td><td><code>Timestamp</code></td><td>No (update)</td><td>—</td><td><code>new Date()</code> en cada edición. Ausente en la creación.</td></tr>
+  </table>
+  <table>
+    <tr><th>Campo</th><th>Sitio de escritura</th></tr>
+    <tr><td>Alta (8 campos)</td><td><code>controller/adminController.js:483-493</code> — <code>orden</code> (<code>:484</code>), <code>tituloModulo</code> (<code>:485</code>), <code>descripcion</code> (<code>:486</code>), <code>claseGrabada</code> (<code>:487</code>), <code>linkMaterial</code> (<code>:488</code>), <code>grabaciones</code> (<code>:489</code>), <code>fechaCreacion</code> (<code>:490</code>), <code>activo</code> (<code>:492</code>)</td></tr>
+    <tr><td>Edición (7 + <code>fechaActualizacion</code>)</td><td><code>controller/adminController.js:562-570</code> — <code>orden</code> (<code>:563</code>), <code>tituloModulo</code> (<code>:564</code>), <code>descripcion</code> (<code>:565</code>), <code>claseGrabada</code> (<code>:566</code>), <code>linkMaterial</code> (<code>:567</code>), <code>grabaciones</code> (<code>:568</code>), <code>activo</code> (<code>:569</code>), <code>fechaActualizacion</code> (<code>:570</code>)</td></tr>
+  </table>
+  <p class="src">Fuentes: <code>controller/adminController.js:483-493</code> (store) · <code>controller/adminController.js:562-570</code> (update) · <code>controller/adminController.js:9-22</code> (normalización de <code>grabaciones</code>)</p>
+
+  <hr>
+
+  <h2 id="ejemplo-capacitacion">4. Documento Ejemplo: Capacitación</h2>
+  <p>Ejemplo de un documento en <code>capacitaciones/{slug}</code> ya publicado (creado en borrador y luego marcado <code>"Activo"</code> desde el admin).</p>
+  <pre><code>{
+  "titulo": "Introducción a la Accesibilidad Web",
+  "slug": "introduccion-a-la-accesibilidad-web",
+  "descripcion": "Fundamentos de WCAG y diseño inclusivo para desarrolladores.",
+  "categoria": "Accesibilidad digital",
+  "instructor": "María Gómez",
+  "privado": false,
+  "link_vivo": "https://meet.google.com/abc-defg-hij",
+  "infoClase": "Martes y Jueves 18:00-20:00",
+  "fecha": "2026-03-15T14:30:00.000Z",
+  "estado": "Activo",
+  "creadoPor": "uXyZ123abc",
+  "fechaActualizacion": "2026-04-01T10:00:00.000Z"
+}</code></pre>
+  <p class="src">Los campos <code>fecha</code> y <code>creadoPor</code> se escriben solo al crear; <code>fechaActualizacion</code> solo al editar. Referencia de tabla: sección 2.</p>
+
+  <hr>
+
+  <h2 id="ejemplo-modulo">5. Documento Ejemplo: Módulo</h2>
+  <p>Ejemplo de un documento en <code>capacitaciones/{slug}/modulos/{autoId}</code> con <code>grabaciones</code> normalizado a <code>{ url, label }</code>.</p>
+  <pre><code>{
+  "orden": 1,
+  "tituloModulo": "Principios POUR",
+  "descripcion": "Perceptible, Operable, Comprensible y Robusto.",
+  "linkMaterial": "https://drive.google.com/file/d/xyz",
+  "claseGrabada": "",
+  "grabaciones": [
+    { "url": "https://youtube.com/watch?v=aaa", "label": "Parte 1 — Teoría" },
+    { "url": "https://youtube.com/watch?v=bbb", "label": "Parte 2 — Práctica" }
+  ],
+  "activo": true,
+  "fechaCreacion": "2026-03-20T18:00:00.000Z",
+  "fechaActualizacion": "2026-03-25T12:00:00.000Z"
+}</code></pre>
+  <p class="src">Al crear, <code>activo</code> es <code>true</code> y <code>fechaActualizacion</code> no existe; ambos campos se comportan según la sección 6.</p>
+
+  <hr>
+
+  <h2 id="notas">6. Notas de Comportamiento</h2>
+  <ol>
+    <li><strong>Default de alta</strong>: una capacitación nueva se escribe con <code>estado: "borrador"</code> (<code>controller/adminController.js:353</code>) y <code>fecha: new Date()</code> (<code>:352</code>), con <code>creadoPor</code> tomado de la sesión (<code>:354</code>) y <code>categoria</code> con default <code>"General"</code> (<code>:347</code>).</li>
+    <li><strong>Delta de edición</strong>: <code>updateCapacitacion</code> agrega <code>fechaActualizacion: new Date()</code> (<code>controller/adminController.js:423</code>) y no toca el <code>slug</code> (es el ID del documento); el bloque de alta (<code>:343-355</code>) no contiene <code>fechaActualizacion</code>.</li>
+    <li><strong>Filtro público</strong>: el listado público exige <code>estado == "Activo"</code> (<code>controller/mainController.js:146</code>) y el detalle devuelve 403 si <code>estado !== "Activo"</code> (<code>:169-171</code>).</li>
+    <li><strong>Tope de grabaciones</strong>: <code>parseGrabaciones</code> limita a 10 elementos (<code>controller/adminController.js:20</code>), descarta entradas sin URL y ante JSON inválido devuelve <code>[]</code> (<code>:9-22</code>).</li>
+    <li><strong><code>activo</code> en módulos</strong>: <code>storeModulo</code> lo fija en <code>true</code> (<code>controller/adminController.js:492</code>); <code>updateModulo</code> lo define con <code>activo === "on" ? true : false</code> (<code>:569</code>).</li>
+    <li><strong>Visibilidad en detalle público</strong>: solo se muestran módulos con <code>activo === true</code> (<code>controller/mainController.js:179</code>).</li>
+    <li><strong>Fallback legacy</strong>: si <code>grabaciones</code> está vacío, la vista usa <code>claseGrabada</code> como única grabación (<code>views/capacitaciones/detail.ejs:70</code>); la edición precarga el mismo fallback y etiqueta los strings como "Clase Grabada N" (<code>views/admin/capacitaciones/editModulo.ejs:87-91</code>).</li>
+    <li><strong>Normalización de <code>privado</code></strong>: el valor booleano se deriva con <code>(privado === 'on' || privado === 'true')</code> tanto en alta (<code>controller/adminController.js:349</code>) como en edición (<code>:419</code>).</li>
+  </ol>
+
+  <div class="step">
+    <span class="badge badge-check">Re-verificación</span>
+    <p style="margin:.5rem 0 0"><strong>Cada campo de ambas tablas tiene un sitio de escritura en <code>controller/adminController.js</code> (store/update)</strong> — sección 2 y 3. Los filtros de lectura están en <code>controller/mainController.js:146</code> y <code>:179</code>.</p>
+  </div>
+
+  <p class="src">Contexto: <a href="index.html">Visión General</a> · <a href="implementacion.html">Blueprint de Implementación</a></p>
+
+  <hr>
+
+  <footer>
+    <p><strong>Cambio: documentar-capacitaciones</strong> · Documentación generada a partir del código existente. Esquema verificado contra los sitios de escritura en <code>controller/adminController.js</code>.</p>
+  </footer>
+</body>
+</html>
