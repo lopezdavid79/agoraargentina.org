@@ -391,6 +391,12 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const liveRegion = document.getElementById("liveRegion");
+    const validTabIds = ["#noticias", "#cursos", "#capacitaciones", "#usuarios", "#informes"];
+    const hash = window.location.hash;
+    if (validTabIds.includes(hash)) {
+        const tabButton = document.querySelector(`[data-bs-toggle="tab"][data-bs-target="${hash}"]`);
+        if (tabButton) new bootstrap.Tab(tabButton).show();
+    }
 
     function announce(message) {
         liveRegion.textContent = "";

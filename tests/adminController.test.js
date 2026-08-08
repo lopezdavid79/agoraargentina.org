@@ -990,6 +990,8 @@ describe('Admin Controller', () => {
       expect(res.text).toContain('data-campo="label"');
       expect(res.text).toContain('data-campo="url"');
       expect(res.text).toContain('Etiqueta (opcional)');
+      expect(res.text).toContain('<a href="/admin/dashboard#capacitaciones">Gestión de Capacitaciones</a>');
+      expect(res.text).toContain('<a href="/admin/dashboard#capacitaciones" class="btn btn-outline-secondary mb-3" role="button"><i class="fas fa-arrow-left me-2"></i>Volver a Capacitaciones</a>');
     });
   });
 
