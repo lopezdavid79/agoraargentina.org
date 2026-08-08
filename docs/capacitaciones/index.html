@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capacitaciones — Visión General | Ágora Argentina</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #222; }
+    nav.top { margin-bottom: 1.5rem; border-bottom: 1px solid #ddd; padding-bottom: .5rem; }
+    nav.top a { color: #0a6; text-decoration: none; margin-right: 1.2rem; padding: .2rem .4rem; font-size: .95rem; }
+    nav.top a:hover { text-decoration: underline; }
+    nav.top a.active { font-weight: 700; border-bottom: 3px solid #0a6; }
+    h1 { border-bottom: 2px solid #0a6; padding-bottom: .5rem; }
+    h2 { color: #0a6; margin-top: 2rem; }
+    h3 { margin-top: 1.5rem; }
+    code { background: #f4f4f4; padding: .15rem .4rem; border-radius: 4px; font-size: .9em; }
+    pre { background: #1e1e2e; color: #cdd6f4; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; padding: 0; color: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid #ddd; padding: .5rem .6rem; text-align: left; vertical-align: top; }
+    th { background: #f4f4f4; }
+    .step { background: #f0fdf4; border-left: 4px solid #0a6; padding: .8rem 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+    .badge { display: inline-block; font-size: .75rem; padding: .15rem .6rem; border-radius: 20px; font-weight: 600; }
+    .badge-public { background: #dbeafe; color: #1e40af; }
+    .badge-admin { background: #fef3c7; color: #92400e; }
+    .badge-check { background: #d1fae5; color: #065f46; }
+    .src { color: #666; font-size: .85rem; }
+    ul, ol { padding-left: 1.2rem; }
+    li { margin: .4rem 0; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 2rem 0; }
+    footer { color: #666; font-size: .9rem; border-top: 1px solid #ddd; margin-top: 2rem; padding-top: .8rem; }
+  </style>
+</head>
+<body>
+  <nav class="top" aria-label="Documentación de Capacitaciones">
+    <a href="index.html" class="active">Visión General</a>
+    <a href="implementacion.html">Implementación</a>
+    <a href="firestore.html">Firebase</a>
+  </nav>
+
+  <h1>Capacitaciones — Visión General</h1>
+  <p>Manual de implementación del módulo de capacitaciones de Ágora Argentina: catálogo público de formación + gestión CRUD desde el panel de administración. Este documento describe la implementación <strong>tal como existe</strong> en el código, con la cita de origen de cada afirmación para re-verificación.</p>
+
+  <nav aria-label="Tabla de contenidos">
+    <strong>Contenidos</strong>
+    <ul>
+      <li><a href="#proposito">1. Propósito del Módulo</a></li>
+      <li><a href="#arquitectura">2. Arquitectura General</a></li>
+      <li><a href="#rutas">3. Tabla de Rutas</a></li>
+      <li><a href="#flujo-publico">4. Flujo Público</a></li>
+      <li><a href="#flujo-admin">5. Flujo Admin</a></li>
+      <li><a href="#ciclo-vida-estado">6. Ciclo de Vida de <code>estado</code></a></li>
+      <li><a href="#seguridad">7. Middleware y Seguridad</a></li>
+    </ul>
+  </nav>
+
+  <hr>
+
+  <h2 id="proposito">1. Propósito del Módulo</h2>
+  <p>El módulo ofrece dos caras:</p>
+  <ul>
+    <li><span class="badge badge-public">Público</span> Un catálogo de capacitaciones con detalle por capacitación. El visitante navega el listado en <code>/capacitaciones</code> y abre cada capacitación en <code>/capacitaciones/:slug</code>, donde encuentra sus módulos ordenados, materiales de lectura y grabaciones de clase. Rutas: <code>router/mainRouter.js:38-39</code>.</li>
+    <li><span class="badge badge-admin">Admin</span> Gestión completa de capacitaciones (crear, editar, eliminar) y de su subcolección de módulos (alta, edición, borrado). Rutas: <code>router/adminRouter.js:67-77</code>, protegidas por <code>isAdmin</code>.</li>
+  </ul>
+  <p class="src">Fuentes: <code>router/mainRouter.js:38-39</code> · <code>router/adminRouter.js:67-77</code> · <code>controller/mainController.js:142-185</code> · <code>controller/adminController.js:313-591</code></p>
+
+  <hr>
+
+  <h2 id="arquitectura">2. Arquitectura General</h2>
+  <p>Arquitectura MVC clásica en Express:</p>
+  <pre><code>Navegador
+   │  HTTP
+   ▼
+app.js (bootstrap: EJS, sesión, CSRF, routers)
+   │
+   ▼
+router/ (mainRouter.js, adminRouter.js)  →  middleware de ruta (isAdmin, limiters)
+   │
+   ▼
+controller/ (mainController.js, adminController.js)
+   │  Firebase Admin SDK (config/firebase.js)
+   ▼
+Firestore: capacitaciones/{slug} → modulos/{autoId}</code></pre>
+  <ul>
+    <li><strong>Bootstrap</strong> (<code>app.js:1-80</code>): motor de vistas EJS (<code>app.js:18-19</code>), helper global <code>jsonScript</code> (<code>app.js:21-23</code>), estáticos (<code>app.js:30</code>), parseo de formularios (<code>app.js:37-38</code>), <code>methodOverride</code> para <code>PUT/DELETE</code> (<code>app.js:41</code>), sesión (<code>app.js:46-54</code>), CSRF global (<code>app.js:56-57</code>), variables globales de vista (<code>app.js:62-79</code>).</li>
+    <li><strong>Montaje de routers</strong>: <code>app.use('/', mainRouter)</code> y <code>app.use('/', adminRouter)</code> en <code>app.js:98-102</code>.</li>
+    <li><strong>Acceso a datos</strong>: cada controlador obtiene <code>db</code> desde <code>config/firebase</code> (<code>controller/adminController.js:1</code>, <code>controller/mainController.js:1</code>).</li>
+    <li><strong>Vistas</strong>: públicas en <code>views/capacitaciones/</code> (<code>index.ejs</code>, <code>detail.ejs</code>); admin en <code>views/admin/capacitaciones/</code> (<code>createModulos.ejs</code>, <code>editModulo.ejs</code>, <code>form_fields.ejs</code>) y en <code>views/admin/dashboard.ejs</code>.</li>
+  </ul>
+  <p class="src">Fuentes: <code>app.js:1-80</code> · <code>app.js:98-102</code> · <code>controller/adminController.js:1</code></p>
+
+  <hr>
+
+  <h2 id="rutas">3. Tabla de Rutas</h2>
+
+  <h3>3.1. Rutas públicas</h3>
+  <table>
+    <tr><th>Método</th><th>Ruta</th><th>Controlador</th><th>Middleware</th><th>Fuente</th></tr>
+    <tr><td>GET</td><td><code>/capacitaciones</code></td><td><code>mainController.capacitacionesViews</code></td><td>—</td><td><code>router/mainRouter.js:38</code></td></tr>
+    <tr><td>GET</td><td><code>/capacitaciones/:slug</code></td><td><code>mainController.detailCapacitaciones</code></td><td>—</td><td><code>router/mainRouter.js:39</code></td></tr>
+  </table>
+
+  <h3>3.2. Rutas admin</h3>
+  <p>Todas pasan por el rate limiter de admin (<code>router/adminRouter.js:48</code>) y por <code>isAdmin</code>. Las rutas <code>PUT</code> y <code>DELETE</code> se envían como <code>POST</code> con <code>?_method=PUT|DELETE</code>, resuelto por <code>methodOverride</code> (<code>app.js:41</code>).</p>
+  <table>
+    <tr><th>Método</th><th>Ruta</th><th>Controlador</th><th>Middleware</th><th>Fuente</th></tr>
+    <tr><td>GET</td><td><code>/admin/capacitaciones/nuevo</code></td><td><code>adminController.createCapacitacion</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:68</code></td></tr>
+    <tr><td>POST</td><td><code>/admin/capacitaciones/nuevo</code></td><td><code>adminController.storeCapacitacion</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:69</code></td></tr>
+    <tr><td>GET</td><td><code>/admin/capacitaciones/editar/:id</code></td><td><code>adminController.editCapacitacion</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:70</code></td></tr>
+    <tr><td>PUT</td><td><code>/admin/capacitaciones/editar/:id</code></td><td><code>adminController.updateCapacitacion</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:71</code></td></tr>
+    <tr><td>DELETE</td><td><code>/admin/capacitaciones/eliminar/:id</code></td><td><code>adminController.deleteCapacitacion</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:72</code></td></tr>
+    <tr><td>GET</td><td><code>/admin/capacitaciones/:id/modulos</code></td><td><code>adminController.createModulos</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:73</code></td></tr>
+    <tr><td>POST</td><td><code>/admin/capacitaciones/:id/modulos/nuevo</code></td><td><code>adminController.storeModulo</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:74</code></td></tr>
+    <tr><td>GET</td><td><code>/admin/capacitaciones/:idCap/modulos/editar/:idModulo</code></td><td><code>adminController.editModulo</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:75</code></td></tr>
+    <tr><td>POST</td><td><code>/admin/capacitaciones/:idCap/modulos/editar/:idModulo</code></td><td><code>adminController.updateModulo</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:76</code></td></tr>
+    <tr><td>DELETE</td><td><code>/admin/capacitaciones/:idCap/modulos/eliminar/:idMod</code></td><td><code>adminController.deleteModulo</code></td><td><code>isAdmin</code></td><td><code>router/adminRouter.js:77</code></td></tr>
+  </table>
+  <p class="src">Fuentes: <code>router/mainRouter.js:38-39</code> · <code>router/adminRouter.js:67-77</code> · <code>router/adminRouter.js:48</code></p>
+
+  <hr>
+
+  <h2 id="flujo-publico">4. Flujo Público</h2>
+  <div class="step">
+    <span class="badge badge-public">Público</span>
+    <p style="margin:.5rem 0 0"><strong>El visitante nunca ve capacitaciones que no estén en estado <code>"Activo"</code>.</strong></p>
+  </div>
+  <ol>
+    <li><strong>Listado</strong>: el visitante entra a <code>/capacitaciones</code>. <code>capacitacionesViews</code> consulta Firestore con filtro <code>where('estado', '==', 'Activo')</code> (<code>controller/mainController.js:145-146</code>) y renderiza <code>capacitaciones/index</code> con tarjetas (título, categoría, descripción recortada a 120 caracteres, instructor). <code>controller/mainController.js:143-152</code>.</li>
+    <li><strong>Detalle</strong>: al hacer clic en una tarjeta se navega a <code>/capacitaciones/:slug</code>. <code>detailCapacitaciones</code> busca por <code>slug</code> con <code>limit(1)</code> (<code>controller/mainController.js:158-159</code>).</li>
+    <li><strong>Puerta de estado</strong>: si <code>estado !== 'Activo'</code> responde <code>403</code> "Esta capacitación no está disponible." (<code>controller/mainController.js:169-171</code>).</li>
+    <li><strong>Módulos</strong>: lee la subcolección <code>modulos</code> ordenada por <code>orden</code> ascendente y filtra solo los que tienen <code>activo === true</code> (<code>controller/mainController.js:173-179</code>).</li>
+    <li><strong>Render</strong>: <code>capacitaciones/detail</code> con acordeón por módulo, enlace a clase en vivo (<code>views/capacitaciones/detail.ejs:22-26</code>), material de lectura, grabaciones y orientación (<code>controller/mainController.js:181</code>).</li>
+  </ol>
+  <p class="src">Fuentes: <code>controller/mainController.js:142-185</code> · <code>views/capacitaciones/detail.ejs:70-81</code> · <code>views/capacitaciones/index.ejs:12-54</code></p>
+
+  <hr>
+
+  <h2 id="flujo-admin">5. Flujo Admin</h2>
+  <div class="step">
+    <span class="badge badge-admin">Admin</span>
+    <p style="margin:.5rem 0 0"><strong>Todas las acciones requieren sesión iniciada (<code>isAdmin</code>).</strong></p>
+  </div>
+  <ol>
+    <li><strong>Dashboard</strong>: <code>adminController.index</code> carga noticias, cursos, capacitaciones, usuarios e informes. Para rol <code>instructor</code> las capacitaciones se filtran por <code>creadoPor === usuarioSesion.uid</code> (<code>controller/adminController.js:36-40</code>). La pestaña de capacitaciones está en <code>views/admin/dashboard.ejs:192-248</code>.</li>
+    <li><strong>Crear capacitación</strong>: el modal del dashboard envía a <code>POST /admin/capacitaciones/nuevo</code>. <code>storeCapacitacion</code> valida el título (<code>controller/adminController.js:323-326</code>), genera el <code>slug</code> a partir de <code>slug</code> o del título (<code>:329-333</code>) y escribe con <code>estado: "borrador"</code> y <code>creadoPor</code> de la sesión (<code>:343-355</code>).</li>
+    <li><strong>Editar capacitación</strong>: <code>PUT /admin/capacitaciones/editar/:id</code> → <code>updateCapacitacion</code> reescribe los campos del formulario y agrega <code>fechaActualizacion</code> (<code>controller/adminController.js:413-423</code>). El formulario reutiliza <code>form_fields.ejs</code> dentro del modal (<code>views/admin/dashboard.ejs:236-242</code>).</li>
+    <li><strong>Eliminar capacitación</strong>: <code>DELETE /admin/capacitaciones/eliminar/:id</code> → <code>deleteCapacitacion</code> (<code>controller/adminController.js:444-451</code>).</li>
+    <li><strong>Gestionar módulos</strong>: el botón de la tabla abre <code>GET /admin/capacitaciones/:id/modulos</code> → <code>createModulos</code>, que lista los módulos por <code>orden</code> (<code>controller/adminController.js:456-471</code>) y permite <code>storeModulo</code> (<code>:473-512</code>), <code>editModulo</code> (<code>:515-548</code>), <code>updateModulo</code> (<code>:549-581</code>) y <code>deleteModulo</code> (<code>:583-591</code>).</li>
+  </ol>
+  <p class="src">Fuentes: <code>controller/adminController.js:313-591</code> · <code>views/admin/dashboard.ejs:192-248</code> · <code>views/admin/capacitaciones/createModulos.ejs:25-70</code></p>
+
+  <hr>
+
+  <h2 id="ciclo-vida-estado">6. Ciclo de Vida de <code>estado</code></h2>
+  <table>
+    <tr><th>Momento</th><th>Valor</th><th>Origen</th></tr>
+    <tr><td>Creación (store)</td><td><code>"borrador"</code></td><td><code>controller/adminController.js:353</code></td></tr>
+    <tr><td>Edición (update)</td><td>Valor del formulario; si llega vacío, <code>"borrador"</code></td><td><code>controller/adminController.js:421</code></td></tr>
+    <tr><td>Opciones del formulario admin</td><td><code>"Borrador"</code>, <code>"Activo"</code>, <code>"Terminado"</code></td><td><code>views/admin/capacitaciones/form_fields.ejs:63-67</code></td></tr>
+    <tr><td>Listado público</td><td>Solo <code>estado == "Activo"</code></td><td><code>controller/mainController.js:146</code></td></tr>
+    <tr><td>Detalle público</td><td>Bloquea si <code>estado !== "Activo"</code> (403)</td><td><code>controller/mainController.js:169-171</code></td></tr>
+    <tr><td>Badge en dashboard</td><td><code>"Activo"</code> verde, resto gris</td><td><code>views/admin/dashboard.ejs:210-214</code></td></tr>
+  </table>
+  <p><strong>Secuencia típica:</strong> una capacitación se crea en borrador → el admin la publica desde el modal de edición eligiendo <code>Activo</code> → aparece en el catálogo público. Al terminarla, se marca <code>Terminado</code> y deja de listarse.</p>
+  <p class="src">Fuentes: <code>controller/adminController.js:353</code> · <code>controller/adminController.js:421</code> · <code>controller/mainController.js:146</code> · <code>controller/mainController.js:169-171</code></p>
+
+  <hr>
+
+  <h2 id="seguridad">7. Middleware y Seguridad</h2>
+  <table>
+    <tr><th>Mecanismo</th><th>Qué hace</th><th>Fuente</th></tr>
+    <tr>
+      <td><code>isAdmin</code></td>
+      <td>Requiere usuario en sesión (<code>req.session.user</code>); si no, redirige a <code>/login</code>. Aplica a todas las rutas admin de capacitaciones.</td>
+      <td><code>middleware/authMiddleware.js:9-12</code></td>
+    </tr>
+    <tr>
+      <td>CSRF</td>
+      <td>Genera <code>res.locals.csrfToken</code> y valida el token en métodos que cambian estado (<code>POST/PUT/DELETE</code>) leyendo <code>_csrf</code> del body, query o headers.</td>
+      <td><code>middleware/csrfMiddleware.js:6-38</code> · <code>middleware/csrfMiddleware.js:27</code></td>
+    </tr>
+    <tr>
+      <td>Rate limiter contacto</td>
+      <td>Máximo 10 envíos cada 15 minutos por IP.</td>
+      <td><code>router/mainRouter.js:10-22</code></td>
+    </tr>
+    <tr>
+      <td>Rate limiter admin</td>
+      <td>Máximo 30 <code>POST/PUT/DELETE</code> cada 15 minutos por IP; salta en <code>GET/HEAD/OPTIONS</code>.</td>
+      <td><code>router/adminRouter.js:32-48</code></td>
+    </tr>
+    <tr>
+      <td><code>methodOverride</code></td>
+      <td>Traduce <code>?_method=PUT|DELETE</code> en formularios HTML.</td>
+      <td><code>app.js:41</code></td>
+    </tr>
+    <tr>
+      <td><code>jsonScript</code></td>
+      <td>Escapa JSON embebido en <code>&lt;script&gt;</code> inline para evitar corte de etiqueta (OWASP 3.1).</td>
+      <td><code>config/ejsHelpers.js:14-17</code> · <code>app.js:21-23</code></td>
+    </tr>
+  </table>
+  <p>En los formularios admin el token CSRF viaja en un <code>&lt;input type="hidden" name="_csrf"&gt;</code>: <code>views/admin/capacitaciones/createModulos.ejs:26</code>, <code>views/admin/capacitaciones/editModulo.ejs:22</code>, <code>views/admin/dashboard.ejs:229</code>.</p>
+  <p class="src">Fuentes: <code>middleware/authMiddleware.js:9-12</code> · <code>middleware/csrfMiddleware.js:1-38</code> · <code>router/mainRouter.js:10-22</code> · <code>router/adminRouter.js:32-48</code></p>
+
+  <hr>
+
+  <footer>
+    <p><strong>Cambio: documentar-capacitaciones</strong> · Documentación generada a partir del código existente. Para el detalle capa por capa ver <a href="implementacion.html">Implementación</a>; para los esquemas de datos ver <a href="firestore.html">Firebase</a>.</p>
+  </footer>
+</body>
+</html>
