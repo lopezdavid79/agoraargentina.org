@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capacitaciones — Blueprint de Implementación | Ágora Argentina</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 860px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #222; }
+    nav.top { margin-bottom: 1.5rem; border-bottom: 1px solid #ddd; padding-bottom: .5rem; }
+    nav.top a { color: #0a6; text-decoration: none; margin-right: 1.2rem; padding: .2rem .4rem; font-size: .95rem; }
+    nav.top a:hover { text-decoration: underline; }
+    nav.top a.active { font-weight: 700; border-bottom: 3px solid #0a6; }
+    h1 { border-bottom: 2px solid #0a6; padding-bottom: .5rem; }
+    h2 { color: #0a6; margin-top: 2rem; }
+    h3 { margin-top: 1.5rem; }
+    code { background: #f4f4f4; padding: .15rem .4rem; border-radius: 4px; font-size: .9em; }
+    pre { background: #1e1e2e; color: #cdd6f4; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; padding: 0; color: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+    th, td { border: 1px solid #ddd; padding: .5rem .6rem; text-align: left; vertical-align: top; }
+    th { background: #f4f4f4; }
+    .step { background: #f0fdf4; border-left: 4px solid #0a6; padding: .8rem 1rem; margin: 1rem 0; border-radius: 0 8px 8px 0; }
+    .badge { display: inline-block; font-size: .75rem; padding: .15rem .6rem; border-radius: 20px; font-weight: 600; }
+    .badge-public { background: #dbeafe; color: #1e40af; }
+    .badge-admin { background: #fef3c7; color: #92400e; }
+    .badge-check { background: #d1fae5; color: #065f46; }
+    .src { color: #666; font-size: .85rem; }
+    ul, ol { padding-left: 1.2rem; }
+    li { margin: .4rem 0; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 2rem 0; }
+    footer { color: #666; font-size: .9rem; border-top: 1px solid #ddd; margin-top: 2rem; padding-top: .8rem; }
+  </style>
+</head>
+<body>
+  <nav class="top" aria-label="Documentación de Capacitaciones">
+    <a href="index.html">Visión General</a>
+    <a href="implementacion.html" class="active">Implementación</a>
+    <a href="firestore.html">Firebase</a>
+  </nav>
+
+  <h1>Capacitaciones — Blueprint de Implementación</h1>
+  <p>Manual capa por capa para reconstruir el módulo: parser de grabaciones, controladores admin y público, vistas y patrones compartidos. Cada sección cita el archivo y las líneas exactas de su origen.</p>
+
+  <nav aria-label="Tabla de contenidos">
+    <strong>Contenidos</strong>
+    <ul>
+      <li><a href="#parse-grabaciones">1. <code>parseGrabaciones</code> — parser del hidden-JSON</a></li>
+      <li><a href="#controladores-admin">2. Controladores Admin</a></li>
+      <li><a href="#controlador-publico">3. Controlador Público</a></li>
+      <li><a href="#vistas-publicas">4. Vistas Públicas</a></li>
+      <li><a href="#vistas-admin">5. Vistas Admin</a></li>
+      <li><a href="#patrones">6. Patrones Clave</a></li>
+    </ul>
+  </nav>
+
+  <hr>
+
+  <h2 id="parse-grabaciones">1. <code>parseGrabaciones</code> — parser del hidden-JSON</h2>
+  <p>Función pura que convierte el contenido del input oculto <code>grabaciones_json</code> en un arreglo normalizado de <code>{ url, label }</code>. Comportamiento:</p>
+  <ul>
+    <li>Parsea <code>JSON.parse(body.grabaciones_json || '[]')</code>.</li>
+    <li>Elementos <code>string</code> → <code>{ url: s.trim(), label: '' }</code> (legacy).</li>
+    <li>Elementos objeto → <code>url</code> y <code>label</code> recortados vía <code>String(...).trim()</code>.</li>
+    <li>Descarta elementos sin <code>url</code> tras recortar y limita a <strong>10</strong> con <code>.slice(0, 10)</code>.</li>
+    <li>JSON inválido → devuelve <code>[]</code> (catch).</li>
+  </ul>
+  <pre><code>function parseGrabaciones(body) {
+    try {
+        const raw = JSON.parse(body.grabaciones_json || '[]');
+        return raw.map(r =&gt; {
+            if (typeof r === 'string') {
+                return { url: r.trim(), label: '' };
+            }
+            return {
+                url: String((r &amp;&amp; r.url) || '').trim(),
+                label: String((r &amp;&amp; r.label) || '').trim()
+            };
+        }).filter(g =&gt; g.url.length &gt; 0).slice(0, 10);
+    } catch { return []; }
+}</code></pre>
+  <p class="src">Fuente: <code>controller/adminController.js:9-22</code> · Cap 10 en <code>controller/adminController.js:20</code> · Exportada para tests en <code>controller/adminController.js:597</code></p>
+
+  <hr>
+
+  <h2 id="controladores-admin">2. Controladores Admin</h2>
+  <p>Bloque completo: <code>controller/adminController.js:313-591</code>. A continuación, cada operación con su escritura en Firestore.</p>
+
+  <h3>2.1. <code>storeCapacitacion</code> — crear capacitación</h3>
+  <p><code>controller/adminController.js:317-377</code>. Valida que <code>titulo</code> no esté vacío (<code>:323-326</code>), genera el slug y escribe el documento con el slug como ID.</p>
+  <p>Generación de slug (<code>:329-333</code>): usa <code>slug</code> del formulario o el título; pasa a minúsculas, elimina diacríticos con <code>normalize("NFD")</code>, quita caracteres no alfanuméricos y reemplaza espacios por guiones.</p>
+  <pre><code>await db.collection('capacitaciones').doc(finalSlug).set({
+    titulo: titulo.trim(),
+    slug: finalSlug,
+    descripcion: descripcion || "",
+    categoria: categoria || "General",
+    instructor: instructor || "",
+    privado: (privado === 'on' || privado === 'true'),
+    link_vivo: link_vivo || "",
+    infoClase: infoClase || "",
+    fecha: new Date(),
+    estado: "borrador",
+        creadoPor: req.session.user.uid
+});</code></pre>
+  <p class="src">Fuente: <code>controller/adminController.js:343-355</code> · 11 campos: título, slug, descripción, categoría, instructor, privado, link vivo, infoClase, fecha, estado, creadoPor</p>
+
+  <h3>2.2. <code>updateCapacitacion</code> — editar capacitación</h3>
+  <p><code>controller/adminController.js:389-443</code>. El ID del documento es el slug; no se reescribe. Valida el título (<code>:407-410</code>) y actualiza 8 campos del formulario más <code>fechaActualizacion</code> (9 en total).</p>
+  <pre><code>await db.collection('capacitaciones').doc(id).update({
+    titulo: titulo.trim(),
+    descripcion: descripcion || "",
+    categoria: categoria || "General",
+    instructor: instructor || "",
+    privado: (privado === 'on' || privado === 'true'),
+    link_vivo: link_vivo || "",
+    estado: estado || "borrador",
+    infoClase: infoClase || "",
+    fechaActualizacion: new Date()
+});</code></pre>
+  <p class="src">Fuente: <code>controller/adminController.js:413-423</code> · <code>fechaActualizacion</code> solo en update (<code>:423</code>)</p>
+
+  <h3>2.3. <code>deleteCapacitacion</code> — eliminar capacitación</h3>
+  <p><code>controller/adminController.js:444-451</code>. Borra el documento <code>capacitaciones/:id</code> y redirige al dashboard.</p>
+
+  <h3>2.4. <code>createModulos</code> — listar módulos (GET)</h3>
+  <p><code>controller/adminController.js:456-471</code>. Lee la capacitación y su subcolección <code>modulos</code> ordenada por <code>orden</code> ascendente, y renderiza <code>admin/capacitaciones/createModulos</code> con el listado.</p>
+
+  <h3>2.5. <code>storeModulo</code> — crear módulo</h3>
+  <p><code>controller/adminController.js:473-512</code>. Exige <code>tituloModulo</code> y <code>orden</code> (<code>:479-481</code>). Escribe en la subcolección con ID autogenerado; <code>activo</code> queda fijo en <code>true</code>.</p>
+  <pre><code>await db.collection('capacitaciones').doc(idCap).collection('modulos').add({
+    orden: parseInt(orden),
+    tituloModulo,
+    descripcion: descripcion || "",
+    claseGrabada: claseGrabada || "",
+    linkMaterial: linkMaterial || "",
+    grabaciones: parseGrabaciones(req.body),
+    fechaCreacion: new Date(),
+    activo: true
+});</code></pre>
+  <p class="src">Fuente: <code>controller/adminController.js:483-493</code> · <code>activo: true</code> fijo en alta (<code>:492</code>) · redirige a <code>/admin/capacitaciones/:idCap/modulos</code> (<code>:496</code>)</p>
+
+  <h3>2.6. <code>editModulo</code> — formulario de edición (GET)</h3>
+  <p><code>controller/adminController.js:515-548</code>. Busca el módulo por <code>idCap</code>/<code>idModulo</code> en la subcolección; si no existe responde 404. Renderiza <code>admin/capacitaciones/editModulo</code> con <code>idCap</code> y el módulo completo.</p>
+
+  <h3>2.7. <code>updateModulo</code> — actualizar módulo</h3>
+  <p><code>controller/adminController.js:549-581</code>. Reescribe 8 campos del formulario; <code>activo</code> proviene del switch del formulario.</p>
+  <pre><code>await db.collection('capacitaciones')
+    .doc(idCap)
+    .collection('modulos')
+    .doc(idModulo)
+    .update({
+        orden: parseInt(orden),
+        tituloModulo,
+        descripcion: descripcion || "",
+        claseGrabada: claseGrabada || "",
+        linkMaterial: linkMaterial || "",
+        grabaciones: parseGrabaciones(req.body),
+        activo: activo === "on" ? true : false,
+        fechaActualizacion: new Date()
+    });</code></pre>
+  <p class="src">Fuente: <code>controller/adminController.js:558-571</code> · <code>activo</code> desde checkbox (<code>:569</code>)</p>
+
+  <h3>2.8. <code>deleteModulo</code> — eliminar módulo</h3>
+  <p><code>controller/adminController.js:583-591</code>. Borra <code>modulos/:idMod</code> de la subcolección y redirige al listado de módulos.</p>
+
+  <hr>
+
+  <h2 id="controlador-publico">3. Controlador Público</h2>
+  <p>Bloque: <code>controller/mainController.js:142-185</code>.</p>
+
+  <h3>3.1. <code>capacitacionesViews</code> — listado público</h3>
+  <p><code>controller/mainController.js:143-152</code>. Consulta Firestore con filtro de estado y renderiza el catálogo:</p>
+  <pre><code>const snapshot = await db.collection('capacitaciones')
+    .where('estado', '==', 'Activo').get();
+const capacitaciones = snapshot.docs.map(doc =&gt; ({ id: doc.id, ...doc.data() }));
+res.render('capacitaciones/index', { title: "Capacitaciones Virtuales 2026", capacitaciones });</code></pre>
+  <p class="src">Fuente: <code>controller/mainController.js:145-148</code> · filtro público en <code>:146</code></p>
+
+  <h3>3.2. <code>detailCapacitaciones</code> — detalle público</h3>
+  <p><code>controller/mainController.js:155-185</code>. Busca por slug, aplica la puerta de estado y entrega los módulos visibles:</p>
+  <pre><code>const capQuery = await db.collection('capacitaciones')
+    .where('slug', '==', slug).limit(1).get();
+// ...
+if (capacitacion.estado !== 'Activo') {
+    return res.status(403).render('error', { message: "Esta capacitación no está disponible." });
+}
+const modulosSnapshot = await db.collection('capacitaciones')
+    .doc(capDoc.id).collection('modulos')
+    .orderBy('orden', 'asc').get();
+const modulos = modulosSnapshot.docs
+    .map(doc =&gt; ({ id: doc.id, ...doc.data() }))
+    .filter(modulo =&gt; modulo.activo === true);</code></pre>
+  <p class="src">Fuente: <code>controller/mainController.js:158-159</code> (búsqueda por slug) · <code>:169-171</code> (puerta 403) · <code>:173-179</code> (módulos ordenados y filtrados por <code>activo</code>) · <code>:181</code> (render)</p>
+
+  <hr>
+
+  <h2 id="vistas-publicas">4. Vistas Públicas</h2>
+
+  <h3>4.1. <code>views/capacitaciones/index.ejs</code> — catálogo (1-70)</h3>
+  <ul>
+    <li>Grilla de tarjetas (Bootstrap <code>row-cols-lg-3</code>) en <code>:12-45</code>: badge de categoría (<code>:19-21</code>), título enlazado a <code>/capacitaciones/:slug</code> (<code>:25-28</code>), descripción recortada a 120 caracteres (<code>:31</code>), instructor (<code>:36</code>).</li>
+    <li>Estado vacío "No hay capacitaciones disponibles por el momento" en <code>:46-54</code>.</li>
+    <li>Estilos propios de tarjetas (<code>stretched-link</code>, foco accesible) en <code>:58-68</code>.</li>
+  </ul>
+
+  <h3>4.2. <code>views/capacitaciones/detail.ejs</code> — detalle</h3>
+  <ul>
+    <li>Migas de pan (<code>:5-11</code>), encabezado con instructor/categoría y botón "Entrar al Aula en Vivo" si hay <code>link_vivo</code> (<code>:13-28</code>).</li>
+    <li>Acordeón de módulos ordenados (<code>:35-95</code>): número de orden, título, descripción, material de lectura si <code>linkMaterial</code> (<code>:60-68</code>).</li>
+    <li><strong>Loop de grabaciones con fallback legacy</strong> (<code>:70-81</code>): usa <code>grabaciones</code> si tiene elementos; si no, cae a <code>claseGrabada</code> como arreglo de un elemento; los strings se normalizan a <code>{url, label}</code> y la etiqueta por defecto es <code>"Clase Grabada N"</code>.</li>
+    <li>Aside de orientación con <code>infoClase</code> (<code>:98-110</code>) y estado vacío de módulos (<code>:89-94</code>).</li>
+  </ul>
+  <p class="src">Fuentes: <code>views/capacitaciones/index.ejs:1-70</code> · <code>views/capacitaciones/detail.ejs:70-81</code></p>
+
+  <hr>
+
+  <h2 id="vistas-admin">5. Vistas Admin</h2>
+
+  <h3>5.1. <code>views/admin/dashboard.ejs:192-248</code> — pestaña Capacitaciones</h3>
+  <ul>
+    <li>Pestaña <code>id="capacitaciones"</code> con tabla de gestión (<code>:193-246</code>).</li>
+    <li>Columnas: Capacitación (título + categoría), Instructor, Estado (badge verde si <code>"Activo"</code>) (<code>:206-214</code>).</li>
+    <li>Acciones por fila (<code>:215-235</code>): gestionar módulos (<code>:217-220</code>), copiar link público con <code>https://agoraargentina.ar/capacitaciones/:slug</code> (<code>:221-223</code>), abrir modal de edición (<code>:224-226</code>), eliminar con confirmación y token CSRF (<code>:227-233</code>).</li>
+    <li>El modal de edición reutiliza <code>modal_contenedor</code> + <code>./capacitaciones/form_fields</code> (<code>:236-242</code>).</li>
+  </ul>
+
+  <h3>5.2. <code>views/admin/capacitaciones/createModulos.ejs:1-202</code> — gestor de módulos</h3>
+  <ul>
+    <li>Formulario "Nuevo Módulo" (<code>:25-70</code>): token CSRF (<code>:26</code>), <code>orden</code> numérico con default <code>modulos.length + 1</code> (<code>:30-32</code>), <code>tituloModulo</code> obligatorio (<code>:35-38</code>), descripción/temario (<code>:41-45</code>), <code>linkMaterial</code> URL (<code>:47-53</code>).</li>
+    <li>Bloque de grabaciones (<code>:55-65</code>): contenedor dinámico, input oculto <code>grabaciones_json</code> (<code>:60</code>) y botón "Agregar Grabación" (<code>:61-64</code>).</li>
+    <li>Tabla "Módulos Cargados" (<code>:80-126</code>): orden, título, badge de visibilidad por <code>activo</code> (<code>:101-105</code>), editar (<code>:110-112</code>), eliminar con CSRF (<code>:114-120</code>).</li>
+    <li>JavaScript de sincronización (<code>:144-201</code>): arreglo en memoria <code>grabData</code>, <code>render()</code> pinta filas, <code>syncJSON()</code> serializa al hidden input (<code>:191</code>), el botón agrega <code>{ url: '', label: '' }</code> (<code>:193-196</code>) y el submit re-sincroniza (<code>:198-199</code>).</li>
+  </ul>
+
+  <h3>5.3. <code>views/admin/capacitaciones/editModulo.ejs:1-149</code> — edición de módulo</h3>
+  <ul>
+    <li>Formulario precargado (<code>:21-78</code>): <code>orden</code> y <code>tituloModulo</code> con <code>value</code> del módulo (<code>:27-33</code>), descripción (<code>:39</code>), <code>linkMaterial</code> (<code>:46-47</code>), bloque de grabaciones (<code>:54-59</code>).</li>
+    <li>Switch <code>activo</code> con estado marcado según <code>modulo.activo</code> (<code>:62-68</code>).</li>
+    <li>Inicialización con fallback legacy (<code>:87-91</code>): toma <code>grabaciones</code> o <code>claseGrabada</code>; los strings pasan a <code>{ url, label: 'Clase Grabada N' }</code>.</li>
+    <li>El estado inicial se inyecta al JS con <code>jsonScript(initialGrabaciones)</code> (<code>:94</code>) y el resto replica el patrón de sincronización de createModulos (<code>:92-148</code>).</li>
+  </ul>
+
+  <h3>5.4. <code>views/admin/capacitaciones/form_fields.ejs:1-77</code> — campos compartidos</h3>
+  <p>Campos del modal de edición de capacitación, con <code>idPrefijo</code> para evitar colisiones de <code>id</code> (<code>:1</code>): título (<code>:2-6</code>), slug (<code>:8-12</code>), instructor (<code>:15-19</code>), link de clase en vivo (<code>:21-24</code>), información de clase (<code>:27-31</code>), descripción (<code>:34-39</code>), categoría (select con 3 opciones: "Herramientas para el trabajo", "Accesibilidad digital", "Alfabetización Digital") (<code>:41-57</code>), estado (select "Borrador"/"Activo"/"Terminado") (<code>:59-68</code>) y privacidad (select Público/Privado con valores <code>"false"</code>/<code>"true"</code>) (<code>:70-77</code>).</p>
+  <p class="src">Fuentes: <code>views/admin/dashboard.ejs:192-248</code> · <code>views/admin/capacitaciones/createModulos.ejs:1-202</code> · <code>views/admin/capacitaciones/editModulo.ejs:1-149</code> · <code>views/admin/capacitaciones/form_fields.ejs:1-77</code></p>
+
+  <hr>
+
+  <h2 id="patrones">6. Patrones Clave</h2>
+  <table>
+    <tr><th>Patrón</th><th>Descripción</th><th>Fuente</th></tr>
+    <tr>
+      <td>Hidden-JSON <code>grabaciones_json</code></td>
+      <td>Input oculto que transporta el arreglo de grabaciones; el JS lo mantiene sincronizado y el servidor lo normaliza con <code>parseGrabaciones</code>.</td>
+      <td><code>views/admin/capacitaciones/createModulos.ejs:55-64</code> · <code>views/admin/capacitaciones/createModulos.ejs:144-201</code> · <code>controller/adminController.js:9-22</code></td>
+    </tr>
+    <tr>
+      <td><code>jsonScript</code></td>
+      <td>Escapa JSON para incrustarlo en <code>&lt;script&gt;</code> inline (OWASP 3.1); usado para precargar las grabaciones en edición.</td>
+      <td><code>config/ejsHelpers.js:14-17</code> · <code>views/admin/capacitaciones/editModulo.ejs:94</code></td>
+    </tr>
+    <tr>
+      <td>Token <code>_csrf</code></td>
+      <td>Input hidden en todos los formularios que cambian estado; validado por el middleware global de CSRF.</td>
+      <td><code>middleware/csrfMiddleware.js:27</code> · <code>views/admin/capacitaciones/createModulos.ejs:26</code> · <code>views/admin/capacitaciones/editModulo.ejs:22</code></td>
+    </tr>
+    <tr>
+      <td><code>isAdmin</code></td>
+      <td>Guarda de sesión en todas las rutas admin de capacitaciones.</td>
+      <td><code>middleware/authMiddleware.js:9-12</code> · <code>router/adminRouter.js:68-77</code></td>
+    </tr>
+    <tr>
+      <td>Rate limiters</td>
+      <td>Contacto: 10 envíos/15 min. Admin: 30 mutaciones/15 min (salta en métodos seguros).</td>
+      <td><code>router/mainRouter.js:10-22</code> · <code>router/adminRouter.js:32-48</code></td>
+    </tr>
+    <tr>
+      <td>Cap de 10 grabaciones</td>
+      <td><code>.slice(0, 10)</code> limita el arreglo en cada escritura.</td>
+      <td><code>controller/adminController.js:20</code></td>
+    </tr>
+    <tr>
+      <td>Normalización <code>{ url, label }</code></td>
+      <td>Strings legacy a objeto en escritura y en render; etiqueta por defecto "Clase Grabada N".</td>
+      <td><code>controller/adminController.js:9-22</code> · <code>views/capacitaciones/detail.ejs:72-73</code></td>
+    </tr>
+    <tr>
+      <td>Fallback legacy <code>claseGrabada</code></td>
+      <td>Si <code>grabaciones</code> está vacío, se usa <code>claseGrabada</code> como única grabación (detalle público y precarga de edición).</td>
+      <td><code>views/capacitaciones/detail.ejs:70</code> · <code>views/admin/capacitaciones/editModulo.ejs:87-91</code></td>
+    </tr>
+  </table>
+
+  <div class="step">
+    <span class="badge badge-check">Resumen de escritura</span>
+    <p style="margin:.5rem 0 0"><strong>storeCapacitacion</strong>: 11 campos (incluye <code>fecha</code>, <code>estado: "borrador"</code>, <code>creadoPor</code>). <strong>updateCapacitacion</strong>: 8 campos del formulario + <code>fechaActualizacion</code> (9 en total, el slug no se reescribe). <strong>storeModulo</strong>: 8 campos con <code>activo: true</code> fijo. <strong>updateModulo</strong>: 8 campos con <code>activo</code> desde el switch + <code>fechaActualizacion</code>.</p>
+  </div>
+
+  <p class="src">Detalle de esquemas y defaults: ver <a href="firestore.html">Referencia Firebase</a>. Contexto general del módulo: <a href="index.html">Visión General</a>.</p>
+
+  <hr>
+
+  <footer>
+    <p><strong>Cambio: documentar-capacitaciones</strong> · Documentación generada a partir del código existente en <code>controller/adminController.js</code>, <code>controller/mainController.js</code> y <code>views/</code>.</p>
+  </footer>
+</body>
+</html>
