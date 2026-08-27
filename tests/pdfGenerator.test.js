@@ -29,6 +29,21 @@ describe('generarPdfAccesible', () => {
     );
   });
 
+  test('lanza Chromium con opciones compatibles con servidores Linux/cPanel', async () => {
+    await generarPdfAccesible('<html></html>', {}, puppeteer);
+
+    expect(puppeteer.launch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        headless: true,
+        args: expect.arrayContaining([
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+        ]),
+      })
+    );
+  });
+
   test('acepta opts con format y landscape', async () => {
     const buffer = await generarPdfAccesible('<html></html>', { format: 'Letter', landscape: true }, puppeteer);
 

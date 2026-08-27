@@ -178,7 +178,7 @@ const informesController = {
                     res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
                     res.send(buffer);
                 } catch (e) {
-                    console.error('[informes.generarPDF] Error generando PDF con Puppeteer:', e && e.message ? e.message : e);
+                    console.error('[informes.generarPDF] Error generando PDF con Puppeteer:', e);
                     res.status(500).render('error', { message: 'Error al generar el PDF', status: 500 });
                 }
             });
