@@ -1,5 +1,8 @@
+const fs     = require('fs');
+const os     = require('os');
+const path   = require('path');
 const db     = require('../config/firebase');
-const { generarPdfAccesible } = require('../scripts/pdfGenerator');
+const { generarInforme } = require('../scripts/generar_informe');
 
 const informesController = {
 
@@ -137,17 +140,17 @@ const informesController = {
         }
     },
 
-    // ── Generar y descargar PDF (accesible, tagged) ────────────────────
+    // ── Generar y descargar PDF (PDFKit) ───────────────────────────────
     generarPDF: async (req, res) => {
         try {
             const { id } = req.params;
             console.log(`[informes.generarPDF] Generando PDF para ID: ${id}`);
 
-            const doc = await db.collection('informes').doc(id).get();
-            if (!doc.exists) return res.status(404).render('error', { message: 'Informe no encontrado.', status: 404 });
+            const docRef = await db.collection('informes').doc(id).get();
+            if (!docRef.exists) return res.status(404).render('error', { message: 'Informe no encontrado.', status: 404 });
 
             // Convertir Timestamps de Firestore a string
-            const raw = doc.data();
+            const raw = docRef.data();
             const datos = JSON.parse(JSON.stringify(raw, (key, value) => {
                 if (value && typeof value === 'object' && typeof value.toDate === 'function') {
                     return value.toDate().toLocaleDateString('es-AR');
@@ -156,41 +159,37 @@ const informesController = {
             }));
             datos.id = id;
 
-            // Render template EJS a HTML string
-            res.render('pdf/informe', { locals: datos }, async (renderErr, html) => {
-                if (renderErr) {
-                    console.error('[informes.generarPDF] Error al renderizar template:', renderErr.message);
-                    return res.status(500).render('error', { message: 'Error al generar el PDF', status: 500 });
-                }
+            const tmpPdf = path.join(os.tmpdir(), `informe_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.pdf`);
+            await generarInforme(datos, tmpPdf);
 
-                try {
-                    const buffer = await generarPdfAccesible(html, { format: 'A4' });
+            if (!fs.existsSync(tmpPdf)) {
+                console.error('[informes.generarPDF] PDF no generado en:', tmpPdf);
+                return res.status(500).render('error', { message: 'Error al generar el PDF', status: 500 });
+            }
 
-                    const nombreArchivo = `informe_${(datos.nombre || 'formacion')
-                        .toLowerCase()
-                        .normalize('NFD')
-                        .replace(/[\u0300-\u036f]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace(/[^a-z0-9-]/g, '')}.pdf`;
+            const nombreArchivo = `informe_${(datos.nombre || 'formacion')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '')}.pdf`;
 
-                    console.log(`[informes.generarPDF] Enviando: ${nombreArchivo}`);
-                    res.setHeader('Content-Type', 'application/pdf');
-                    res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
-                    res.send(buffer);
-                } catch (e) {
-                    console.error('[informes.generarPDF] Error generando PDF con Puppeteer:', e);
-                    res.status(500).render('error', { message: 'Error al generar el PDF', status: 500 });
-                }
+            console.log(`[informes.generarPDF] Enviando: ${nombreArchivo}`);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
+            res.download(tmpPdf, nombreArchivo, (downloadErr) => {
+                if (downloadErr) console.error('[informes.generarPDF] Error al enviar:', downloadErr);
+                try { fs.unlinkSync(tmpPdf); } catch (_) {}
             });
 
-        } catch (error) {
-            console.error('[informes.generarPDF] Error general:', error.message);
-            res.status(500).render('error', { message: 'Error al procesar la solicitud', status: 500 });
+        } catch (e) {
+            console.error('[informes.generarPDF] Error general:', e);
+            res.status(500).render('error', { message: 'Error al generar el PDF', status: 500 });
         }
     }
 };
 
-// Note: PDF generation uses Puppeteer via scripts/pdfGenerator.js (tagged PDF)
+// Note: PDF generation uses PDFKit via scripts/generar_informe.js
 
 // ── Helper: extrae y normaliza los datos del req.body ─────────────────
 function _extraerDatos(body) {

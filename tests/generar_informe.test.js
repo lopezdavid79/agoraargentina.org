@@ -1,5 +1,6 @@
-const { generarPdfAccesible } = require('../scripts/pdfGenerator');
-const ejs = require('ejs');
+const { generarInforme } = require('../scripts/generar_informe');
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 // Sample report data matching the EJS template
@@ -34,91 +35,35 @@ const sampleData = {
   ],
 };
 
-describe('generarPdfAccesible — integración con template EJS', () => {
-  let mockPage;
-  let mockBrowser;
-  let puppeteer;
+describe('generarInforme — generador PDFKit real', () => {
+  let outPath;
 
-  beforeEach(() => {
-    mockPage = {
-      setContent: jest.fn().mockResolvedValue(undefined),
-      pdf: jest.fn().mockResolvedValue(Buffer.from(
-        '%PDF-1.7\n1 0 obj<</Type/Catalog/StructTreeRoot 2 0 R/Lang(es-AR)>>\nendobj\n%%EOF'
-      )),
-    };
-    mockBrowser = {
-      newPage: jest.fn().mockResolvedValue(mockPage),
-      close: jest.fn().mockResolvedValue(undefined),
-    };
-    puppeteer = { launch: jest.fn().mockResolvedValue(mockBrowser) };
+  afterEach(() => {
+    if (outPath && fs.existsSync(outPath)) {
+      try { fs.unlinkSync(outPath); } catch (_) {}
+    }
+    outPath = null;
   });
 
-  test('el pipeline template + pdfGenerator llama page.pdf con tagged:true', async () => {
-    const html = await ejs.renderFile(
-      path.join(__dirname, '..', 'views', 'pdf', 'informe.ejs'),
-      { locals: sampleData },
-      {}
-    );
+  test('genera un PDF válido a partir del objeto de datos del informe', async () => {
+    outPath = path.join(os.tmpdir(), `informe_test_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.pdf`);
 
-    await generarPdfAccesible(html, { format: 'A4' }, puppeteer);
+    await generarInforme(sampleData, outPath);
 
-    // Verify page.pdf was called with tagged: true — this is the real contract
-    // with Chrome. The HTML template assertions below prove the semantic
-    // structure that Chrome will translate into the PDF tree.
-    expect(mockPage.pdf).toHaveBeenCalledWith(
-      expect.objectContaining({ tagged: true, format: 'A4' })
-    );
+    expect(fs.existsSync(outPath)).toBe(true);
+    const buf = fs.readFileSync(outPath);
+    expect(buf.slice(0, 4).toString()).toBe('%PDF');
+    expect(buf.length).toBeGreaterThan(500);
   });
 
-  test('el HTML renderizado contiene estructura semántica accesible', async () => {
-    const html = await ejs.renderFile(
-      path.join(__dirname, '..', 'views', 'pdf', 'informe.ejs'),
-      { locals: sampleData },
-      {}
-    );
+  test('maneja datos vacíos sin lanzar error y produce un PDF válido', async () => {
+    outPath = path.join(os.tmpdir(), `informe_vacio_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.pdf`);
 
-    expect(html).toMatch(/<html[^>]*lang="es-AR"/);
-    expect(html).toContain('<h1>');
-    expect(html).toContain('<h2>');
-    expect(html).toContain('<table>');
-    expect(html).toContain('<caption>');
-    expect(html).toContain('<th scope=');
-    expect(html).toContain('<th>D.N.I.:</th>');
-    expect(html).toContain('Datos del instructor/a');
-    expect(html).toContain('<caption>Resumen de la capacitación</caption>');
-    expect(html).toContain('<title>');
-    expect(html).toContain('<meta name="author"');
-  });
+    await generarInforme({}, outPath);
 
-  test('el HTML renderizado contiene los datos del informe', async () => {
-    const html = await ejs.renderFile(
-      path.join(__dirname, '..', 'views', 'pdf', 'informe.ejs'),
-      { locals: sampleData },
-      {}
-    );
-
-    expect(html).toContain('Capacitación en Accesibilidad Web');
-    expect(html).toContain('María García');
-    expect(html).toContain('Ana López');
-    expect(html).toContain('Carlos Pérez');
-  });
-
-  test('maneja datos vacíos sin errores', async () => {
-    const html = await ejs.renderFile(
-      path.join(__dirname, '..', 'views', 'pdf', 'informe.ejs'),
-      { locals: {} },
-      {}
-    );
-
-    // Should render without crashing
-    expect(html).toContain('<h1>INFORME DE FORMACIÓN</h1>');
-    expect(html).toContain('—'); // fallback markers for empty data
-
-    // Should still call page.pdf with tagged:true
-    await generarPdfAccesible(html, {}, puppeteer);
-
-    expect(mockPage.pdf).toHaveBeenCalledWith(
-      expect.objectContaining({ tagged: true })
-    );
+    expect(fs.existsSync(outPath)).toBe(true);
+    const buf = fs.readFileSync(outPath);
+    expect(buf.slice(0, 4).toString()).toBe('%PDF');
+    expect(buf.length).toBeGreaterThan(500);
   });
 });

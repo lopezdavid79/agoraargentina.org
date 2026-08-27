@@ -11,16 +11,17 @@ jest.mock('bcryptjs', () => ({
   compare: jest.fn()
 }));
 
-// Mock pdfGenerator to avoid real Puppeteer
-jest.mock('../scripts/pdfGenerator', () => ({
-  generarPdfAccesible: jest.fn()
+// Mock generar_informe to avoid real PDFKit generation
+jest.mock('../scripts/generar_informe', () => ({
+  generarInforme: jest.fn()
 }));
 
+const fs = require('fs');
 const request = require('supertest');
 const app = require('../app');
 const db = require('../config/firebase');
 const bcrypt = require('bcryptjs');
-const { generarPdfAccesible } = require('../scripts/pdfGenerator');
+const { generarInforme } = require('../scripts/generar_informe');
 
 const adminUserSnapshot = {
   empty: false,
@@ -109,7 +110,9 @@ describe('GET /admin/informes/:id/pdf — integración', () => {
       doc: jest.fn(() => ({ get: docGet })),
     });
 
-    generarPdfAccesible.mockResolvedValue(Buffer.from('%PDF-1.7 tagged test data'));
+    generarInforme.mockImplementation(async (datos, salida) => {
+      fs.writeFileSync(salida, Buffer.from('%PDF-1.7\nfake'));
+    });
 
     const res = await agent.get('/admin/informes/test-123/pdf');
 
@@ -138,7 +141,7 @@ describe('GET /admin/informes/:id/pdf — integración', () => {
     }
   });
 
-  test('devuelve 500 cuando pdfGenerator falla (Puppeteer error)', async () => {
+  test('devuelve 500 cuando el generador PDF falla', async () => {
     const agent = request.agent(app);
     await loginAsAdmin(agent);
 
@@ -161,46 +164,9 @@ describe('GET /admin/informes/:id/pdf — integración', () => {
     const docGet = jest.fn().mockResolvedValue(reportSnapshot);
     db.collection.mockReturnValue({ doc: jest.fn(() => ({ get: docGet })) });
 
-    generarPdfAccesible.mockRejectedValue(new Error('Chrome crashed'));
+    generarInforme.mockRejectedValue(new Error('Chrome crashed'));
 
     const res = await agent.get('/admin/informes/id-pdfgen-fail/pdf');
-
-    expect(res.status).toBe(500);
-  });
-
-  test('devuelve 500 cuando el template EJS falla (renderErr callback)', async () => {
-    const agent = request.agent(app);
-    await loginAsAdmin(agent);
-
-    const reportSnapshot = {
-      exists: true,
-      data: () => ({
-        nombre: 'Test', duracion: '10h', modalidad: 'Virtual',
-        fecha_inicio: '01/01/2026', fecha_fin: '10/01/2026',
-        part_inicia: '5', part_aprueba: '5', mujeres: '3', hombres: '2',
-        inst_nombre: 'Test Instructor', inst_dni: '00.000.000',
-        inst_tel: '+54 111', inst_mail: 'test@test.com',
-        obj_general: 'Testing.', obj_especificos: 'Test 1',
-        temario: 'Tema 1\nTema 2', metodologia: 'Virtual',
-        clases: ['Clase 1'], eval_teorica: '90%', eval_practica: '90%',
-        observaciones: '', recomendaciones: '', ciudad: 'Bs As',
-        fecha_firma: 'Enero 2026', participantes: [],
-      }),
-    };
-
-    const docGet = jest.fn().mockResolvedValue(reportSnapshot);
-    db.collection.mockReturnValue({ doc: jest.fn(() => ({ get: docGet })) });
-
-    // Mock app.render to fail for pdf/informe — triggers renderErr callback
-    const origRender = app.render.bind(app);
-    jest.spyOn(app, 'render').mockImplementation((view, options, callback) => {
-      if (view === 'pdf/informe') {
-        return callback(new Error('Template render error'));
-      }
-      return origRender(view, options, callback);
-    });
-
-    const res = await agent.get('/admin/informes/id-render-fail/pdf');
 
     expect(res.status).toBe(500);
   });
