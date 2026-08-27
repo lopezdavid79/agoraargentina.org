@@ -101,6 +101,21 @@
       border-bottom: 1px solid #ccc;
     }
 
+    /* ─── Tabla clave-valor (datos del instructor) ─────── */
+    table.kv-table { font-size: 9pt; margin: 4pt 0; }
+    table.kv-table caption {
+      caption-side: top; text-align: left; font-weight: bold;
+      font-size: 9pt; margin-bottom: 3pt;
+    }
+    table.kv-table th {
+      background: none; color: #1a4b8c; font-weight: bold;
+      text-align: left; width: 38%;
+      padding: 3pt 8pt 3pt 0; border-bottom: 1px solid #ccc;
+    }
+    table.kv-table td {
+      text-align: left; padding: 3pt 0; border-bottom: 1px solid #ccc;
+    }
+
     /* ─── Lists ────────────────────────────────────────── */
     ul { margin: 2pt 0 2pt 16pt; }
     li { font-size: 9pt; }
@@ -123,7 +138,6 @@
     tr { page-break-inside: avoid; page-break-after: auto; }
     thead { display: table-header-group; }
     tfoot { display: table-footer-group; }
-    .page-break { page-break-before: always; }
 
     /* ─── Utility ──────────────────────────────────────── */
     .text-muted { color: #666; font-style: italic; }
@@ -137,29 +151,34 @@
 
   <!-- ═══════════════ 1. Resumen ═══════════════ -->
   <h2>1. Resumen de la capacitación</h2>
-  <dl>
-    <dt>Nombre de la capacitación</dt><dd><%= locals.nombre || '—' %></dd>
-    <dt>Duración</dt><dd><%= locals.duracion || '—' %></dd>
-    <dt>Modalidad</dt><dd><%= locals.modalidad || '—' %></dd>
-    <dt>Fecha de inicio</dt><dd><%= locals.fecha_inicio || '—' %></dd>
-    <dt>Fecha de finalización</dt><dd><%= locals.fecha_fin || '—' %></dd>
-    <dt>Participantes que inician</dt><dd><%= locals.part_inicia || '—' %></dd>
-    <dt>Participantes que aprueban</dt><dd><%= locals.part_aprueba || '—' %></dd>
-    <dt>N.º de mujeres</dt><dd><%= locals.mujeres || '—' %></dd>
-    <dt>N.º de hombres</dt><dd><%= locals.hombres || '—' %></dd>
-  </dl>
+  <table class="kv-table">
+    <caption>Resumen de la capacitación</caption>
+    <tbody>
+      <tr><th>Nombre de la capacitación</th><td><%= locals.nombre || '—' %></td></tr>
+      <tr><th>Duración</th><td><%= locals.duracion || '—' %></td></tr>
+      <tr><th>Modalidad</th><td><%= locals.modalidad || '—' %></td></tr>
+      <tr><th>Fecha de inicio</th><td><%= locals.fecha_inicio || '—' %></td></tr>
+      <tr><th>Fecha de finalización</th><td><%= locals.fecha_fin || '—' %></td></tr>
+      <tr><th>Participantes que inician</th><td><%= locals.part_inicia || '—' %></td></tr>
+      <tr><th>Participantes que aprueban</th><td><%= locals.part_aprueba || '—' %></td></tr>
+      <tr><th>N.º de mujeres</th><td><%= locals.mujeres || '—' %></td></tr>
+      <tr><th>N.º de hombres</th><td><%= locals.hombres || '—' %></td></tr>
+    </tbody>
+  </table>
 
-  <!-- ═══════════════ 2. Instructor ═══════════════ -->
+<!-- ═══════════════ 2. Instructor ═══════════════ -->
   <h2>2. Datos del Instructor/a</h2>
-  <dl>
-    <dt>Nombres y apellidos</dt><dd><%= locals.inst_nombre || '—' %></dd>
-    <dt>D.I.</dt><dd><%= locals.inst_dni || '—' %></dd>
-    <dt>Teléfono</dt><dd><%= locals.inst_tel || '—' %></dd>
-    <dt>Mail</dt><dd><%= locals.inst_mail || '—' %></dd>
-  </dl>
+  <table class="kv-table">
+    <caption>Datos del instructor/a</caption>
+    <tbody>
+      <tr><th>Nombres y apellidos</th><td><%= locals.inst_nombre || '—' %></td></tr>
+      <tr><th>D.N.I.:</th><td><%= locals.inst_dni || '—' %></td></tr>
+      <tr><th>Teléfono</th><td><%= locals.inst_tel || '—' %></td></tr>
+      <tr><th>Mail</th><td><%= locals.inst_mail || '—' %></td></tr>
+    </tbody>
+  </table>
 
   <!-- ═══════════════ 3. Desarrollo ═══════════════ -->
-  <div class="page-break"></div>
   <h2 class="section-break">3. Desarrollo</h2>
 
   <h3>Objetivo general</h3>
@@ -225,7 +244,6 @@
   <p>Puntualidad y asistencia • Participación • Seguimiento de instrucciones • Comprensión de contenidos • Resolución de ejercicios. Escala: 1-10</p>
 
   <!-- ═══════════════ 5. Participantes ═══════════════ -->
-  <div class="page-break"></div>
   <h2 class="section-break">5. Información de los Participantes</h2>
   <% var participantes = locals.participantes || []; %>
   <% if (participantes.length) { %>
@@ -279,7 +297,7 @@
     <p>Ciudad de <%= locals.ciudad || '' %>, <%= locals.fecha_firma || '' %></p>
     <div class="signature-line"></div>
     <p><%= locals.inst_nombre || '' %></p>
-    <p>D.I.: <%= locals.inst_dni || '' %></p>
+    <p>D.N.I.: <%= locals.inst_dni || '' %></p>
   </div>
 
 </body>

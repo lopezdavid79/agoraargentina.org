@@ -83,6 +83,9 @@ describe('generarPdfAccesible — integración con template EJS', () => {
     expect(html).toContain('<table>');
     expect(html).toContain('<caption>');
     expect(html).toContain('<th scope=');
+    expect(html).toContain('<th>D.N.I.:</th>');
+    expect(html).toContain('Datos del instructor/a');
+    expect(html).toContain('<caption>Resumen de la capacitación</caption>');
     expect(html).toContain('<title>');
     expect(html).toContain('<meta name="author"');
   });
