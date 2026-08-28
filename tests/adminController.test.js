@@ -228,6 +228,33 @@ describe('Admin Controller', () => {
       expect(setData.fechaCreacion).toBeInstanceOf(Date);
     });
 
+    test('normaliza un valor de imagen malformado (con coma) antes de guardar', async () => {
+      const agent = request.agent(app);
+      await loginAsAdmin(agent);
+
+      mockSet.mockResolvedValue();
+
+      const res = await agent
+        .post('/admin/cursos/nuevo')
+        .send({
+          titulo: 'Curso con imagen rota',
+          descripcionCorta: 'Test normalización',
+          modalidad: 'Online',
+          duracion: '4 semanas',
+          slug: 'curso-imagen-rota',
+          objetivoGeneral: 'Test',
+          objetivos: 'Uno',
+          temario: 'Tema',
+          imagen: 'curso-documentos-accesibles.webp,https://agoraargentina.ar/curso-documentos-accesibles.webp',
+          alt: 'Alt de prueba',
+          urlInscrip: ''
+        });
+
+      expect(res.status).toBe(302);
+      const setData = mockSet.mock.calls[0][0];
+      expect(setData.imagen).toBe('https://agoraargentina.ar/curso-documentos-accesibles.webp');
+    });
+
     test('returns 400 when slug is empty (validation before firestore)', async () => {
       const agent = request.agent(app);
       await loginAsAdmin(agent);

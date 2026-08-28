@@ -1,5 +1,6 @@
 const db = require('../config/firebase');
 const logger = require('../config/logger');
+const { normalizeImageUrl } = require('../config/imagen');
 
 // Parsea el hidden-JSON grabaciones_json de los formularios de módulo.
 // Normaliza cada elemento a { url, label }: los strings legacy pasan a
@@ -28,10 +29,16 @@ const adminController = {
         const usuarioSesion = req.session.user;
 
         const snapshot = await db.collection('noticias').orderBy('fecha', 'desc').get();
-        const noticias = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const noticias = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return { id: doc.id, ...data, imagenUrl: normalizeImageUrl(data.imagenUrl, '/images/noticias') };
+        });
 
         const snapshotCursos = await db.collection('cursos').get();
-        const cursos = snapshotCursos.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const cursos = snapshotCursos.docs.map(doc => {
+            const data = doc.data();
+            return { id: doc.id, ...data, imagen: normalizeImageUrl(data.imagen, '/images/cursos') };
+        });
 
         const capsSnap = await db.collection('capacitaciones').get();
 let capacitaciones = capsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -76,9 +83,10 @@ if (usuarioSesion.rol === 'instructor') {
     store: async (req, res) => {
         try {
             const { titulo, copete, contenido, alt, slug } = req.body;
-            const imagenUrl = req.file
+            const imagenUrlRaw = req.file
                 ? `/images/noticias/${req.file.filename}`
                 : req.body.imagenUrl;
+            const imagenUrl = normalizeImageUrl(imagenUrlRaw, '/images/noticias');
             if (!imagenUrl) {
                 return res.status(400).send('La imagen es requerida');
             }
@@ -115,9 +123,10 @@ edit: async (req, res) => {
     update: async (req, res) => {
         try {
             const { titulo, copete, contenido, alt, slug, actualizarFecha } = req.body;
-            const imagenUrl = req.file
+            const imagenUrlRaw = req.file
                 ? `/images/noticias/${req.file.filename}`
                 : req.body.imagenUrl;
+            const imagenUrl = normalizeImageUrl(imagenUrlRaw, '/images/noticias');
             const data = {
                 titulo,
                 copete,
@@ -197,9 +206,10 @@ edit: async (req, res) => {
             return res.status(400).send("El campo Slug es obligatorio.");
         }
 
-        const imagen = req.file
+        const imagenRaw = req.file
             ? `/images/cursos/${req.file.filename}`
             : req.body.imagen;
+        const imagen = normalizeImageUrl(imagenRaw, '/images/cursos');
         if (!imagen) {
             return res.status(400).send('La imagen es requerida');
         }
@@ -244,6 +254,7 @@ edit: async (req, res) => {
             const datosParaForm = {
                 ...curso,
                 id: doc.id,
+                imagen: normalizeImageUrl(curso.imagen, '/images/cursos'),
                 // Aseguramos que el formulario de edición reciba 'descripcionCorta' desde 'descripcion' de la DB
                 descripcionCorta: curso.descripcion, 
                 objetivosText: curso.objetivos ? curso.objetivos.join('\n') : "",
@@ -271,9 +282,10 @@ edit: async (req, res) => {
                 alt, 
                 urlInscrip 
             } = req.body;
-            const imagen = req.file
+            const imagenRaw = req.file
                 ? `/images/cursos/${req.file.filename}`
                 : req.body.imagen;
+            const imagen = normalizeImageUrl(imagenRaw, '/images/cursos');
             
             const objetivosArray = objetivos ? objetivos.split('\n').map(i => i.trim()).filter(i => i !== "") : [];
             const temarioArray = temario ? temario.split('\n').map(i => i.trim()).filter(i => i !== "") : [];

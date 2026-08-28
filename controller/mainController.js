@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const sanitizeHtml = require('sanitize-html');
 const logger = require('../config/logger');
 const db = require('../config/firebase');
+const { normalizeImageUrl } = require('../config/imagen');
 
 const mainController = {
     home: async (req, res) => {
@@ -13,6 +14,7 @@ const mainController = {
                 const data = doc.data();
                 return {
                     id: doc.id, ...data,
+                    imagenUrl: normalizeImageUrl(data.imagenUrl, '/images/noticias'),
                     fecha: data.fecha ? data.fecha.toDate().toLocaleDateString('es-AR', {
                         day: 'numeric', month: 'long', year: 'numeric'
                     }) : 'Fecha no disponible'
@@ -33,6 +35,7 @@ const mainController = {
                 const data = doc.data();
                 return {
                     id: doc.id, ...data,
+                    imagenUrl: normalizeImageUrl(data.imagenUrl, '/images/noticias'),
                     fecha: data.fecha ? data.fecha.toDate().toLocaleDateString('es-AR', {
                         day: 'numeric', month: 'long', year: 'numeric'
                     }) : 'Fecha no disponible'
@@ -55,6 +58,7 @@ const mainController = {
             const data = doc.data();
             const noticia = {
                 id: doc.id, ...data,
+                imagenUrl: normalizeImageUrl(data.imagenUrl, '/images/noticias'),
                 fecha: data.fecha ? data.fecha.toDate().toLocaleDateString('es-AR', {
                     day: 'numeric', month: 'long', year: 'numeric'
                 }) : 'Fecha no disponible'
@@ -118,7 +122,10 @@ const mainController = {
     cursos: async (req, res) => {
         try {
             const snapshot = await db.collection('cursos').get();
-            const cursosFirebase = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const cursosFirebase = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return { id: doc.id, ...data, imagen: normalizeImageUrl(data.imagen, '/images/cursos') };
+            });
             res.render('cursos', { title: "Capacitaciones Disponibles", cursos: cursosFirebase });
         } catch (error) {
             logger.error("Error en página cursos:", error);
@@ -132,7 +139,11 @@ const mainController = {
                 .where('slug', '==', req.params.slug).limit(1).get();
             if (snapshot.empty) return res.status(404).render('error', { message: 'Curso no encontrado', status: 404 });
             const doc = snapshot.docs[0];
-            res.render('cursos/detail', { title: doc.data().titulo, curso: { id: doc.id, ...doc.data() } });
+            const data = doc.data();
+            res.render('cursos/detail', {
+                title: data.titulo,
+                curso: { id: doc.id, ...data, imagen: normalizeImageUrl(data.imagen, '/images/cursos') }
+            });
         } catch (error) {
             logger.error("Error en detalle de curso:", error);
             res.status(500).render('error', { message: 'Error al cargar el detalle del curso', status: 500 });
