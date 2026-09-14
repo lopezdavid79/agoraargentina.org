@@ -82,7 +82,7 @@ if (usuarioSesion.rol === 'instructor') {
     // Procesa el guardado en Firestore
     store: async (req, res) => {
         try {
-            const { titulo, copete, contenido, alt, slug } = req.body;
+            const { titulo, copete, contenido, alt, slug, url, urlLabel } = req.body;
             const imagenUrlRaw = req.file
                 ? `/images/noticias/${req.file.filename}`
                 : req.body.imagenUrl;
@@ -97,6 +97,8 @@ if (usuarioSesion.rol === 'instructor') {
                 imagenUrl,
                 alt,
                 slug,
+                url: url ? url.trim() : '',
+                urlLabel: urlLabel ? urlLabel.trim() : '',
                 fecha: new Date() // Guarda el timestamp actual
             });
             res.redirect('/admin/dashboard');
@@ -122,7 +124,7 @@ edit: async (req, res) => {
 // 2. Procesar la actualización (PUT)
     update: async (req, res) => {
         try {
-            const { titulo, copete, contenido, alt, slug, actualizarFecha } = req.body;
+            const { titulo, copete, contenido, alt, slug, actualizarFecha, url, urlLabel } = req.body;
             const imagenUrlRaw = req.file
                 ? `/images/noticias/${req.file.filename}`
                 : req.body.imagenUrl;
@@ -134,6 +136,8 @@ edit: async (req, res) => {
                 imagenUrl,
                 alt,
                 slug,
+                url: url ? url.trim() : '',
+                urlLabel: urlLabel ? urlLabel.trim() : '',
                 fechaActualizacion: new Date()
             };
             // Solo actualizar la fecha de publicación si el usuario lo pide

@@ -63,6 +63,24 @@
 </div>
 <% } %>
 
+    <div class="mb-4">
+    <label for="url<%= idP %>" class="form-label fw-bold text-info">Enlace externo (opcional)</label>
+    <input type="url" class="form-control form-control-lg"
+           id="url<%= idP %>" name="url"
+           value="<%= d.url || '' %>"
+           placeholder="https://ejemplo.com/noticia-relacionada">
+    <div class="form-text">Si completás este campo, se mostrará un botón que abre este enlace en una nueva pestaña.</div>
+</div>
+
+<div class="mb-4">
+    <label for="urlLabel<%= idP %>" class="form-label fw-bold text-info">Etiqueta del enlace (opcional)</label>
+    <input type="text" class="form-control form-control-lg"
+           id="urlLabel<%= idP %>" name="urlLabel"
+           value="<%= d.urlLabel || '' %>"
+           placeholder="Ej: Ver fuente, Leer nota completa, Ir a la convocatoria">
+    <div class="form-text">Texto que verá el lector en el botón. Si lo dejás vacío, dirá «Más información».</div>
+</div>
+
 <div class="mb-4">
     <label for="contenido<%= idP %>" class="form-label fw-bold">Contenido Principal</label>
     <textarea class="form-control" id="contenido<%= idP %>" name="contenido" rows="10" 
