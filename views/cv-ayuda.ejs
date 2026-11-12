@@ -1,0 +1,128 @@
+<%- include('partials/header', { title: 'Ayuda para completar el CV | Programa Ágora' }) %>
+
+<main id="main-content" role="main">
+<div class="container py-5" style="max-width:900px">
+
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-primary">❓ Cómo completar tu Currículum Vitae</h1>
+        <p class="lead text-muted">Seguí estas instrucciones para cargar tus datos y generar un CV claro y profesional.</p>
+        <a href="/cv" class="btn btn-outline-primary fw-bold rounded-pill px-4 py-2" role="button">
+            ← Volver al generador de CV
+        </a>
+    </div>
+
+    <div class="alert alert-light border" role="note">
+        <p class="mb-1"><strong>Antes de empezar:</strong> los campos marcados con <span class="text-danger fw-bold">*</span> son obligatorios.</p>
+        <p class="mb-0">Podés usar el botón <strong>👁️ Previsualizar</strong> para ver el PDF antes de descargarlo, sin perder los datos que cargaste.</p>
+    </div>
+
+    <!-- DATOS PERSONALES -->
+    <section class="card mb-4" aria-labelledby="ayuda-datos-personales">
+        <div class="card-header bg-primary text-white fw-bold" id="ayuda-datos-personales">👤 Datos Personales</div>
+        <div class="card-body">
+            <ul class="mb-0">
+                <li><strong>Nombre y Apellido:</strong> obligatorio. Escribí tu nombre completo como figura en tu DNI. Ej: <em>María González</em>.</li>
+                <li><strong>Ubicación:</strong> ciudad y provincia donde vivís. Ej: <em>La Plata, Buenos Aires</em>.</li>
+                <li><strong>Teléfono:</strong> un número de contacto con característica. Ej: <em>011-1234-5678</em>.</li>
+                <li><strong>Email:</strong> una dirección que revises seguido. Ej: <em>tu@email.com</em>.</li>
+                <li><strong>LinkedIn:</strong> opcional. Pegá el enlace completo a tu perfil. Ej: <em>https://www.linkedin.com/in/tu-perfil</em>.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- PERFIL PROFESIONAL -->
+    <section class="card mb-4" aria-labelledby="ayuda-perfil">
+        <div class="card-header bg-primary text-white fw-bold" id="ayuda-perfil">💼 Perfil Profesional</div>
+        <div class="card-body">
+            <p>Es un resumen de <strong>2 a 3 oraciones</strong> sobre quién sos, tu experiencia y tus fortalezas. Es obligatorio.</p>
+            <ul class="mb-2">
+                <li>Mencioná tu formación o área de interés.</li>
+                <li>Destacá tus habilidades principales y tu actitud frente al trabajo.</li>
+                <li>Contá qué tipo de puesto buscás.</li>
+            </ul>
+            <p class="mb-0"><strong>Ejemplo:</strong> <em>Estudiante avanzado de Relaciones Públicas con excelentes habilidades de comunicación y empatía. Destaco por mi orientación al cliente y mi capacidad de adaptación. Busco un puesto como representante de atención al cliente para brindar soluciones rápidas y una experiencia excepcional.</em></p>
+        </div>
+    </section>
+
+    <!-- EXPERIENCIA LABORAL -->
+    <section class="card mb-4" aria-labelledby="ayuda-experiencia">
+        <div class="card-header bg-primary text-white fw-bold" id="ayuda-experiencia">🏢 Experiencia Laboral</div>
+        <div class="card-body">
+            <p>Usá el botón <strong>＋ Agregar experiencia</strong> por cada trabajo que quieras incluir. Si no tenés experiencia laboral, podés omitir esta sección.</p>
+            <ul class="mb-0">
+                <li><strong>Cargo / Puesto:</strong> el nombre de tu puesto. Ej: <em>Administrativa</em>.</li>
+                <li><strong>Empresa:</strong> el nombre de la empresa u organización. Ej: <em>Clínica Los Álamos</em>.</li>
+                <li><strong>Período:</strong> cuándo trabajaste allí. Ej: <em>Ene 2021 - Actualidad</em>.</li>
+                <li><strong>Tareas:</strong> escribí <strong>una tarea por línea</strong>. Contá qué hacías en concreto. Ej: <em>Creación de un plan de marketing.</em></li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- EDUCACIÓN -->
+    <section class="card mb-4" aria-labelledby="ayuda-educacion">
+        <div class="card-header bg-primary text-white fw-bold" id="ayuda-educacion">🎓 Educación</div>
+        <div class="card-body">
+            <h3 class="h6 fw-bold">Formación Académica</h3>
+            <p>Estudios formales (secundario, terciario, universidad). Completá:</p>
+            <ul>
+                <li><strong>Institución:</strong> el nombre del colegio, instituto o universidad.</li>
+                <li><strong>Título / Carrera:</strong> el título o la carrera que estás cursando o terminaste.</li>
+                <li><strong>Período:</strong> años de cursada. Ej: <em>2020 - Actual</em>.</li>
+            </ul>
+            <h3 class="h6 fw-bold mt-4">Formación Complementaria</h3>
+            <p class="mb-0">Cursos, talleres o capacitaciones adicionales. Se completan igual que la formación académica. Usá <strong>＋ Agregar formación</strong> para sumar cada una.</p>
+        </div>
+    </section>
+
+    <!-- HABILIDADES -->
+    <section class="card mb-4" aria-labelledby="ayuda-habilidades">
+        <div class="card-header bg-primary text-white fw-bold" id="ayuda-habilidades">🛠 Habilidades</div>
+        <div class="card-body">
+            <p class="mb-2">Escribí <strong>una habilidad por línea</strong>. Podés combinar habilidades blandas y técnicas.</p>
+            <p class="mb-0"><strong>Ejemplo:</strong> <em>flexibilidad y adaptabilidad</em>, <em>gestión eficaz del tiempo</em>, <em>compromiso y responsabilidad</em>.</p>
+        </div>
+    </section>
+
+    <!-- IDIOMAS -->
+    <section class="card mb-4" aria-labelledby="ayuda-idiomas">
+        <div class="card-header bg-primary text-white fw-bold" id="ayuda-idiomas">🌐 Idiomas</div>
+        <div class="card-body">
+            <p class="mb-2">Usá <strong>＋ Agregar idioma</strong> por cada idioma que conozcas. Indicá:</p>
+            <ul class="mb-0">
+                <li><strong>Idioma:</strong> Ej: <em>Inglés</em>.</li>
+                <li><strong>Nivel:</strong> Ej: <em>Básico</em>, <em>Intermedio</em>, <em>Avanzado</em> o <em>Nativo</em>.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- MÁS INFORMACIÓN -->
+    <section class="card mb-4" aria-labelledby="ayuda-mas-info">
+        <div class="card-header bg-primary text-white fw-bold" id="ayuda-mas-info">📋 Más Información</div>
+        <div class="card-body">
+            <p class="mb-2">Información adicional que sume a tu perfil. Escribí <strong>un dato por línea</strong>.</p>
+            <p class="mb-0"><strong>Ejemplos:</strong> carné de conducir, vehículo propio, disponibilidad horaria, voluntariados, pasantías o proyectos personales.</p>
+        </div>
+    </section>
+
+    <!-- DESCARGAR -->
+    <section class="card mb-4" aria-labelledby="ayuda-descargar">
+        <div class="card-header bg-primary text-white fw-bold" id="ayuda-descargar">📄 Descargar tu CV</div>
+        <div class="card-body">
+            <ul class="mb-0">
+                <li><strong>👁️ Previsualizar:</strong> abre una vista previa del PDF en una pestaña nueva sin descargarlo. Tus datos no se borran.</li>
+                <li><strong>📄 Descargar CV en PDF:</strong> genera y descarga el archivo final para enviar a las empresas.</li>
+                <li><strong>🗑 Limpiar:</strong> borra todos los campos del formulario para empezar de nuevo.</li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="text-center mt-5">
+        <a href="/cv" class="btn btn-primary fw-bold rounded-pill px-5 py-2" role="button">
+            Ir al generador de CV
+        </a>
+    </div>
+
+</div>
+</main>
+
+<%- include('partials/footer') %>

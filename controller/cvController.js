@@ -25,6 +25,13 @@ const cvController = {
         });
     },
 
+    // GET /cv/ayuda
+    ayuda: (req, res) => {
+        res.render('cv-ayuda', {
+            title: 'Ayuda para completar el CV | Programa Ágora'
+        });
+    },
+
     // POST /cv/generar
     generar: async (req, res) => {
         try {

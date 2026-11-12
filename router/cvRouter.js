@@ -5,6 +5,9 @@ const cvController = require('../controller/cvController');
 // Formulario del CV (público)
 router.get('/cv', cvController.show);
 
+// Ayuda / instrucciones para completar el formulario
+router.get('/cv/ayuda', cvController.ayuda);
+
 // Generar y descargar PDF
 router.post('/cv/generar', cvController.generar);
 
