@@ -2,6 +2,28 @@ require('dotenv').config();
 
         const { validateEnv } = require('./config/validateEnv');
 const logger = require('./config/logger');
+
+// ==== DIAGNÓSTICO TEMPORAL (env / dotenv) — quitar una vez resuelto ====
+(function diagnosticEnv() {
+    const _fs = require('fs');
+    const _path = require('path');
+    try {
+        logger.info('[ENVCHECK] cwd=' + process.cwd() + ' | __dirname=' + __dirname);
+        logger.info('[ENVCHECK] .env en cwd? ' +
+            _fs.existsSync(_path.join(process.cwd(), '.env')) +
+            ' | .env en __dirname? ' +
+            _fs.existsSync(_path.join(__dirname, '.env')));
+        ['SESSION_SECRET', 'FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL',
+         'FIREBASE_PRIVATE_KEY', 'EMAIL_USER', 'EMAIL_PASS'].forEach((k) => {
+            logger.info('[ENVCHECK] ' + k + ' = ' +
+                (process.env[k] ? 'SET (' + String(process.env[k]).length + ' chars)' : 'MISSING'));
+        });
+    } catch (e) {
+        console.error('[ENVCHECK] fallo diagnóstico:', e && e.message);
+    }
+})();
+// ==== FIN DIAGNÓSTICO TEMPORAL ====
+
 const express = require('express');
 const path = require('path');
 const methodOverride = require('method-override');
