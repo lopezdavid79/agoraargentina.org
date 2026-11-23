@@ -69,6 +69,40 @@ describe('GET /', () => {
   });
 });
 
+describe('GET /politica-privacidad', () => {
+  test('renders the privacy policy page with legal content', async () => {
+    const res = await request(app).get('/politica-privacidad');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Política de Privacidad');
+    expect(res.text).toContain('Ley 25.326');
+    expect(res.text).toContain('info@agoraargentina.ar');
+  });
+
+  test('is linked from the footer', async () => {
+    const res = await request(app).get('/');
+
+    expect(res.text).toContain('href="/politica-privacidad"');
+  });
+});
+
+describe('GET /terminos-uso', () => {
+  test('renders the terms of use page', async () => {
+    const res = await request(app).get('/terminos-uso');
+
+    expect(res.status).toBe(200);
+    expect(res.text).toContain('Términos de Uso');
+    expect(res.text).toContain('Ley 11.723');
+    expect(res.text).toContain('href="/politica-privacidad"');
+  });
+
+  test('is linked from the footer', async () => {
+    const res = await request(app).get('/');
+
+    expect(res.text).toContain('href="/terminos-uso"');
+  });
+});
+
 describe('error middleware', () => {
   test('calls next(err) triggers error middleware with correct status', () => {
     // Direct unit test of the error middleware behavior

@@ -30,6 +30,8 @@ router.get('/servicios', mainController.servicios);
 router.get('/contacto', mainController.contacto);
 router.post('/contacto', contactLimiter, mainController.processContacto);
 router.get('/preguntas-frecuentes', mainController.preguntasFrecuentes);
+router.get('/politica-privacidad', mainController.politicaPrivacidad);
+router.get('/terminos-uso', mainController.terminosUso);
 
 // Capacitaciones y cursos
 router.get('/cursos', mainController.cursos); 

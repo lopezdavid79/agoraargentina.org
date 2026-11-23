@@ -73,6 +73,8 @@ const mainController = {
     quienesSomos: (req, res) => res.render('quienes-somos', { title: "Quiénes Somos" }),
     servicios:    (req, res) => res.render('servicios',      { title: "Servicios" }),
     preguntasFrecuentes: (req, res) => res.render('preguntas-frecuentes', { title: "Preguntas Frecuentes" }),
+    politicaPrivacidad: (req, res) => res.render('politica-privacidad', { title: "Política de Privacidad" }),
+    terminosUso: (req, res) => res.render('terminos-uso', { title: "Términos de Uso" }),
     contacto: (req, res) => res.render('contacto', { title: "Programa Ágora | Contacto" }),
 
     processContacto: async (req, res) => {
